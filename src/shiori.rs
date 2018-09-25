@@ -12,7 +12,7 @@ impl Drop for EmoShiori {
     fn drop(&mut self) {}
 }
 impl Shiori3 for EmoShiori {
-    fn new<P: AsRef<Path>>(h_inst: usize, load_dir: P) -> ShioriResult<Self> {
+    fn load<P: AsRef<Path>>(h_inst: usize, load_dir: P) -> ShioriResult<Self> {
         let shiori = EmoShiori {
             h_inst: h_inst,
             load_dir: load_dir.as_ref().to_path_buf(),
