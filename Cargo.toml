@@ -8,12 +8,21 @@ keywords = ["ghost", "shiori", "ukagaka","lua"]
 license = "MIT"
 readme = "README.md"
 
+[lib]
+crate-type = ["lib", "staticlib", "cdylib"]
+name = "emo"
+path = "src/lib.rs"
+
 [dependencies]
 log = "0.4"
 failure = "0.1"
 failure_derive = "0.1"
 rlua = {git="https://github.com/ekicyou/rlua", branch = "stable"}
 shiori3 = {git="https://github.com/ekicyou/shiori3-rs", branch = "master"}
+lazy_static = "1.1"
+
+[target."cfg(windows)".dependencies]
+winapi = {version = "0.3", features = [ "winbase", "stringapiset", ] }
 
 [dev-dependencies]
 env_logger = "0.5"
