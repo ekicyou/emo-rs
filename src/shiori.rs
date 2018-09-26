@@ -1,26 +1,30 @@
+use rlua::{Lua, Table};
 use shiori3::*;
 use std::borrow::Cow;
 use std::path::Path;
 use std::path::PathBuf;
 
-#[derive(Debug)]
 pub struct EmoShiori {
     h_inst: usize,
     load_dir: PathBuf,
+    lua: Lua,
 }
 impl Drop for EmoShiori {
     fn drop(&mut self) {}
 }
 impl Shiori3 for EmoShiori {
     fn load<P: AsRef<Path>>(h_inst: usize, load_dir: P) -> ShioriResult<Self> {
-        let shiori = EmoShiori {
+        let load_dir = load_dir.as_ref().to_path_buf();
+        let lua = Lua::new();
+
+        Ok(EmoShiori {
             h_inst: h_inst,
-            load_dir: load_dir.as_ref().to_path_buf(),
-        };
-        Ok(shiori)
+            load_dir: load_dir,
+            lua: lua,
+        })
     }
     fn request<'a, S: Into<&'a str>>(&mut self, req: S) -> ShioriResult<Cow<'a, str>> {
-        let rc = format!("[{:?}]{} is OK", self, req.into());
+        let rc = format!("[{:?}]{} is OK", self.load_dir, req.into());
         Ok(rc.into())
     }
 }
