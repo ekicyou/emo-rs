@@ -12,6 +12,18 @@ pub struct EmoShiori {
 impl Drop for EmoShiori {
     fn drop(&mut self) {}
 }
+impl EmoShiori {
+    fn h_inst(&self) -> usize {
+        (self.h_inst)
+    }
+    fn load_dir(&self) -> &Path {
+        &(self.load_dir)
+    }
+    fn lua(&self) -> &Lua {
+        &(self.lua)
+    }
+}
+
 impl Shiori3 for EmoShiori {
     fn load<P: AsRef<Path>>(h_inst: usize, load_dir: P) -> ShioriResult<Self> {
         let load_dir = load_dir.as_ref().to_path_buf();
@@ -24,7 +36,9 @@ impl Shiori3 for EmoShiori {
         })
     }
     fn request<'a, S: Into<&'a str>>(&mut self, req: S) -> ShioriResult<Cow<'a, str>> {
-        let rc = format!("[{:?}]{} is OK", self.load_dir, req.into());
+        let req_str = req.into();
+        let req = ShioriRequest::parse(req_str)?;
+        let rc = format!("[{:?}]{} is OK", self.load_dir, req_str);
         Ok(rc.into())
     }
 }
