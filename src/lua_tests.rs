@@ -74,3 +74,24 @@ fn set_package_path<P: AsRef<Path>>(lua: &Lua, load_dir: P) {
     let package = globals.get::<_, Table>("package").unwrap();
     package.set("path", buf).unwrap();
 }
+
+#[test]
+fn os_str_test() {
+    use std::ffi::*;
+    use std::os::windows::ffi::*;
+    let src_str = "ソポabcあいうえ";
+    let src_utf16 = [
+        0x30BD, 0x30DD, 0x0061, 0x0062, 0x0063, 0x3042, 0x3044, 0x3046, 0x3048,
+    ];
+
+    // OS文字列(UTF16)に変換
+    let os1 = OsString::from(&src_str);
+    let os2 = OsString::from_wide(&src_utf16[..]);
+    assert_eq!(os1, os2);
+
+    // rust文字列(UTF8)に変換
+    let s1 = os1.into_string().unwrap();
+    let s2 = os2.into_string().unwrap();
+    assert_eq!(s1, src_str);
+    assert_eq!(s2, src_str);
+}
