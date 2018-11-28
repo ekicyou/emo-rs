@@ -75,6 +75,7 @@ fn set_package_path<P: AsRef<Path>>(lua: &Lua, load_dir: P) {
     package.set("path", buf).unwrap();
 }
 
+#[cfg(any(windows))]
 #[test]
 fn os_str_test() {
     use std::ffi::*;
