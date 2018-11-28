@@ -28,7 +28,6 @@ impl Shiori3 for EmoShiori {
     fn load<P: AsRef<Path>>(h_inst: usize, load_dir: P) -> ShioriResult<Self> {
         let load_dir = load_dir.as_ref().to_path_buf();
         let lua = Lua::new();
-
         Ok(EmoShiori {
             h_inst: h_inst,
             load_dir: load_dir,
