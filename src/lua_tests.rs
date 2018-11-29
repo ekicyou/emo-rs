@@ -95,4 +95,28 @@ fn os_str_test() {
     let s2 = os2.into_string().unwrap();
     assert_eq!(s1, src_str);
     assert_eq!(s2, src_str);
+
+    // read_linkの挙動
+    {
+        let p1 = Path::new("c:\\Windows");
+        assert_eq!(p1.is_absolute(), true);
+
+        let p2 = Path::new("c:\\Windows\\");
+        assert_eq!(p2.is_absolute(), true);
+
+        {
+            let mut buf = p1.to_path_buf();
+            buf.push("a");
+            assert_eq!(buf.pop(), true);
+            let c = buf.to_str();
+            assert_eq!(c, Some("c:\\Windows"));
+        }
+        {
+            let mut buf = p2.to_path_buf();
+            buf.push("a");
+            assert_eq!(buf.pop(), true);
+            let c = buf.to_str();
+            assert_eq!(c, Some("c:\\Windows"));
+        }
+    }
 }
