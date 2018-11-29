@@ -25,7 +25,7 @@ impl EmoShiori {
     }
 }
 
-fn create_load_path<P: AsRef<Path>>(load_dir: P) -> ShioriResult<(PathBuf, String)> {
+fn create_search_path<P: AsRef<Path>>(load_dir: P, ext: &str) -> ShioriResult<(PathBuf, String)> {
     // load dir(終端文字は除去)
     let load_dir = {
         let mut buf = load_dir.as_ref().to_path_buf();
@@ -34,32 +34,31 @@ fn create_load_path<P: AsRef<Path>>(load_dir: P) -> ShioriResult<(PathBuf, Strin
         buf
     };
 
-    // luaモジュールのパス解決関数
-    fn add_path_impl(buf: &mut String, load_dir: &str, ext: &str, root: &str, pre: &str) {
-        if !buf.is_empty() {
-            buf.push(';');
-        }
-        buf.push_str(load_dir);
-        buf.push_str(root);
-        buf.push_str(pre);
-        buf.push_str(ext);
-    }
-    fn add_path(buf: &mut String, load_dir: &str, ext: &str, root: &str) {
-        add_path_impl(buf, load_dir, ext, root, "\\?.");
-        add_path_impl(buf, load_dir, ext, root, "\\?\\init.");
-    }
-
-    let lua_path = {
+    // クロージャ呼び出し
+    let mut lua_path = String::default();
+    {
         let load_dir = {
             let a = load_dir.to_str();
             let b = a.ok_or(ShioriError::from(ShioriErrorKind::Load))?;
             String::from(b)
         };
-        let mut buf = String::default();
-        add_path(&mut buf, &load_dir, "lua", "\\usr");
-        add_path(&mut buf, &load_dir, "lua", "\\share");
-        buf
-    };
+        // luaモジュールのパス解決関数
+        let mut add_path = |root: &str| {
+            let mut add_path = |pre: &str| {
+                if !lua_path.is_empty() {
+                    lua_path.push(';');
+                }
+                lua_path.push_str(&load_dir);
+                lua_path.push_str(root);
+                lua_path.push_str(pre);
+                lua_path.push_str(ext);
+            };
+            add_path("\\?.");
+            add_path("\\?\\init.");
+        };
+        add_path("\\usr");
+        add_path("\\share");
+    }
 
     Ok((load_dir, lua_path))
 
@@ -86,11 +85,21 @@ fn create_load_path<P: AsRef<Path>>(load_dir: P) -> ShioriResult<(PathBuf, Strin
     //  1. load_dirを絶対パスに変換する。例）load_dir="c:\萌え 萌え\ghost\キュン";
     //  2.
 }
+#[cfg(any(windows))]
+#[test]
+fn create_search_path_test() {
+    {
+        let (dir, path) =
+            create_search_path("c:\\留袖 綺麗ね\\ごーすと\\", "lua").unwrap();
+        assert_eq!(dir.to_string_lossy(), "c:\\留袖 綺麗ね\\ごーすと");
+        assert_eq!(path, "c:\\留袖 綺麗ね\\ごーすと\\usr\\?.lua;c:\\留袖 綺麗ね\\ごーすと\\usr\\?\\init.lua;c:\\留袖 綺麗ね\\ごーすと\\share\\?.lua;c:\\留袖 綺麗ね\\ごーすと\\share\\?\\init.lua");
+    }
+}
 
 impl Shiori3 for EmoShiori {
     fn load<P: AsRef<Path>>(h_inst: usize, load_dir: P) -> ShioriResult<Self> {
         // load dir(終端文字は除去)
-        let (load_dir, lua_path) = create_load_path(load_dir)?;
+        let (load_dir, lua_path) = create_search_path(load_dir, "lua")?;
 
         // ## luaに与える前にANSI文字列に変換すること
 
