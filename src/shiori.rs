@@ -35,19 +35,29 @@ impl Shiori3 for EmoShiori {
         };
         let str_load_dir = {
             let a = load_dir.to_str();
-            let b = a.ok_or(ShioriErrorKind::Load.from())?;
+            let b = a.ok_or(ShioriError::from(ShioriErrorKind::Load))?;
+            String::from(b)
         };
 
-        // luaモジュールのローダ初期化
-        let sep = std::path::MAIN_SEPARATOR;
-
         // luaモジュールのパス解決
-        fn add_path(buf: &mut String, ext: &str, text: &str) {}
+        fn add_path_impl(target: &mut String, dir: &str, ext: &str, root: &str, pre: &str) {
+            if !target.is_empty() {
+                target.push(';');
+            }
+            target.push_str(dir);
+            target.push_str(root);
+            target.push_str(pre);
+            target.push_str(ext);
+        }
+        fn add_path(target: &mut String, dir: &str, ext: &str, root: &str) {
+            add_path_impl(target, dir, ext, root, "\\?.");
+            add_path_impl(target, dir, ext, root, "\\?\\init.");
+        }
 
         let lua_path = {
             let mut buf = String::new();
-            add_path(&mut buf, "lua", "usr");
-            add_path(&mut buf, "lua", "share");
+            add_path(&mut buf, &str_load_dir, "lua", "\\usr");
+            add_path(&mut buf, &str_load_dir, "lua", "\\share");
             buf
         };
 
