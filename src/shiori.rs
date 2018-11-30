@@ -25,7 +25,41 @@ impl EmoShiori {
     }
 }
 
-fn create_search_path<P: AsRef<Path>>(load_dir: P, ext: &str) -> ShioriResult<(PathBuf, String)> {
+impl Shiori3 for EmoShiori {
+    fn load<P: AsRef<Path>>(h_inst: usize, load_dir: P) -> ShioriResult<Self> {
+        // 検索パスの作成
+        let (load_dir, lua_path) = lua_search_path(load_dir, "lua")?;
+
+        // ##  Lua インスタンスの作成
+        let lua = Lua::new();
+
+        // ##  グローバル変数の設定
+        // ### luaに与える前にANSI文字列に変換すること
+        let globals = lua.globals();
+
+        globals.set("string_var", "hello")?;
+        globals.set("int_var", 42)?;
+
+        // ##  luaモジュールのロード
+
+        // リザルト
+        Ok(EmoShiori {
+            h_inst: h_inst,
+            load_dir: load_dir,
+            lua_path: lua_path,
+            lua: lua,
+        })
+    }
+    fn request<'a, S: Into<&'a str>>(&mut self, req: S) -> ShioriResult<Cow<'a, str>> {
+        let req_str = req.into();
+        let req = ShioriRequest::parse(req_str)?;
+        let rc = format!("[{:?}]{} is OK", self.load_dir, req_str);
+        Ok(rc.into())
+    }
+}
+
+/// luaの検索パスを作成します。
+fn lua_search_path<P: AsRef<Path>>(load_dir: P, ext: &str) -> ShioriResult<(PathBuf, String)> {
     // load dir(終端文字は除去)
     let load_dir = {
         let mut buf = load_dir.as_ref().to_path_buf();
@@ -87,39 +121,10 @@ fn create_search_path<P: AsRef<Path>>(load_dir: P, ext: &str) -> ShioriResult<(P
 }
 #[cfg(any(windows))]
 #[test]
-fn create_search_path_test() {
+fn lua_search_pathh_test() {
     {
-        let (dir, path) =
-            create_search_path("c:\\留袖 綺麗ね\\ごーすと\\", "lua").unwrap();
+        let (dir, path) = lua_search_path("c:\\留袖 綺麗ね\\ごーすと\\", "lua").unwrap();
         assert_eq!(dir.to_string_lossy(), "c:\\留袖 綺麗ね\\ごーすと");
         assert_eq!(path, "c:\\留袖 綺麗ね\\ごーすと\\usr\\?.lua;c:\\留袖 綺麗ね\\ごーすと\\usr\\?\\init.lua;c:\\留袖 綺麗ね\\ごーすと\\share\\?.lua;c:\\留袖 綺麗ね\\ごーすと\\share\\?\\init.lua");
-    }
-}
-
-impl Shiori3 for EmoShiori {
-    fn load<P: AsRef<Path>>(h_inst: usize, load_dir: P) -> ShioriResult<Self> {
-        // load dir(終端文字は除去)
-        let (load_dir, lua_path) = create_search_path(load_dir, "lua")?;
-
-        // ## luaに与える前にANSI文字列に変換すること
-
-        // luaモジュールのロード
-
-        // Lua インスタンスの作成
-        let lua = Lua::new();
-
-        // リザルト
-        Ok(EmoShiori {
-            h_inst: h_inst,
-            load_dir: load_dir,
-            lua_path: lua_path,
-            lua: lua,
-        })
-    }
-    fn request<'a, S: Into<&'a str>>(&mut self, req: S) -> ShioriResult<Cow<'a, str>> {
-        let req_str = req.into();
-        let req = ShioriRequest::parse(req_str)?;
-        let rc = format!("[{:?}]{} is OK", self.load_dir, req_str);
-        Ok(rc.into())
     }
 }
