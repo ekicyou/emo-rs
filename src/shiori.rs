@@ -4,6 +4,7 @@ use std::borrow::Cow;
 use std::path::Path;
 use std::path::PathBuf;
 
+#[allow(dead_code)]
 pub struct EmoShiori {
     h_inst: usize,
     load_dir: PathBuf,
@@ -13,6 +14,8 @@ pub struct EmoShiori {
 impl Drop for EmoShiori {
     fn drop(&mut self) {}
 }
+
+#[allow(dead_code)]
 impl EmoShiori {
     fn h_inst(&self) -> usize {
         (self.h_inst)

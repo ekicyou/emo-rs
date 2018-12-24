@@ -2,7 +2,6 @@
 use crate::api::RawAPI;
 use lazy_static::*;
 use std::default::Default;
-use std::ptr;
 use winapi::shared::minwindef::{DWORD, HGLOBAL, LPVOID};
 
 lazy_static! {

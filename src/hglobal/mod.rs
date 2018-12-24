@@ -6,7 +6,6 @@ use self::enc::{Encoder, Encoding};
 use crate::error::*;
 use std::ffi::OsString;
 use std::str;
-use std::str::Utf8Error;
 use winapi::_core::mem::transmute;
 use winapi::_core::slice::{from_raw_parts, from_raw_parts_mut};
 use winapi::shared::minwindef::{HGLOBAL, UINT};

@@ -23,12 +23,16 @@ pub enum ErrorKind {
     #[fail(display = "Poison error")]
     Poison,
 
-    #[fail(display = "Shiori request parse error")]
-    ParseRequest(#[fail(cause)] shiori_parser::req::ParseError),
     #[fail(display = "ANSI encodeing error")]
     EncodeAnsi,
-    #[fail(display = "UTF8 encodeing error")]
-    EncodeUtf8(#[fail(cause)] Utf8Error),
+
+    #[fail(display = "UTF8 encodeing error: {}", inner)]
+    EncodeUtf8 { inner: Utf8Error },
+
+    #[fail(display = "Shiori request parse error: {}", inner)]
+    ParseRequest {
+        inner: shiori_parser::req::ParseError,
+    },
 
     #[allow(dead_code)]
     #[fail(display = "lua error: {}", inner)]
@@ -43,7 +47,7 @@ impl<G> From<PoisonError<G>> for Error {
 impl From<Utf8Error> for Error {
     fn from(error: Utf8Error) -> Error {
         Error {
-            inner: error.context(ErrorKind::EncodeUtf8(error)),
+            inner: error.context(ErrorKind::EncodeUtf8 { inner: error }),
         }
     }
 }
@@ -51,7 +55,7 @@ impl From<shiori_parser::req::ParseError> for Error {
     fn from(error: shiori_parser::req::ParseError) -> Error {
         let cp = error.clone();
         Error {
-            inner: error.context(ErrorKind::ParseRequest(cp)),
+            inner: error.context(ErrorKind::ParseRequest { inner: cp }),
         }
     }
 }
