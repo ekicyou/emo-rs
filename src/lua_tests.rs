@@ -1,4 +1,5 @@
 #![cfg(test)]
+use log::*;
 use rlua::{Lua, Table};
 use std::env::current_dir;
 use std::path::Path;
