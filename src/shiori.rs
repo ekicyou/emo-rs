@@ -1,6 +1,5 @@
 use crate::api::*;
-use crate::error::*;
-use rlua::{Lua, Table};
+use rlua::Lua;
 use std::borrow::Cow;
 use std::path::Path;
 use std::path::PathBuf;
@@ -34,12 +33,14 @@ impl Shiori3 for EmoShiori {
         // ##  Lua インスタンスの作成
         let lua = Lua::new();
 
-        // ##  グローバル変数の設定
-        // ### luaに与える前にANSI文字列に変換すること
-        let globals = lua.globals();
+        {
+            // ##  グローバル変数の設定
+            // ### luaに与える前にANSI文字列に変換すること
+            let globals = lua.globals();
 
-        globals.set("string_var", "hello")?;
-        globals.set("int_var", 42)?;
+            globals.set("string_var", "hello")?;
+            globals.set("int_var", 42)?;
+        }
 
         // ##  luaモジュールのロード
 

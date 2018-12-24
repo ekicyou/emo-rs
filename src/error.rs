@@ -7,7 +7,7 @@ use std::sync::PoisonError;
 
 pub type ShioriResult<T> = Result<T, Error>;
 
-#[derive(Clone, Eq, PartialEq, Debug, Fail)]
+#[derive(Clone, Debug, Fail)]
 pub enum ErrorKind {
     #[allow(dead_code)]
     #[fail(display = "others error")]
@@ -25,24 +25,14 @@ pub enum ErrorKind {
 
     #[fail(display = "Shiori request parse error")]
     ParseRequest(#[fail(cause)] shiori_parser::req::ParseError),
-
     #[fail(display = "ANSI encodeing error")]
     EncodeAnsi,
     #[fail(display = "UTF8 encodeing error")]
     EncodeUtf8(#[fail(cause)] Utf8Error),
 
     #[allow(dead_code)]
-    #[fail(display = "script error: {}", message)]
-    Script { message: String },
-}
-
-impl From<shiori_parser::req::ParseError> for Error {
-    fn from(error: shiori_parser::req::ParseError) -> Error {
-        let cp = error.clone();
-        Error {
-            inner: error.context(ErrorKind::ParseRequest(cp)),
-        }
-    }
+    #[fail(display = "lua error: {}", inner)]
+    Script { inner: rlua::Error },
 }
 
 impl<G> From<PoisonError<G>> for Error {
@@ -57,12 +47,20 @@ impl From<Utf8Error> for Error {
         }
     }
 }
-
-impl Error {
-    #[allow(dead_code)]
-    pub fn script_error(message: String) -> Error {
-        let kind = ErrorKind::Script { message: message };
-        Error::from(kind)
+impl From<shiori_parser::req::ParseError> for Error {
+    fn from(error: shiori_parser::req::ParseError) -> Error {
+        let cp = error.clone();
+        Error {
+            inner: error.context(ErrorKind::ParseRequest(cp)),
+        }
+    }
+}
+impl From<rlua::Error> for Error {
+    fn from(error: rlua::Error) -> Error {
+        let cp = error.clone();
+        Error {
+            inner: error.context(ErrorKind::Script { inner: cp }),
+        }
     }
 }
 
