@@ -8,7 +8,7 @@ use std::path::Path;
 fn hello_test() {
     {
         ::std::env::set_var("RUST_LOG", "trace");
-        let _ = ::env_logger::init();
+        let _ = env_logger::try_init();
     }
     let lua = Lua::new();
     let globals = lua.globals();

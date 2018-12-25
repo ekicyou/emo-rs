@@ -23,16 +23,16 @@ use super::windows;
 use std::io::Result;
 use winapi::um::winnls::{CP_ACP, CP_OEMCP};
 
-/// Converter between string and multibyte encoding.
+/// byte列⇔Stringのエンコーダ。
 pub trait Encoder {
-    /// Convert from bytes to string.
+    /// エンコードbyte列をStringに変換します。
     fn to_string(self: &Self, data: &[u8]) -> Result<String>;
 
-    /// Convert from string to bytes.
+    /// Stringをエンコードbyte列に変換します。
     fn to_bytes(self: &Self, data: &str) -> Result<Vec<u8>>;
 }
 
-/// Text convertation encoding.
+/// テキストエンコーディング
 pub enum Encoding {
     /// Use CP_ACP codepage on Windows and UTF-8 on other systems.
     ANSI,
@@ -56,11 +56,11 @@ impl CodePage for Encoding {
 }
 
 impl Encoder for Encoding {
-    /// Convert from bytes to string.
+    /// エンコードbyte列をStringに変換します。
     fn to_string(self: &Self, data: &[u8]) -> Result<String> {
         windows::EncoderCodePage(self.codepage()).to_string(data)
     }
-    /// Convert from bytes to string.
+    /// Stringをエンコードbyte列に変換します。
     fn to_bytes(self: &Self, data: &str) -> Result<Vec<u8>> {
         windows::EncoderCodePage(self.codepage()).to_bytes(data)
     }

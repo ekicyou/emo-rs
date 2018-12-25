@@ -152,7 +152,7 @@ mod tests {
     fn init_test() {
         {
             ::std::env::set_var("RUST_LOG", "trace");
-            let _ = ::env_logger::init();
+            let _ = env_logger::try_init();
         }
         let api: RawAPI<TestShiori> = Default::default();
         {

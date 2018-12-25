@@ -38,14 +38,17 @@ impl Shiori3 for EmoShiori {
 
         {
             // ##  グローバル変数の設定
-            // ### luaに与える前にANSI文字列に変換すること
+            // ### lua内のパス名解決ではANSI文字列として解釈されることに注意
+            // 1. rust⇔lua間の文字列エンコーディングはutf-8とする。
+            // 2. パス解決を伴う関数を利用する場合、luaスクリプト側でANSIに変換する。
+
             let globals = lua.globals();
 
             globals.set("string_var", "hello")?;
             globals.set("int_var", 42)?;
-        }
 
-        // ##  luaモジュールのロード
+            // ##  luaモジュールのロード
+        }
 
         // リザルト
         Ok(EmoShiori {
