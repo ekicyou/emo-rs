@@ -1,7 +1,8 @@
-mod error;
-mod hglobal;
-mod shiori_parser;
 mod api;
-pub mod windows;
+mod error;
+mod function;
+mod hglobal;
 mod lua_tests;
 mod shiori;
+mod shiori_parser;
+pub mod windows;

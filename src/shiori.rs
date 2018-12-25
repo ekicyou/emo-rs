@@ -1,4 +1,5 @@
 use crate::api::*;
+use crate::function::*;
 use rlua::Lua;
 use std::borrow::Cow;
 use std::path::Path;
@@ -35,6 +36,9 @@ impl Shiori3 for EmoShiori {
 
         // ##  Lua インスタンスの作成
         let lua = Lua::new();
+
+        // ## 関数の登録
+        init_functions(&lua)?;
 
         {
             // ##  グローバル変数の設定
