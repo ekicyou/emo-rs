@@ -1,6 +1,6 @@
 use crate::api::*;
 use crate::function::*;
-use rlua::Lua;
+use rlua::{Lua, Table};
 use std::borrow::Cow;
 use std::path::Path;
 use std::path::PathBuf;
@@ -44,12 +44,12 @@ impl Shiori3 for EmoShiori {
             // ##  グローバル変数の設定
             // ### lua内のパス名解決ではANSI文字列として解釈されることに注意
             // 1. rust⇔lua間の文字列エンコーディングはutf-8とする。
-            // 2. パス解決を伴う関数を利用する場合、luaスクリプト側でANSIに変換する。
-
+            // 2. モジュール解決対象のファイル名はASCII名称とする。
             let globals = lua.globals();
 
-            globals.set("string_var", "hello")?;
-            globals.set("int_var", 42)?;
+            // ### モジュール
+            let package: Table = globals.get("package")?;
+            package.set("path", lua_path.clone())?;
 
             // ##  luaモジュールのロード
         }
