@@ -2,7 +2,9 @@
 SHIORI requestを処理し、responseを返します。
 ]]
 
-local binser = require "binser"
+local binser  = require "binser"
+local outcome = require "outcome"
+
 local data = {env={}, save={}}
 
 --データを読み込みます。存在しない場合は空のテーブルを返します。
