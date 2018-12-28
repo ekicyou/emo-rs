@@ -47,12 +47,27 @@ end
 
 --メインループ（コルーチン）
 local function main_loop(req)
-    start(req)
+    -- load処理 ここから
+    local res = start(req)
+    -- load処理 ここまで
     while req do
-        local res = "res"
         req = coroutine.yield(res)
+        -- request処理 ここから
+
+
+        -- request処理 ここまで
     end
+    -- unload処理 ここから
     drop()
+    -- unload処理 ここまで
 end 
 
-return coroutine.wrap(main_loop)
+local function create()
+    return coroutine.wrap(main_loop)
+end
+
+local rc = {
+    create = create,
+}
+
+return rc
