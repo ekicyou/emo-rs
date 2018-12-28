@@ -26,13 +26,14 @@ end
 --初期化処理を実行します。
 local function start(args)
     local x, tmp_sep, swap = package.config
-    local load_dir  = args.load_dir
+    local load_dir  = args.ansi_load_dir
     local profile_dir = load_dir    ..x.."profile"
     local emo_dir     = profile_dir ..x.."emo" 
     local cache_dir   = emo_dir     ..x.."cache" 
     local save_path   = emo_dir     ..x.."save.txt"
 
     local env = data.env
+    env.hinst     = args.hinst
     env.load_dir  = load_dir
     env.cache_dir = cache_dir
     env.save_path = save_path

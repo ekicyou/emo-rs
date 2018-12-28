@@ -19,12 +19,11 @@ local function unload()
     end
 end
 
---SHIORI.load(hinst, ansi_load_dir, ansi_lua_path) -> Result<()>
-local function load(hinst, ansi_load_dir, ansi_lua_path)
+--SHIORI.load(hinst, ansi_load_dir) -> Result<()>
+local function load(hinst, ansi_load_dir)
     local args = {
         hinst         = hinst,
         ansi_load_dir = ansi_load_dir,
-        ansi_lua_path = ansi_lua_path,
     }
     unload()
     co = main_loop.create();
