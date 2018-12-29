@@ -1,0 +1,201 @@
+システムイベント用
+概ね分かっている人向けのテンプレートなので説明についてはほぼ省略。
+めんどくさい場合はこの辞書を弄らずそのままでもOK。
+
+マウス操作表記については基本的に、なで→「なでられ」、ダブルクリック→「つつかれ」。
+ホイールマウスの場合、ホイール回転→「ころころ」、ホイールクリック→「ころくり」になります。
+
+
+＊OnMouseDoubleClick
+＞（Ｒ３）（Ｒ４）つつかれ
+（）
+
+＊OnMouseClick
+＞（Ｒ３）（Ｒ４）ころくり	（Ｒ５）＝＝２
+
+
+＊OnMouseWheel
+＞（Ｒ３）（Ｒ４）ころころ上方向	（Ｒ２）＞０
+＞（Ｒ３）（Ｒ４）ころころ下方向	（Ｒ２）＜０
+
+＃基本的に＞（Ｒ３）（Ｒ４）なでられ、ころころといった分岐
+＃（Ｒ３）は0/1（本体または相方）、（Ｒ４）は当り判定の名前
+
+
+＊OnMinuteChange
+＞（現在時）時	（現在分）＝＝０
+＃時間イベント
+
+
+
+＊OnWindowStateRestore
+：（最小化から復帰）
+＃最小化
+
+＊OnShellChanging
+：（shellφ：（Ｒ０）に変更します）
+＊OnShellChanged
+：（shellφ：（Ｒ０）に変更しました）
+＃シェル
+
+
+＊OnInstallBegin
+：（インストール確認）
+＊OnInstallComplete
+＞（Ｒ１）をインストール
+：（Ｒ１）/（Ｒ０）
+（インストール完了）
+＊OnInstallFailure
+：（インストール失敗）
+＊OnInstallRefuse
+：（accept違いによりインストール失敗）
+＃インストール
+
+＃（Ｒ０）＝識別子または失敗理由またはaccept先
+＃（Ｒ１）名前　（Ｒ２）バルーンつきゴーストのバルーン名
+＃識別子＝shell/ghost/balloon/plugin/headline/supplement/ghost with balloon/shell with balloon
+
+
+＊OnUpdatedataCreating
+：（アップデートファイル作成開始）
+＊OnUpdatedataCreated
+：（アップデートファイル作成完了）
+＊OnNarCreating
+：（Narアーカイブ作成開始）
+＊OnNarCreated
+：（Narアーカイブ作成完了）
+＃開発関係
+＃（Ｒ０）＝名前、（Ｒ１）＝ファイル名、（Ｒ２）＝識別子
+
+＊OnChoiceTimeout
+：（選択肢タイムアウト）
+＊OnChoiceSelect
+＞（Ｒ０）
+：（選択肢のジャンプ先「（Ｒ０）」がありません）
+＃選択枝
+
+
+
+＊OnSNTPBegin
+：（時計合わせ開始）
+
+＃時計合わせ
+
+（（Ｒ０）を確認...）
+＊OnSNTPCompare
+：（時計合わせ接続）
+
+（◆取得　（Ｒ１））
+（◇此処　（Ｒ２））
+（★誤差　（Ｒ３））\w9
+＊OnSNTPCorrect
+：（時計合わせ完了）
+＊OnSNTPFailure
+：（時計合わせ失敗）
+
+
+＊OnBIFFBegin
+：（メールチェック開始）
+＊OnBIFFComplete
+：（メールチェック成功）
+
+▼（Ｒ０）通、（Ｒ１）バイト
+▼新着φ：（Ｒ３）通
+＊OnBIFF2Complete
+：（前回チェック時からの新着メール有り）
+
+▼（Ｒ０）通、（Ｒ１）バイト
+＊OnBIFFFailure
+：（メールチェック失敗）
+
+（理由φ：（Ｒ０））
+＃メールチェックイベント
+＃（Ｒ０）＝失敗理由、timeout/kick/defect
+
+
+
+
+＊OnHeadlinesenseBegin
+：（「（Ｒ０）」ヘッドラインセンス開始/取得）
+＃ヘッドラインセンスイベント
+
+＊OnHeadlinesense.OnFind
+：（ヘッドラインセンスがあります）\w9\w9
+＞読み上げフェーズ（Ｒ２）
+＃（Ｒ２）＝フェーズ、First/Fisrt and Last/Last/Next
+
+＊読み上げフェーズFirst
+：\b[2]【「（Ｒ０）」ヘッドライン】
+（Ｒ３）
+＿続きを読む		
+＿サイトを開く		（Ｒ１）
+＿やめる		読み上げ中止
+
+＊読み上げフェーズFirst and Last
+：\b[2]【「（Ｒ０）」ヘッドライン】
+（Ｒ３）
+＿サイトを開く		（Ｒ１）
+＿やめる		読み上げ中止
+
+＊読み上げフェーズLast
+：\b[2]（Ｒ３）
+＿サイトを開く		（Ｒ１）
+＿やめる		読み上げ中止
+
+＊読み上げフェーズNext
+：\b[2]（Ｒ３）
+＿続きを読む		
+＿サイトを開く		（Ｒ１）
+＿やめる		読み上げ中止
+
+＊読み上げ中止
+：\b[-1]
+
+＊OnHeadlinesenseComplete
+：（ヘッドラインセンス終了）
+＊OnHeadlinesenseFailure
+：（ヘッドラインセンス失敗）
+（理由φ：（Ｒ０））
+＃（Ｒ０）＝終了理由、no update/can't download/can't analyze
+
+
+
+
+
+
+
+
+＊OnKeyPress
+＞（Ｒ０）が押された
+：（Ｒ０）キーが押されました
+
+＃その他
+
+＊rが押された
+＄辞書リロード	実行
+
+＊tが押された
+（）
+
+＊OnNetworkHeavy
+：（ネットワークが重たいようです）
+
+＊OnUserInput
+＄（Ｒ０）	（Ｒ１）
+＞（Ｒ０）を教えてもらった
+
+＊OnSSTPBreak
+：……！？
+
+
+
+＊OnSatoriLoad
+＄文「＊」の重複回避	有効、起動中
+＄単語群「＊」の重複回避	有効、トーク中
+＃起動時に必ず呼ばれる
+
+＊OnSatoriUnload
+＄トーク予約のキャンセル	＊
+＄デフォルトサーフェス0	0
+＄デフォルトサーフェス1	10
+＃終了時に必ず呼ばれる
