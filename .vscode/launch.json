@@ -3,12 +3,11 @@
     // 既存の属性の説明をホバーして表示します。
     // 詳細情報は次を確認してください: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
-    "configurations": [
-        {
-            "type": "lua",
-            "request": "launch",
-            "name": "Launch",
-            "program": "${file}"
-        }
-    ]
+    "configurations": [{
+        "type": "lua",
+        "request": "launch",
+        "name": "Launch",
+        "program": "${file}",
+        "path": "${workspaceFolder}/lua_lib/?.lua;${workspaceFolder}/lua_lib/?/init.lua;${workspaceFolder}/lua_script/?.lua;${workspaceFolder}/lua_script/?/init.lua"
+    }]
 }

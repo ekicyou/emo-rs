@@ -42,7 +42,7 @@ impl Shiori3 for EmoShiori {
 
         {
             // ##  グローバル変数の設定
-            // ### lua内のパス名解決ではANSI文字列として解釈されることに注意
+            // ### lua内のパス名解決ではANSI文字列を与える必要があることに注意
             // 1. rust⇔lua間の文字列エンコーディングはutf-8とする。
             // 2. モジュール解決対象のファイル名はASCII名称とする。
             let globals = lua.globals();
@@ -64,7 +64,7 @@ impl Shiori3 for EmoShiori {
     }
     fn request<'a, S: Into<&'a str>>(&mut self, req: S) -> ShioriResult<Cow<'a, str>> {
         let req_str = req.into();
-        let req = ShioriRequest::parse(req_str)?;
+        let _req = ShioriRequest::parse(req_str)?;
         let rc = format!("[{:?}]{} is OK", self.load_dir, req_str);
         Ok(rc.into())
     }
