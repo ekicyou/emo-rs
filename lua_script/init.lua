@@ -12,10 +12,8 @@ local function unload()
     local co_item = co
     co = nil
     if co_item
-    then
-        return co_item(nil)
-    else
-        return false
+    then return co_item(nil)
+    else return outcome.err("already unloaded")
     end
 end
 

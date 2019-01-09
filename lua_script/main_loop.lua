@@ -1,5 +1,6 @@
 --[[
-SHIORI requestを処理し、responseを返します。
+メインループ
+SHIORI requestを受け取り、responseを返すジェネレータです。
 ]]
 
 local binser  = require "binser"
@@ -12,6 +13,7 @@ local function load(path)
     local status, result = pcall(binser.readFile, path)
     if status then return result
     else return {}
+    end
 end
 
 --データを保存します。エラーは無視します。
@@ -39,11 +41,13 @@ local function start(args)
     env.save_path = save_path
 
     data.save = read(save_path)
+    return outcome.ok()
 end
 
 --解放処理を実行します。
 local function drop()
     write(data.env.save_path, data.save)
+    return outcome.ok()
 end
 
 --メインループ（コルーチン）
@@ -55,11 +59,11 @@ local function main_loop(req)
         req = coroutine.yield(res)
         -- request処理 ここから
 
-
+        res = outcome.ok("shiori response")
         -- request処理 ここまで
     end
     -- unload処理 ここから
-    drop()
+    return drop()
     -- unload処理 ここまで
 end 
 
