@@ -1,5 +1,5 @@
 use super::api::Shiori3;
-use crate::error::*;
+use super::error::*;
 use crate::hglobal::GStr;
 use log::*;
 use std::ptr;
@@ -48,7 +48,7 @@ impl<TS: Shiori3> RawAPI<TS> {
             _ => true,
         }
     }
-    fn load(&self, h_dir: HGLOBAL, l_dir: usize) -> ShioriResult<()> {
+    fn load(&self, h_dir: HGLOBAL, l_dir: usize) -> Result<()> {
         let mut locked = self.shiori.lock()?;
         *locked = None;
         let gstr = GStr::capture(h_dir, l_dir);
@@ -68,7 +68,7 @@ impl<TS: Shiori3> RawAPI<TS> {
             _ => true,
         }
     }
-    fn unload(&self) -> ShioriResult<()> {
+    fn unload(&self) -> Result<()> {
         let mut locked = self.shiori.lock()?;
         *locked = None;
         Ok(())
@@ -85,12 +85,12 @@ impl<TS: Shiori3> RawAPI<TS> {
             Ok(rc) => rc,
         }
     }
-    pub fn request(&self, h: HGLOBAL, len: &mut usize) -> ShioriResult<HGLOBAL> {
+    pub fn request(&self, h: HGLOBAL, len: &mut usize) -> Result<HGLOBAL> {
         let g_req = GStr::capture(h, *len);
         let req = g_req.to_utf8_str()?;
         let res = {
             let mut locked = self.shiori.lock()?;
-            let shiori = locked.as_mut().ok_or(ErrorKind::NotInitialized)?;
+            let shiori = locked.as_mut().ok_or(ShioriError::NotInitialized)?;
             shiori.request(req)?
         };
         let b_res = res.as_bytes();
@@ -135,14 +135,14 @@ mod tests {
         fn drop(&mut self) {}
     }
     impl Shiori3 for TestShiori {
-        fn load<P: AsRef<Path>>(h_inst: usize, load_dir: P) -> ShioriResult<Self> {
+        fn load<P: AsRef<Path>>(h_inst: usize, load_dir: P) -> Result<Self> {
             let shiori = TestShiori {
                 h_inst: h_inst,
                 load_dir: load_dir.as_ref().to_path_buf(),
             };
             Ok(shiori)
         }
-        fn request<'a, S: Into<&'a str>>(&mut self, req: S) -> ShioriResult<Cow<'a, str>> {
+        fn request<'a, S: Into<&'a str>>(&mut self, req: S) -> Result<Cow<'a, str>> {
             let rc = format!("[{:?}]{} is OK", self, req.into());
             Ok(rc.into())
         }
