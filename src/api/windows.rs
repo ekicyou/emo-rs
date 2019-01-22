@@ -49,7 +49,7 @@ impl<TS: Shiori3> RawAPI<TS> {
         }
     }
     fn load(&self, h_dir: HGLOBAL, l_dir: usize) -> Result<()> {
-        let mut locked = self.shiori.lock()?;
+        let mut locked = self.shiori.lock().map_err(|_| ShioriPoisonError::new())?;
         *locked = None;
         let gstr = GStr::capture(h_dir, l_dir);
         let ansi = gstr.to_ansi_str()?;
@@ -69,7 +69,7 @@ impl<TS: Shiori3> RawAPI<TS> {
         }
     }
     fn unload(&self) -> Result<()> {
-        let mut locked = self.shiori.lock()?;
+        let mut locked = self.shiori.lock().map_err(|_| ShioriPoisonError::new())?;
         *locked = None;
         Ok(())
     }
@@ -89,7 +89,7 @@ impl<TS: Shiori3> RawAPI<TS> {
         let g_req = GStr::capture(h, *len);
         let req = g_req.to_utf8_str()?;
         let res = {
-            let mut locked = self.shiori.lock()?;
+            let mut locked = self.shiori.lock().map_err(|_| ShioriPoisonError::new())?;
             let shiori = locked.as_mut().ok_or(ShioriError::NotInitialized)?;
             shiori.request(req)?
         };
