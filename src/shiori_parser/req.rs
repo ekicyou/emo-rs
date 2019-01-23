@@ -5,8 +5,6 @@ use pest::iterators::FlatPairs;
 use pest::Parser;
 use std::collections::HashMap;
 
-pub type ParseError = pest::error::Error<Rule>;
-
 /// SHIORI3リクエストの解析結果を格納します。
 #[derive(PartialEq, Eq, Debug)]
 pub struct ShioriRequest<'a> {
