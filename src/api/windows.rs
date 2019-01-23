@@ -1,4 +1,4 @@
-use super::api::Shiori3;
+use super::api::*;
 use super::error::*;
 use crate::hglobal::GStr;
 use log::*;
@@ -116,6 +116,47 @@ impl<TS: Shiori3> RawAPI<TS> {
             _ => {}
         }
         true
+    }
+}
+
+pub trait WindowsShioriAPI {
+    #[allow(dead_code)]
+    fn raw_shiori3_load(hdir: HGLOBAL, len: usize) -> bool;
+
+    #[allow(dead_code)]
+    fn raw_shiori3_unload() -> bool;
+
+    #[allow(dead_code)]
+    fn raw_shiori3_request(h: HGLOBAL, len: &mut usize) -> HGLOBAL;
+
+    #[allow(dead_code)]
+    fn raw_shiori3_dll_main(h_inst: usize, ul_reason_for_call: DWORD, _lp_reserved: LPVOID)
+        -> bool;
+}
+
+impl<T: Shiori3> WindowsShioriAPI for T {
+    #[allow(dead_code)]
+    fn raw_shiori3_load(hdir: HGLOBAL, len: usize) -> bool {
+        false
+    }
+
+    #[allow(dead_code)]
+    fn raw_shiori3_unload() -> bool {
+        false
+    }
+
+    #[allow(dead_code)]
+    fn raw_shiori3_request(h: HGLOBAL, len: &mut usize) -> HGLOBAL {
+        h
+    }
+
+    #[allow(dead_code)]
+    fn raw_shiori3_dll_main(
+        h_inst: usize,
+        ul_reason_for_call: DWORD,
+        _lp_reserved: LPVOID,
+    ) -> bool {
+        false
     }
 }
 
