@@ -1,4 +1,5 @@
 use failure::{Backtrace, Fail};
+use rlua;
 
 pub type Result<T> = std::result::Result<T, failure::Error>;
 
@@ -14,6 +15,17 @@ pub enum ShioriError {
     #[allow(dead_code)]
     #[fail(display = "load error")]
     Load,
+
+    #[allow(dead_code)]
+    #[fail(display = "lua error")]
+    Lua(rlua::Error),
+}
+
+//for op-?, "auto" type conversion
+impl From<rlua::Error> for ShioriError {
+    fn from(e: rlua::Error) -> Self {
+        ShioriError::Lua(e)
+    }
 }
 
 #[derive(Debug, Fail)]

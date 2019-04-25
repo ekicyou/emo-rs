@@ -1,6 +1,7 @@
 use super::error::*;
 use crate::api::*;
 use crate::function::*;
+use rlua;
 use rlua::{Lua, Table};
 use std::borrow::Cow;
 use std::path::Path;
@@ -38,7 +39,7 @@ impl Shiori3 for EmoShiori {
         // ##  Lua インスタンスの作成
         let lua = Lua::new();
 
-        lua.context(|context| {
+        let result: rlua::Result<()> = lua.context(|context| {
             // ## 関数の登録
             load_functions(&context)?;
 
@@ -53,7 +54,9 @@ impl Shiori3 for EmoShiori {
             package.set("path", lua_path.clone())?;
 
             // ##  luaモジュールのロード
-        })?;
+            Ok(())
+        });
+        result?;
 
         // リザルト
         Ok(EmoShiori {
