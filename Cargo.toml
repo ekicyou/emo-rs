@@ -19,11 +19,11 @@ log = "0.4"
 fern = "0.5"
 failure = "0.1"
 failure_derive = "0.1"
-rlua = {version = "0.15", default-features = false }
+rlua = {version = "0.16", default-features = false }
 lazy_static = "1.1"
 pest = "2.1"
 pest_derive = "2.1"
-rustyline = "3.0"
+rustyline = "4.0"
 
 [target."cfg(windows)".dependencies]
 winapi = {version = "0.3", features = [ "winbase", "stringapiset", ] }
