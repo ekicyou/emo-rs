@@ -38,22 +38,22 @@ impl Shiori3 for EmoShiori {
         // ##  Lua インスタンスの作成
         let lua = Lua::new();
 
-        // ## 関数の登録
-        init_functions(&lua)?;
+        lua.context(|context| {
+            // ## 関数の登録
+            load_functions(&context)?;
 
-        {
             // ##  グローバル変数の設定
             // ### lua内のパス名解決ではANSI文字列を与える必要があることに注意
             // 1. rust⇔lua間の文字列エンコーディングはutf-8とする。
             // 2. モジュール解決対象のファイル名はASCII名称とする。
-            let globals = lua.globals();
+            let globals = context.globals();
 
             // ### モジュール
             let package: Table = globals.get("package")?;
             package.set("path", lua_path.clone())?;
 
             // ##  luaモジュールのロード
-        }
+        })?;
 
         // リザルト
         Ok(EmoShiori {
