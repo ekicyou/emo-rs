@@ -1,26 +1,27 @@
 #![cfg(any(windows))]
-use crate::api::RawAPI;
+use crate::shiori::Shiori;
+use shiori3::api::*;
 use lazy_static::*;
 use std::default::Default;
 use winapi::shared::minwindef::{DWORD, HGLOBAL, LPVOID};
 
 lazy_static! {
-    static ref api: RawAPI<super::shiori::EmoShiori> = Default::default();
+    static ref api: impl RawShiori3 =  Shiori3DI::new(Shiori::new());
 }
 
 #[no_mangle]
 pub extern "C" fn load(h_dir: HGLOBAL, len: usize) -> bool {
-    (*api).raw_shiori3_load(h_dir, len)
+    (*api).raw_load(h_dir, len)
 }
 
 #[no_mangle]
 pub extern "C" fn unload() -> bool {
-    (*api).raw_shiori3_unload()
+    (*api).raw_unload()
 }
 
 #[no_mangle]
 pub extern "C" fn request(h: HGLOBAL, len: &mut usize) -> HGLOBAL {
-    (*api).raw_shiori3_request(h, len)
+    (*api).raw_request(h, len)
 }
 
 #[no_mangle]

@@ -24,9 +24,7 @@ lazy_static = "1.1"
 pest = "2.1"
 pest_derive = "2.1"
 rustyline = "4.0"
-
-[target."cfg(windows)".dependencies]
-winapi = {version = "0.3", features = [ "winbase", "stringapiset", ] }
+shiori3 = { git = "https://github.com/ekicyou/shiori3-rs", branch = "feature/new_api" }
 
 [dev-dependencies]
 env_logger = "0.6"

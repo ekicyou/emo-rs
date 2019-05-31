@@ -1,5 +1,4 @@
-use super::error::*;
-use crate::api::*;
+use shiori3::*;
 use crate::function::*;
 use rlua;
 use rlua::{Lua, Table};
@@ -8,18 +7,21 @@ use std::path::Path;
 use std::path::PathBuf;
 
 #[allow(dead_code)]
-pub struct EmoShiori {
+pub struct Shiori {
     h_inst: usize,
     load_dir: PathBuf,
     lua_path: String,
     lua: Lua,
 }
-impl Drop for EmoShiori {
+impl Drop for Shiori {
     fn drop(&mut self) {}
 }
 
 #[allow(dead_code)]
-impl EmoShiori {
+impl Shiori {
+    fn new()->Self{
+        Shiori{}
+    }
     fn h_inst(&self) -> usize {
         (self.h_inst)
     }
@@ -31,7 +33,15 @@ impl EmoShiori {
     }
 }
 
-impl Shiori3 for EmoShiori {
+impl Shiori3 for Shiori {
+    /// hinstを設定します。
+    fn set_hinst(&mut self, h_inst: usize) -> Result<(), failure::Error>{
+        self.h_inst =h_inst;
+        Ok(())
+    }
+
+
+
     fn load<P: AsRef<Path>>(h_inst: usize, load_dir: P) -> Result<Self> {
         // 検索パスの作成
         let (load_dir, lua_path) = lua_search_path(load_dir, "lua")?;
