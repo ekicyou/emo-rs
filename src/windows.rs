@@ -30,5 +30,5 @@ pub extern "stdcall" fn DllMain(
     ul_reason_for_call: DWORD,
     lp_reserved: LPVOID,
 ) -> bool {
-    (*api).raw_shiori3_dll_main(h_inst, ul_reason_for_call, lp_reserved)
+    (*api).raw_dllmain(h_inst, ul_reason_for_call, lp_reserved)
 }
