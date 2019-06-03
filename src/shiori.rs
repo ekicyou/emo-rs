@@ -48,10 +48,17 @@ impl Shiori3 for Shiori {
             // 1. rust⇔lua間の文字列エンコーディングはutf-8とする。
             // 2. モジュール解決対象のファイル名はASCII名称とする。
             let globals = context.globals();
-
-            // ### モジュール
-            let package: Table = globals.get("package")?;
-            package.set("path", lua_path.clone())?;
+            {
+                // ### モジュールパス設定
+                let package: Table = globals.get("package")?;
+                package.set("path", lua_path.clone())?;
+            }
+            {
+                // ### SHIORI変数
+                let shiori: Table = context.create_table()?;
+                shiori.set("h_inst", h_inst)?;
+                globals.set("shiori", shiori)?;
+            }
 
             // ##  luaモジュールのロード
             Ok(())
