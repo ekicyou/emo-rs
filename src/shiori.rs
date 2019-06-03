@@ -1,4 +1,6 @@
 use crate::function::*;
+use crate::path::*;
+use crate::prelude::*;
 use rlua::{Lua, Table};
 use shiori3::*;
 use std::borrow::Cow;
@@ -32,14 +34,14 @@ impl Shiori {
 
 impl Shiori3 for Shiori {
     /// load_dir pathのファイルでSHIORIインスタンスを作成します。
-    fn load<P: AsRef<Path>>(h_inst: usize, ansi_load_dir: P) -> Result<Self, failure::Error> {
+    fn load<P: AsRef<Path>>(h_inst: usize, ansi_load_dir: P) -> MyResult<Self> {
         // 検索パスの作成
         let (ansi_load_dir, lua_path) = lua_search_path(ansi_load_dir, "lua")?;
 
         // ##  Lua インスタンスの作成
         let lua = Lua::new();
 
-        let result: rlua::Result<()> = lua.context(|context| {
+        let result: LuaResult<_> = lua.context(|context| {
             // ## 関数の登録
             load_functions(&context)?;
 
@@ -75,7 +77,7 @@ impl Shiori3 for Shiori {
     }
 
     /// SHIORIリクエストを解釈し、応答を返します。
-    fn request<'a, S: Into<&'a str>>(&mut self, req: S) -> Result<Cow<'a, str>, failure::Error> {
+    fn request<'a, S: Into<&'a str>>(&mut self, req: S) -> MyResult<Cow<'a, str>> {
         let req_str = req.into();
         let _req = ShioriRequest::parse(req_str)?;
         let rc = format!("[{:?}]{} is OK", self.ansi_load_dir, req_str);
