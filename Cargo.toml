@@ -26,6 +26,9 @@ pest_derive = "2.1"
 rustyline = "4.0"
 shiori3 = { git = "https://github.com/ekicyou/shiori3-rs", branch = "feature/new_api" }
 
+[target."cfg(windows)".dependencies]
+winapi = {version = "0.3", features = [ "winbase", "stringapiset", ] }
+
 [dev-dependencies]
 env_logger = "0.6"
 

@@ -1,12 +1,13 @@
-use shiori3::*;
 use crate::function::*;
 use rlua;
 use rlua::{Lua, Table};
+use shiori3::*;
 use std::borrow::Cow;
 use std::path::Path;
 use std::path::PathBuf;
 
 #[allow(dead_code)]
+#[derive(Default)]
 pub struct Shiori {
     h_inst: usize,
     load_dir: PathBuf,
@@ -19,8 +20,8 @@ impl Drop for Shiori {
 
 #[allow(dead_code)]
 impl Shiori {
-    fn new()->Self{
-        Shiori{}
+    fn new() -> Self {
+        Default::default()
     }
     fn h_inst(&self) -> usize {
         (self.h_inst)
@@ -34,15 +35,8 @@ impl Shiori {
 }
 
 impl Shiori3 for Shiori {
-    /// hinstを設定します。
-    fn set_hinst(&mut self, h_inst: usize) -> Result<(), failure::Error>{
-        self.h_inst =h_inst;
-        Ok(())
-    }
-
-
-
-    fn load<P: AsRef<Path>>(h_inst: usize, load_dir: P) -> Result<Self> {
+    /// load_dir pathのファイルでSHIORIインスタンスを作成します。
+    fn load<P: AsRef<Path>>(h_inst: usize, load_dir: P) -> Result<Self, failure::Error> {
         // 検索パスの作成
         let (load_dir, lua_path) = lua_search_path(load_dir, "lua")?;
 
@@ -69,14 +63,16 @@ impl Shiori3 for Shiori {
         result?;
 
         // リザルト
-        Ok(EmoShiori {
+        Ok(Shiori {
             h_inst: h_inst,
             load_dir: load_dir,
             lua_path: lua_path,
             lua: lua,
         })
     }
-    fn request<'a, S: Into<&'a str>>(&mut self, req: S) -> Result<Cow<'a, str>> {
+
+    /// SHIORIリクエストを解釈し、応答を返します。
+    fn request<'a, S: Into<&'a str>>(&mut self, req: S) -> Result<Cow<'a, str>, failure::Error> {
         let req_str = req.into();
         let _req = ShioriRequest::parse(req_str)?;
         let rc = format!("[{:?}]{} is OK", self.load_dir, req_str);
@@ -85,7 +81,10 @@ impl Shiori3 for Shiori {
 }
 
 /// luaの検索パスを作成します。
-fn lua_search_path<P: AsRef<Path>>(load_dir: P, ext: &str) -> Result<(PathBuf, String)> {
+fn lua_search_path<P: AsRef<Path>>(
+    load_dir: P,
+    ext: &str,
+) -> Result<(PathBuf, String), failure::Error> {
     // load dir(終端文字は除去)
     let load_dir = {
         let mut buf = load_dir.as_ref().to_path_buf();
@@ -99,7 +98,7 @@ fn lua_search_path<P: AsRef<Path>>(load_dir: P, ext: &str) -> Result<(PathBuf, S
     {
         let load_dir = {
             let a = load_dir.to_str();
-            let b = a.ok_or(ShioriError::from(ShioriError::Load))?;
+            let b = a.ok_or(ShioriError::from(ShioriErrorKind::Load))?;
             String::from(b)
         };
         // luaモジュールのパス解決関数

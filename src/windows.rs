@@ -1,27 +1,49 @@
 #![cfg(any(windows))]
 use crate::shiori::Shiori;
-use shiori3::api::*;
 use lazy_static::*;
+use log::*;
+use shiori3::RawShiori3;
 use std::default::Default;
+use std::ptr;
+use std::sync::{Arc, Mutex};
 use winapi::shared::minwindef::{DWORD, HGLOBAL, LPVOID};
 
 lazy_static! {
-    static ref api: impl RawShiori3 =  Shiori3DI::new(Shiori::new());
+    static ref API: Arc<Mutex<RawShiori3<Shiori>>> = Arc::new(Mutex::new(Default::default()));
 }
 
 #[no_mangle]
 pub extern "C" fn load(h_dir: HGLOBAL, len: usize) -> bool {
-    (*api).raw_load(h_dir, len)
+    match (*API).lock() {
+        Err(e) => {
+            error!("{}", e);
+            false
+        }
+        Ok(mut a) => a.raw_load(h_dir, len),
+    }
 }
 
 #[no_mangle]
 pub extern "C" fn unload() -> bool {
-    (*api).raw_unload()
+    match (*API).lock() {
+        Err(e) => {
+            error!("{}", e);
+            false
+        }
+        Ok(mut a) => a.raw_unload(),
+    }
 }
 
 #[no_mangle]
 pub extern "C" fn request(h: HGLOBAL, len: &mut usize) -> HGLOBAL {
-    (*api).raw_request(h, len)
+    match (*API).lock() {
+        Err(e) => {
+            error!("{}", e);
+            *len = 0;
+            ptr::null_mut()
+        }
+        Ok(mut a) => a.raw_request(h, len),
+    }
 }
 
 #[no_mangle]
@@ -30,5 +52,11 @@ pub extern "stdcall" fn DllMain(
     ul_reason_for_call: DWORD,
     lp_reserved: LPVOID,
 ) -> bool {
-    (*api).raw_dllmain(h_inst, ul_reason_for_call, lp_reserved)
+    match (*API).lock() {
+        Err(e) => {
+            error!("{}", e);
+            false
+        }
+        Ok(mut a) => a.raw_dllmain(h_inst, ul_reason_for_call, lp_reserved),
+    }
 }
