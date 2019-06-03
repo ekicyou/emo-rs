@@ -19,9 +19,6 @@ impl Drop for Shiori {
 
 #[allow(dead_code)]
 impl Shiori {
-    fn new() -> Self {
-        Default::default()
-    }
     fn h_inst(&self) -> usize {
         (self.h_inst)
     }
