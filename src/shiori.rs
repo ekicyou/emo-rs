@@ -1,5 +1,4 @@
 use crate::function::*;
-use rlua;
 use rlua::{Lua, Table};
 use shiori3::*;
 use std::borrow::Cow;
