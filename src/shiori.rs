@@ -12,6 +12,7 @@ use std::path::PathBuf;
 pub struct Shiori {
     h_inst: usize,
     ansi_load_dir: PathBuf,
+    load_dir: String,
     lua_path: String,
     lua: Lua,
 }
@@ -36,7 +37,7 @@ impl Shiori3 for Shiori {
     /// load_dir pathのファイルでSHIORIインスタンスを作成します。
     fn load<P: AsRef<Path>>(h_inst: usize, ansi_load_dir: P) -> MyResult<Self> {
         // 検索パスの作成
-        let (ansi_load_dir, lua_path) = lua_search_path(ansi_load_dir, "lua")?;
+        let (ansi_load_dir, load_dir, lua_path) = lua_search_path(ansi_load_dir, "lua")?;
 
         // ##  Lua インスタンスの作成
         let lua = Lua::new();
@@ -51,15 +52,18 @@ impl Shiori3 for Shiori {
             // 2. モジュール解決対象のファイル名はASCII名称とする。
             let globals = context.globals();
             {
-                // ### モジュールパス設定
+                // ### モジュールパスを設定してinit.luaを読み込む
                 let package: Table = globals.get("package")?;
                 package.set("path", lua_path.clone())?;
+                let _: usize = context.load("require(\"init\");return 0;").eval()?;
             }
             {
-                // ### SHIORI変数
-                let shiori: Table = context.create_table()?;
-                shiori.set("h_inst", h_inst)?;
-                globals.set("shiori", shiori)?;
+                // ### shioriテーブルがinit.luaで定義されているので読み込む
+                let shiori: Table = globals.get("shiori")?;
+                let params: Table = context.create_table()?;
+                params.set("h_inst", h_inst)?;
+                params.set("load_dir", load_dir.clone())?;
+                shiori.set("params", params)?;
             }
 
             // ##  luaモジュールのロード
@@ -71,6 +75,7 @@ impl Shiori3 for Shiori {
         Ok(Shiori {
             h_inst: h_inst,
             ansi_load_dir: ansi_load_dir,
+            load_dir: load_dir,
             lua_path: lua_path,
             lua: lua,
         })

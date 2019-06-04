@@ -4,7 +4,17 @@ use std::path::Path;
 use std::path::PathBuf;
 
 /// luaの検索パスを作成します。
-pub fn lua_search_path<P: AsRef<Path>>(ansi_load_dir: P, ext: &str) -> MyResult<(PathBuf, String)> {
+/// 以下の検索順となります。
+///   1. [GHOST]/usr/lua/?.ext
+///   2. [GHOST]/usr/lua/?/init.ext
+///   3. [GHOST]/share/lua/?.ext
+///   4. [GHOST]/share/lua/?/init.ext
+///   5. [GHOST]/share/lua_lib/?.ext
+///   6. [GHOST]/share/lua_lib/?/init.ext
+pub fn lua_search_path<P: AsRef<Path>>(
+    ansi_load_dir: P,
+    ext: &str,
+) -> MyResult<(PathBuf, String, String)> {
     // load dir(終端文字は除去)
     let ansi_load_dir = {
         let mut buf = ansi_load_dir.as_ref().to_path_buf();
@@ -12,15 +22,15 @@ pub fn lua_search_path<P: AsRef<Path>>(ansi_load_dir: P, ext: &str) -> MyResult<
         buf.pop();
         buf
     };
+    let load_dir = {
+        let a = ansi_load_dir.to_str();
+        let b = a.ok_or(ShioriError::from(ShioriErrorKind::Load))?;
+        String::from(b)
+    };
 
     // クロージャ呼び出し
     let mut lua_path = String::default();
     {
-        let load_dir = {
-            let a = ansi_load_dir.to_str();
-            let b = a.ok_or(ShioriError::from(ShioriErrorKind::Load))?;
-            String::from(b)
-        };
         // luaモジュールのパス解決関数
         let mut add_path = |root: &str| {
             let mut add_path = |pre: &str| {
@@ -35,11 +45,12 @@ pub fn lua_search_path<P: AsRef<Path>>(ansi_load_dir: P, ext: &str) -> MyResult<
             add_path("\\?.");
             add_path("\\?\\init.");
         };
-        add_path("\\usr");
-        add_path("\\share");
+        add_path("\\usr\\lua");
+        add_path("\\share\\lua");
+        add_path("\\share\\lua_lib");
     }
 
-    Ok((ansi_load_dir, lua_path))
+    Ok((ansi_load_dir, load_dir, lua_path))
 
     // # luaのモジュール解決
     // modname は以下の順に検索され、最初に解決したものを返す。
@@ -66,10 +77,11 @@ pub fn lua_search_path<P: AsRef<Path>>(ansi_load_dir: P, ext: &str) -> MyResult<
 }
 #[cfg(any(windows))]
 #[test]
-fn lua_search_pathh_test() {
+fn lua_search_path_test() {
     {
-        let (dir, path) = lua_search_path("c:\\留袖 綺麗ね\\ごーすと\\", "lua").unwrap();
+        let (dir, _, path) =
+            lua_search_path("c:\\留袖 綺麗ね\\ごーすと\\", "lua").unwrap();
         assert_eq!(dir.to_string_lossy(), "c:\\留袖 綺麗ね\\ごーすと");
-        assert_eq!(path, "c:\\留袖 綺麗ね\\ごーすと\\usr\\?.lua;c:\\留袖 綺麗ね\\ごーすと\\usr\\?\\init.lua;c:\\留袖 綺麗ね\\ごーすと\\share\\?.lua;c:\\留袖 綺麗ね\\ごーすと\\share\\?\\init.lua");
+        assert_eq!(path, "c:\\留袖 綺麗ね\\ごーすと\\usr\\lua\\?.lua;c:\\留袖 綺麗ね\\ごーすと\\usr\\lua\\?\\init.lua;c:\\留袖 綺麗ね\\ごーすと\\share\\lua\\?.lua;c:\\留袖 綺麗ね\\ごーすと\\share\\lua\\?\\init.lua;c:\\留袖 綺麗ね\\ごーすと\\share\\lua_lib\\?.lua;c:\\留袖 綺麗ね\\ごーすと\\share\\lua_lib\\?\\init.lua");
     }
 }
