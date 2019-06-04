@@ -1,9 +1,8 @@
 use crate::prelude::*;
-use rlua::*;
 use shiori3::*;
 
 /// luaで利用する関数を登録します。
-pub fn load_functions(c: &Context) -> LuaResult<()> {
+pub fn load_functions(c: &rlua::Context) -> LuaResult<()> {
     let g = c.globals();
     let f = c.create_function(|_, name: String| {
         println!("Hello, {}!", name);
@@ -23,8 +22,8 @@ impl<'a> Req<'a> {
     }
 }
 
-impl<'a> UserData for Req<'a> {
-    fn add_methods<'lua, M: UserDataMethods<'lua, Self>>(methods: &mut M) {
+impl<'a> rlua::UserData for Req<'a> {
+    fn add_methods<'lua, M: rlua::UserDataMethods<'lua, Self>>(methods: &mut M) {
         methods.add_method("text", |_, x, _: ()| Ok(x.0.text));
         methods.add_method("version", |_, x, _: ()| Ok(x.0.version));
         methods.add_method("method", |_, x, _: ()| {
@@ -41,16 +40,16 @@ impl<'a> UserData for Req<'a> {
         methods.add_method("charset", |_, x, _: ()| Ok(x.0.charset));
         methods.add_method("status", |_, x, _: ()| Ok(x.0.status));
         methods.add_method("base_id", |_, x, _: ()| Ok(x.0.base_id));
-        methods.add_method("reference", |c, x, _: ()|{
-            let a = x.0.reference.iter()
-                .map(|&a| {
-                    let k = a.0.to_lua(c);
-                    let v = a.1.to_lua(c);
-                    (k,v)
-                } ).collect::<Vec<_>>();
-             Ok(1)
-             });
-        methods.add_method("dic", |_, x, _: ()| Ok(x.0.dic));
-        methods.add_method("key_values", |_, x, _: ()| Ok(x.0.key_values));
+        methods.add_method("reference", |c, x, _: ()| {
+            let i = x.0.reference.iter().map(|&a| (a.0, a.1));
+            let t = c.create_table_from(i)?;
+            Ok(t)
+        });
+        methods.add_method("dic", |_, x, _: ()| Ok(x.0.dic.to_owned()));
+        methods.add_method("key_values", |c, x, _: ()| {
+            let i = x.0.key_values.iter().map(|&a| (a.1, a.2));
+            let t = c.create_table_from(i)?;
+            Ok(t)
+        });
     }
 }
