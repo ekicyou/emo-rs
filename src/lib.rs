@@ -1,5 +1,5 @@
 mod error;
-mod function;
+mod lua_funcs;
 mod lua_tests;
 mod path;
 mod prelude;

@@ -1,4 +1,4 @@
-use crate::function::*;
+use crate::lua_funcs::*;
 use crate::path::*;
 use crate::prelude::*;
 use rlua::{Lua, Table};
@@ -84,7 +84,7 @@ impl Shiori3 for Shiori {
     /// SHIORIリクエストを解釈し、応答を返します。
     fn request<'a, S: Into<&'a str>>(&mut self, req: S) -> MyResult<Cow<'a, str>> {
         let req_str = req.into();
-        let _req = ShioriRequest::parse(req_str)?;
+        let _req = Req::parse(req_str)?;
         let rc = format!("[{:?}]{} is OK", self.ansi_load_dir, req_str);
         Ok(rc.into())
     }
