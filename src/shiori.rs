@@ -38,7 +38,6 @@ impl Shiori3 for Shiori {
     fn load<P: AsRef<Path>>(h_inst: usize, ansi_load_dir: P) -> MyResult<Self> {
         // 検索パスの作成
         let (ansi_load_dir, load_dir, lua_path) = lua_search_path(ansi_load_dir, "lua")?;
-        let a = ansi_load_dir.to_string_lossy();
 
         // ##  Lua インスタンスの作成
         let lua = Lua::new();
@@ -62,7 +61,12 @@ impl Shiori3 for Shiori {
                 // ### shiori.load()の呼び出し
                 let shiori: Table = globals.get("shiori")?;
                 let func: Function = shiori.get("load")?;
-                func.call::<_, std::string::String>((h_inst, load_dir.clone()))?;
+                let load_dir = unsafe {
+                    let v = ansi_load_dir.as_u8_slice();
+                    let s = std::str::from_utf8_unchecked(v);
+                    s.to_owned()
+                };
+                func.call::<_, std::string::String>((h_inst, load_dir))?;
             }
 
             // ##  luaモジュールのロード
