@@ -13,22 +13,22 @@ local function unload()
     co = nil
     if co_item
     then return co_item(nil)
-    else return outcome.err("already unloaded")
+    else return false
     end
 end
 
---SHIORI.load(hinst, ansi_load_dir) -> Result<()>
-local function load(hinst, ansi_load_dir)
+--SHIORI.load(hinst, load_dir) -> Result<()>
+local function load(hinst, load_dir)
     local args = {
-        hinst         = hinst,
-        ansi_load_dir = ansi_load_dir,
+        hinst    = hinst,
+        load_dir = load_dir,
     }
     unload()
     co = main_loop.create();
     return co(args)
 end
 
---SHIORI.request(req) -> Result<res: utf8_string> 
+--SHIORI.request(req) -> Result<res: utf8_string>
 local function request(req)
     return co(req)
 end

@@ -38,6 +38,7 @@ impl Shiori3 for Shiori {
     fn load<P: AsRef<Path>>(h_inst: usize, ansi_load_dir: P) -> MyResult<Self> {
         // 検索パスの作成
         let (ansi_load_dir, load_dir, lua_path) = lua_search_path(ansi_load_dir, "lua")?;
+        let a = ansi_load_dir.to_string_lossy();
 
         // ##  Lua インスタンスの作成
         let lua = Lua::new();
@@ -58,12 +59,10 @@ impl Shiori3 for Shiori {
                 let _: usize = context.load("require(\"init\");return 0;").eval()?;
             }
             {
-                // ### shioriテーブルがinit.luaで定義されているので読み込む
+                // ### shiori.load()の呼び出し
                 let shiori: Table = globals.get("shiori")?;
-                let params: Table = context.create_table()?;
-                params.set("h_inst", h_inst)?;
-                params.set("load_dir", load_dir.clone())?;
-                shiori.set("params", params)?;
+                let func: Function = shiori.get("load")?;
+                func.call::<_, std::string::String>((h_inst, load_dir.clone()))?;
             }
 
             // ##  luaモジュールのロード
@@ -91,8 +90,8 @@ impl Shiori3 for Shiori {
             let req_str = req.into();
             let globals = context.globals();
             let shiori: Table = globals.get("shiori")?;
-            let req_func: Function = shiori.get("request")?;
-            let res = req_func.call::<_, std::string::String>(req_str)?;
+            let func: Function = shiori.get("request")?;
+            let res = func.call::<_, std::string::String>(req_str)?;
             Ok(res)
         });
         let res = result?;
