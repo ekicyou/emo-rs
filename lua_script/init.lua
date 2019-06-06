@@ -17,11 +17,12 @@ local function unload()
     end
 end
 
---SHIORI.load(hinst, load_dir) -> Result<()>
-local function load(hinst, load_dir)
+--SHIORI.load(hinst, ansi_load_dir) -> Result<()>
+--load_dirはpath解決用のANSI文字列
+local function load(hinst, ansi_load_dir)
     local args = {
-        hinst    = hinst,
-        load_dir = load_dir,
+        hinst           = hinst,
+        ansi_load_dir   = ansi_load_dir,
     }
     unload()
     co = main_loop.create();

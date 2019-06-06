@@ -12,18 +12,18 @@ use std::path::PathBuf;
 ///   5. [GHOST]/share/lua_lib/?.ext
 ///   6. [GHOST]/share/lua_lib/?/init.ext
 pub fn lua_search_path<P: AsRef<Path>>(
-    ansi_load_dir: P,
+    load_dir_path: P,
     ext: &str,
 ) -> MyResult<(PathBuf, String, String)> {
     // load dir(終端文字は除去)
-    let ansi_load_dir = {
-        let mut buf = ansi_load_dir.as_ref().to_path_buf();
+    let load_dir_path = {
+        let mut buf = load_dir_path.as_ref().to_path_buf();
         buf.push("a");
         buf.pop();
         buf
     };
     let load_dir = {
-        let a = ansi_load_dir.to_str();
+        let a = load_dir_path.to_str();
         let b = a.ok_or(ShioriError::from(ShioriErrorKind::Load))?;
         String::from(b)
     };
@@ -50,7 +50,7 @@ pub fn lua_search_path<P: AsRef<Path>>(
         add_path("\\share\\lua_lib");
     }
 
-    Ok((ansi_load_dir, load_dir, lua_path))
+    Ok((load_dir_path, load_dir, lua_path))
 
     // # luaのモジュール解決
     // modname は以下の順に検索され、最初に解決したものを返す。

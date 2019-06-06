@@ -11,8 +11,7 @@ use std::path::PathBuf;
 #[derive(Default)]
 pub struct Shiori {
     h_inst: usize,
-    ansi_load_dir: PathBuf,
-    load_dir: String,
+    load_dir_path: PathBuf,
     lua_path: String,
     lua: Lua,
 }
@@ -25,8 +24,8 @@ impl Shiori {
     fn h_inst(&self) -> usize {
         (self.h_inst)
     }
-    fn ansi_load_dir(&self) -> &Path {
-        &(self.ansi_load_dir)
+    fn load_dir_path(&self) -> &Path {
+        &(self.load_dir_path)
     }
     fn lua(&self) -> &Lua {
         &(self.lua)
@@ -35,9 +34,13 @@ impl Shiori {
 
 impl Shiori3 for Shiori {
     /// load_dir pathのファイルでSHIORIインスタンスを作成します。
-    fn load<P: AsRef<Path>>(h_inst: usize, ansi_load_dir: P) -> MyResult<Self> {
+    fn load<P: AsRef<Path>>(
+        h_inst: usize,
+        load_dir_path: P,
+        load_dir_bytes: &[u8],
+    ) -> MyResult<Self> {
         // 検索パスの作成
-        let (ansi_load_dir, load_dir, lua_path) = lua_search_path(ansi_load_dir, "lua")?;
+        let (load_dir_path, _, lua_path) = lua_search_path(load_dir_path, "lua")?;
 
         // ##  Lua インスタンスの作成
         let lua = Lua::new();
@@ -61,12 +64,11 @@ impl Shiori3 for Shiori {
                 // ### shiori.load()の呼び出し
                 let shiori: Table = globals.get("shiori")?;
                 let func: Function = shiori.get("load")?;
-                let load_dir = unsafe {
-                    let v = ansi_load_dir.as_u8_slice();
-                    let s = std::str::from_utf8_unchecked(v);
+                let ansi_load_dir = unsafe {
+                    let s = std::str::from_utf8_unchecked(load_dir_bytes);
                     s.to_owned()
                 };
-                func.call::<_, std::string::String>((h_inst, load_dir))?;
+                func.call::<_, std::string::String>((h_inst, ansi_load_dir))?;
             }
 
             // ##  luaモジュールのロード
@@ -77,8 +79,7 @@ impl Shiori3 for Shiori {
         // リザルト
         Ok(Shiori {
             h_inst: h_inst,
-            ansi_load_dir: ansi_load_dir,
-            load_dir: load_dir,
+            load_dir_path: load_dir_path,
             lua_path: lua_path,
             lua: lua,
         })
