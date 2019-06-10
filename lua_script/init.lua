@@ -12,8 +12,12 @@ local function unload()
     local co_item = co
     co = nil
     if co_item
-    then return co_item(nil)
-    else return false
+    then
+        local ok, rc = pcall(co_item, nil)
+        if ok then  return rc
+        else        return false
+    else
+        return false
     end
 end
 
@@ -26,12 +30,19 @@ local function load(hinst, ansi_load_dir)
     }
     unload()
     co = main_loop.create();
-    return co(args)
+    local ok, rc = pcall(co, args)
+    if ok then  return rc
+    else        return false
 end
 
 --SHIORI.request(req) -> Result<res: utf8_string>
 local function request(req)
-    return co(req)
+    local ok, rc = pcall(co, req)
+    if ok then  return rc
+    else
+
+
+    end
 end
 
 --エントリーポイント

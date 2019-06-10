@@ -11,7 +11,7 @@ use std::path::PathBuf;
 #[derive(Default)]
 pub struct Shiori {
     h_inst: usize,
-    load_dir_path: PathBuf,
+    load_dir: PathBuf,
     lua_path: String,
     lua: Lua,
 }
@@ -24,8 +24,8 @@ impl Shiori {
     fn h_inst(&self) -> usize {
         (self.h_inst)
     }
-    fn load_dir_path(&self) -> &Path {
-        &(self.load_dir_path)
+    fn load_dir(&self) -> &Path {
+        &(self.load_dir)
     }
     fn lua(&self) -> &Lua {
         &(self.lua)
@@ -79,7 +79,7 @@ impl Shiori3 for Shiori {
         // リザルト
         Ok(Shiori {
             h_inst: h_inst,
-            load_dir_path: load_dir_path,
+            load_dir: load_dir_path,
             lua_path: lua_path,
             lua: lua,
         })
