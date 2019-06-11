@@ -47,10 +47,11 @@ local function request(req)
 end
 
 --エントリーポイント
-shiori = {
+local entry = {
     load   = load,
     unload = unload,
     request= request
 }
+shiori = entry
 
-return shiori
+return entry

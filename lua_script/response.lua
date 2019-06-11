@@ -82,17 +82,17 @@ end
 
 
 local pub = {
-    pub.env                 = env
-    pub.set_char_set        = set_char_set
-    pub.set_sender          = set_sender
-    pub.set_security_level  = set_security_level
-    pub.build               = build
-    pub.ok                  = ok
-    pub.no_content          = no_content
-    pub.not_enough          = not_enough
-    pub.advice              = advice
-    pub.bad_request         = bad_request
-    pub.err                 = err
+    env                 = env
+    set_char_set        = set_char_set
+    set_sender          = set_sender
+    set_security_level  = set_security_level
+    build               = build
+    ok                  = ok
+    no_content          = no_content
+    not_enough          = not_enough
+    advice              = advice
+    bad_request         = bad_request
+    err                 = err
 }
 
 return pub
