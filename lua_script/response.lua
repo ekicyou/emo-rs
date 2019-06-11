@@ -8,7 +8,6 @@ SHIORI RESPONSE
     [CRLF]
 ]]
 
-local pub ={}
 local CRLF = "\r\n"
 local SPLIT = ": "
 local env ={
@@ -16,25 +15,24 @@ local env ={
     sender=         "emo",
     security_level= "local",
 }
-pub.env = env
 
 --Charset
-pub.set_char_set=function(value)
+local function set_char_set(value)
     env.char_set = value
 end
 
 --Sender
-pub.set_sender=function(value)
+local function set_sender(value)
     env.sender = value
 end
 
 --SecurityLevel
-pub.set_security_level=function(value)
+local function set_security_level(value)
     env.security_level = value
 end
 
 --SHIORI RESPONSE BUILD
-pub.build=function(code, dic)
+local function build(code, dic)
     local rc = "SHIORI/3.0 " .. code .. CRLF
     rc = rc .. "Charset"        .. SPLIT .. env.char_set        .. CRLF
     rc = rc .. "Sender"         .. SPLIT .. env.sender          .. CRLF
@@ -46,7 +44,7 @@ pub.build=function(code, dic)
 end
 
 -- 200 OK           正常に終了し、会話がある
-pub.ok=function(value, dic)
+local function ok(value, dic)
     if !dic then dic={}
     end
     dic["Value"] = value
@@ -54,32 +52,47 @@ pub.ok=function(value, dic)
 end
 
 -- 204 No Content   正常に終了したが、返すべきデータがない
-pub.no_content=function(dic)
+local function no_content(dic)
     return build("204 No Content", dic)
 end
 
 -- 311 Not Enough   TEACH リクエストを受けたが、情報が足りない
-pub.not_enough=function(dic)
+local function not_enough(dic)
     return build("311 Not Enough", dic)
 end
 
 -- 312 Advice       TEACH リクエスト内の最も新しいヘッダが解釈不能
-pub.advice=function(dic)
+local function advice(dic)
     return build("312 Advice", dic)
 end
 
 -- 400 Bad Request  リクエスト不備
-pub.bad_request=function(dic)
+local function bad_request(dic)
     return build("400 Bad Request", dic)
 end
 
 -- 500 Internal Server Error    サーバ内でエラーが発生した
-pub.err=function(resion ,dic)
+local function err(resion ,dic)
     if !dic then dic={}
     end
     dic["X-Error-Resion"] = resion
     return build("500 Internal Server Error", dic)
 end
 
+
+
+local pub = {
+    pub.env                 = env
+    pub.set_char_set        = set_char_set
+    pub.set_sender          = set_sender
+    pub.set_security_level  = set_security_level
+    pub.build               = build
+    pub.ok                  = ok
+    pub.no_content          = no_content
+    pub.not_enough          = not_enough
+    pub.advice              = advice
+    pub.bad_request         = bad_request
+    pub.err                 = err
+}
 
 return pub
