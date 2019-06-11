@@ -4,6 +4,7 @@
 
 local outcome   = require "outcome"
 local main_loop = require "main_loop"
+local response  = require "response"
 
 local co = nil
 
@@ -40,8 +41,8 @@ local function request(req)
     local ok, rc = pcall(co, req)
     if ok then  return rc
     else
-
-
+        local res = response.err(rc)
+        return res
     end
 end
 
