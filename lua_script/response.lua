@@ -45,7 +45,7 @@ end
 
 -- 200 OK           正常に終了し、会話がある
 local function ok(value, dic)
-    if !dic then dic={}
+    if not dic then dic={}
     end
     dic["Value"] = value
     return build("200 OK", dic)
@@ -73,7 +73,7 @@ end
 
 -- 500 Internal Server Error    サーバ内でエラーが発生した
 local function err(resion ,dic)
-    if !dic then dic={}
+    if not dic then dic={}
     end
     dic["X-Error-Resion"] = resion
     return build("500 Internal Server Error", dic)
@@ -82,17 +82,17 @@ end
 
 
 local pub = {
-    env                 = env
-    set_char_set        = set_char_set
-    set_sender          = set_sender
-    set_security_level  = set_security_level
-    build               = build
-    ok                  = ok
-    no_content          = no_content
-    not_enough          = not_enough
-    advice              = advice
-    bad_request         = bad_request
-    err                 = err
+    env                 = env,
+    set_char_set        = set_char_set,
+    set_sender          = set_sender,
+    set_security_level  = set_security_level,
+    build               = build,
+    ok                  = ok,
+    no_content          = no_content,
+    not_enough          = not_enough,
+    advice              = advice,
+    bad_request         = bad_request,
+    err                 = err,
 }
 
 return pub

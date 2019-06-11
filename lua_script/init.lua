@@ -50,7 +50,7 @@ end
 local entry = {
     load   = load,
     unload = unload,
-    request= request
+    request= request,
 }
 shiori = entry
 
