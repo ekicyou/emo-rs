@@ -1,4 +1,5 @@
 use crate::lua_funcs::*;
+use crate::lua_request::*;
 use crate::path::*;
 use crate::prelude::*;
 use rlua::{Function, Lua, Table};
@@ -88,15 +89,11 @@ impl Shiori3 for Shiori {
     /// SHIORIリクエストを解釈し、応答を返します。
     fn request<'a, S: Into<&'a str>>(&mut self, req: S) -> MyResult<Cow<'a, str>> {
         let result: MyResult<_> = self.lua().context(|context| {
-            // rust側の解析結果をうまく渡せない。。。
-            // let req_data = Req::parse(req_str)?;
-
-            // local res = shiori.request(req) 関数を呼び出し、結果を取得する。
-            let req_str = req.into();
+            let req = parse_request(&context, req.into())?;
             let globals = context.globals();
             let shiori: Table = globals.get("shiori")?;
             let func: Function = shiori.get("request")?;
-            let res = func.call::<_, std::string::String>(req_str)?;
+            let res = func.call::<_, std::string::String>(req)?;
             Ok(res)
         });
         let res = result?;

@@ -13,11 +13,11 @@ pub fn load_functions(c: &rlua::Context) -> LuaResult<()> {
 }
 
 // UserData
-pub struct Req<'a>(ShioriRequest<'a>);
+pub struct Req<'a>(req::ShioriRequest<'a>);
 
 impl<'a> Req<'a> {
     pub fn parse(text: &'a str) -> MyResult<Req<'a>> {
-        let a = ShioriRequest::parse(text)?;
+        let a = req::ShioriRequest::parse(text)?;
         Ok(Req(a))
     }
 }
@@ -28,8 +28,8 @@ impl<'a> rlua::UserData for Req<'a> {
         methods.add_method("version", |_, x, _: ()| Ok(x.0.version));
         methods.add_method("method", |_, x, _: ()| {
             let a = match x.0.method {
-                ShioriParserRule::get => "get",
-                ShioriParserRule::notify => "notify",
+                req::Rule::get => "get",
+                req::Rule::notify => "notify",
                 _ => "other",
             };
             Ok(a)
