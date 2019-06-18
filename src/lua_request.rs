@@ -52,8 +52,8 @@ fn parse_key_value<'lua, 'a>(
     let pair = it.next().unwrap();
     let rule = pair.as_rule();
     let key = pair.as_str();
-    let reference: Table = table.get("reference")?;
-    let dic: Table = table.get("dic")?;
+    let reference: Table<'_> = table.get("reference")?;
+    let dic: Table<'_> = table.get("dic")?;
 
     let value = match rule {
         req::Rule::key_ref => {

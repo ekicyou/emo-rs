@@ -57,14 +57,14 @@ impl Shiori3 for Shiori {
             let globals = context.globals();
             {
                 // ### モジュールパスを設定してinit.luaを読み込む
-                let package: Table = globals.get("package")?;
+                let package: Table<'_> = globals.get("package")?;
                 package.set("path", lua_path.clone())?;
                 let _: usize = context.load("require(\"init\");return 0;").eval()?;
             }
             {
                 // ### shiori.load()の呼び出し
-                let shiori: Table = globals.get("shiori")?;
-                let func: Function = shiori.get("load")?;
+                let shiori: Table<'_> = globals.get("shiori")?;
+                let func: Function<'_> = shiori.get("load")?;
                 let ansi_load_dir = unsafe {
                     let s = std::str::from_utf8_unchecked(load_dir_bytes);
                     s.to_owned()
@@ -91,8 +91,8 @@ impl Shiori3 for Shiori {
         let result: MyResult<_> = self.lua().context(|context| {
             let req = parse_request(&context, req.into())?;
             let globals = context.globals();
-            let shiori: Table = globals.get("shiori")?;
-            let func: Function = shiori.get("request")?;
+            let shiori: Table<'_> = globals.get("shiori")?;
+            let func: Function<'_> = shiori.get("request")?;
             let res = func.call::<_, std::string::String>(req)?;
             Ok(res)
         });

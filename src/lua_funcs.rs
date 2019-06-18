@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
 /// luaで利用する関数を登録します。
-pub fn load_functions(c: &rlua::Context) -> LuaResult<()> {
+pub fn load_functions(c: &rlua::Context<'_>) -> LuaResult<()> {
     let g = c.globals();
     let f = c.create_function(|_, name: String| {
         println!("Hello, {}!", name);

@@ -13,7 +13,7 @@ fn hello_test() {
     let lua = Lua::new();
     lua.context(|context| {
         let globals = context.globals();
-        let package = globals.get::<_, Table>("package").unwrap();
+        let package = globals.get::<_, Table<'_>>("package").unwrap();
         {
             let src_path = current_dir().unwrap();
             set_package_path(&context, src_path);
@@ -43,7 +43,7 @@ fn hello_test() {
     });
 }
 
-fn set_package_path<P: AsRef<Path>>(context: &Context, load_dir: P) {
+fn set_package_path<P: AsRef<Path>>(context: &Context<'_>, load_dir: P) {
     fn append<P: AsRef<Path>>(buf: &mut String, dir: P) {
         {
             let mut p = dir.as_ref().to_path_buf();
@@ -73,7 +73,7 @@ fn set_package_path<P: AsRef<Path>>(context: &Context, load_dir: P) {
         append(&mut buf, pre);
     }
     let globals = context.globals();
-    let package = globals.get::<_, Table>("package").unwrap();
+    let package = globals.get::<_, Table<'_>>("package").unwrap();
     package.set("path", buf).unwrap();
 }
 
