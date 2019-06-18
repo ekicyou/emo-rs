@@ -24,7 +24,10 @@ fn hello_test() {
             trace!("path= {:?}", path);
         }
         {
-            let _: usize = context.load("require(\"hello\");return 0;").eval().unwrap();
+            let _: usize = context
+                .load("require(\"shiori.hello\");return 0;")
+                .eval()
+                .unwrap();
         }
         {
             let rc: String = context.load("return hello(\"hello\")").eval().unwrap();
@@ -66,12 +69,7 @@ fn set_package_path<P: AsRef<Path>>(context: &Context, load_dir: P) {
     let mut buf = String::new();
     {
         let mut pre = load_dir.as_ref().to_path_buf();
-        pre.push("lua_script");
-        append(&mut buf, pre);
-    }
-    {
-        let mut pre = load_dir.as_ref().to_path_buf();
-        pre.push("lua_lib");
+        pre.push("script");
         append(&mut buf, pre);
     }
     let globals = context.globals();

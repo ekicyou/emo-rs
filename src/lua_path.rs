@@ -5,12 +5,12 @@ use std::path::PathBuf;
 
 /// luaの検索パスを作成します。
 /// 以下の検索順となります。
-///   1. [GHOST]/usr/lua/?.ext
-///   2. [GHOST]/usr/lua/?/init.ext
-///   3. [GHOST]/share/lua/?.ext
-///   4. [GHOST]/share/lua/?/init.ext
-///   5. [GHOST]/share/lua_lib/?.ext
-///   6. [GHOST]/share/lua_lib/?/init.ext
+///   1. [GHOST]/profile/emo/?.ext
+///   2. [GHOST]/profile/emo/?/init.ext
+///   3. [GHOST]/dic/lua/?.ext
+///   4. [GHOST]/dic/lua/?/init.ext
+///   5. [GHOST]/emo/lua/?.ext
+///   6. [GHOST]/emo/lua/?/init.ext
 pub fn lua_search_path<P: AsRef<Path>>(
     load_dir_path: P,
     ext: &str,
@@ -45,9 +45,9 @@ pub fn lua_search_path<P: AsRef<Path>>(
             add_path("\\?.");
             add_path("\\?\\init.");
         };
-        add_path("\\usr\\lua");
-        add_path("\\share\\lua");
-        add_path("\\share\\lua_lib");
+        add_path("\\profile\\emo");
+        add_path("\\dic\\lua");
+        add_path("\\emo\\lua");
     }
 
     Ok((load_dir_path, load_dir, lua_path))
@@ -82,6 +82,6 @@ fn lua_search_path_test() {
         let (dir, _, path) =
             lua_search_path("c:\\留袖 綺麗ね\\ごーすと\\", "lua").unwrap();
         assert_eq!(dir.to_string_lossy(), "c:\\留袖 綺麗ね\\ごーすと");
-        assert_eq!(path, "c:\\留袖 綺麗ね\\ごーすと\\usr\\lua\\?.lua;c:\\留袖 綺麗ね\\ごーすと\\usr\\lua\\?\\init.lua;c:\\留袖 綺麗ね\\ごーすと\\share\\lua\\?.lua;c:\\留袖 綺麗ね\\ごーすと\\share\\lua\\?\\init.lua;c:\\留袖 綺麗ね\\ごーすと\\share\\lua_lib\\?.lua;c:\\留袖 綺麗ね\\ごーすと\\share\\lua_lib\\?\\init.lua");
+        assert_eq!(path, "c:\\留袖 綺麗ね\\ごーすと\\profile\\emo\\?.lua;c:\\留袖 綺麗ね\\ごーすと\\profile\\emo\\?\\init.lua;c:\\留袖 綺麗ね\\ごーすと\\dic\\lua\\?.lua;c:\\留袖 綺麗ね\\ごーすと\\dic\\lua\\?\\init.lua;c:\\留袖 綺麗ね\\ごーすと\\emo\\lua\\?.lua;c:\\留袖 綺麗ね\\ごーすと\\emo\\lua\\?\\init.lua");
     }
 }

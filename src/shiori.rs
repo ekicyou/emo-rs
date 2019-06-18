@@ -1,6 +1,6 @@
 use crate::lua_funcs::*;
+use crate::lua_path::*;
 use crate::lua_request::*;
-use crate::path::*;
 use crate::prelude::*;
 use rlua::{Function, Lua, Table};
 use shiori3::*;
