@@ -8,6 +8,6 @@
         "request": "launch",
         "name": "Launch",
         "program": "${file}",
-        "path": "${workspaceFolder}/lua_lib/?.lua;${workspaceFolder}/lua_lib/?/init.lua;${workspaceFolder}/lua_script/?.lua;${workspaceFolder}/lua_script/?/init.lua"
+        "path": "${workspaceFolder}/script/?.lua;${workspaceFolder}/script/?/init.lua"
     }]
 }
