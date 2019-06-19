@@ -1,3 +1,4 @@
+#![allow(clippy::trivially_copy_pass_by_ref)]
 use crate::prelude::*;
 
 /// luaで利用する関数を登録します。

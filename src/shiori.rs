@@ -79,10 +79,10 @@ impl Shiori3 for Shiori {
 
         // リザルト
         Ok(Shiori {
-            h_inst: h_inst,
+            h_inst,
             load_dir: load_dir_path,
-            lua_path: lua_path,
-            lua: lua,
+            lua_path,
+            lua,
         })
     }
 

@@ -1,3 +1,5 @@
+#![allow(clippy::trivially_copy_pass_by_ref)]
+
 use crate::prelude::*;
 use pest;
 use pest::iterators::FlatPairs;

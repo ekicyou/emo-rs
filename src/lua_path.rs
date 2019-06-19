@@ -24,7 +24,7 @@ pub fn lua_search_path<P: AsRef<Path>>(
     };
     let load_dir = {
         let a = load_dir_path.to_str();
-        let b = a.ok_or(ShioriError::from(ShioriErrorKind::Load))?;
+        let b = a.ok_or_else(|| ShioriError::from(ShioriErrorKind::Load))?;
         String::from(b)
     };
 
