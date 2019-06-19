@@ -37,10 +37,14 @@ local function build(code, dic)
     rc = rc .. "Charset"        .. SPLIT .. env.char_set        .. CRLF
     rc = rc .. "Sender"         .. SPLIT .. env.sender          .. CRLF
     rc = rc .. "SecurityLevel"  .. SPLIT .. env.security_level  .. CRLF
-    for k, v in pairs(dic) do
-        rc = rc .. k .. SPLIT .. v .. CRLF
+
+    if type(dic) == 'table' then
+        for k, v in pairs(dic) do
+            rc = rc .. k .. SPLIT .. v .. CRLF
+        end
     end
-    return rc
+
+    return rc .. CRLF
 end
 
 -- 200 OK           正常に終了し、会話がある
