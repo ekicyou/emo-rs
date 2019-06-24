@@ -8,6 +8,7 @@
         "request": "launch",
         "name": "Launch",
         "program": "${file}",
+        "stopOnEntry": false,
         "path": "${workspaceFolder}/script/?.lua;${workspaceFolder}/script/?/init.lua"
     }]
 }

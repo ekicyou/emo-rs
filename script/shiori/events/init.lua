@@ -16,7 +16,7 @@ setmetatable(EV, {
 })
 
 local M={}
-M.get_event_handler= function()
+M.get_event_table= function()
     local H={}
     setmetatable(H, {
         __index= EV,
