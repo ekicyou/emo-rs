@@ -40,6 +40,10 @@ fn hello_test() {
                 .unwrap();
             assert_eq!(rc, "こんにちわ、世界");
         }
+        {
+            let rc: String = context.load("return _G._VERSION").eval().unwrap();
+            assert_eq!(rc, "Lua 5.3");
+        }
     });
 }
 

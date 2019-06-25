@@ -67,8 +67,6 @@ fn main() {
             .file("c/lua/lutf8lib.c")
             .file("c/lua/lvm.c")
             .file("c/lua/lzio.c")
-            .include("c/luafilesystem")
-            .file("c/luafilesystem/lfs.c")
             .compile("liblua5.3.a");
     }
 
