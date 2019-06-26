@@ -47,7 +47,7 @@ impl Shiori3 for Shiori {
         let lua = Lua::new();
 
         let result: LuaResult<_> = lua.context(|context| {
-            // ## 関数の登録
+            // ## emo.* 関数の登録
             load_functions(&context)?;
 
             // ##  グローバル変数の設定
