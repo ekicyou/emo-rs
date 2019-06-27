@@ -4,8 +4,9 @@ use crate::prelude::*;
 use log::*;
 use rlua::{Context, Lua, Table};
 use std::env::current_dir;
-use std::path::Path;
 
+use std::fs;
+use std::path::Path;
 #[test]
 fn hello_test() {
     {
@@ -49,6 +50,9 @@ fn hello_test() {
     });
 }
 
+/// 試験環境のlua モジュール検索パスを作成する。
+/// * [root]\\script\\?.lua
+/// * [root]\\script\\?\\init.lua
 fn set_package_path<P: AsRef<Path>>(lua: &Context<'_>, load_dir: P) {
     fn append<P: AsRef<Path>>(buf: &mut String, dir: P) {
         {
@@ -73,6 +77,12 @@ fn set_package_path<P: AsRef<Path>>(lua: &Context<'_>, load_dir: P) {
     }
 
     let mut buf = String::new();
+    {
+        let mut pre = load_dir.as_ref().to_path_buf();
+        pre.push("target");
+        pre.push("ソ―Ы 場所");
+        append(&mut buf, pre);
+    }
     {
         let mut pre = load_dir.as_ref().to_path_buf();
         pre.push("script");
@@ -153,6 +163,40 @@ fn lua_funcs_test() {
         {
             let rc: String = lua.load("return emo.rust_hello(\"world\")").eval().unwrap();
             assert_eq!(rc, "Hello, world!");
+        }
+        {
+            let save_dir = {
+                let mut pre = current_dir().unwrap();
+                pre.push("target");
+                pre.push("ソ―Ы 場所");
+                pre
+            };
+            let _ = fs::remove_dir_all(&save_dir);
+            let ansi_save_dir = {
+                let dir = save_dir.to_str().unwrap();
+                let bytes = Encoding::ANSI.to_bytes(&dir).unwrap();
+                unsafe { String::from_utf8_unchecked(bytes) }
+            };
+            let mkdir_test = lua.create_table().unwrap();
+            mkdir_test.set("ansi_save_dir", ansi_save_dir).unwrap();
+            globals.set("mkdir_test", mkdir_test).unwrap();
+            {
+                let rc: bool = lua
+                    .load("return lfs.mkdir(mkdir_test.ansi_save_dir .. \"\\\\test\")")
+                    .eval()
+                    .unwrap();
+                assert_eq!(rc, true);
+                let mut p = save_dir.to_owned();
+                p.push("test");
+                let _entry = fs::read_dir(p).unwrap();
+            }
+            {
+                let rc: bool = lua
+                    .load("return lfs.mkdir(mkdir_test.ansi_save_dir .. \"\\\\test\")")
+                    .eval()
+                    .unwrap();
+                assert_eq!(rc, true);
+            }
         }
     });
 }

@@ -1,5 +1,6 @@
 #![allow(clippy::trivially_copy_pass_by_ref)]
 use crate::prelude::*;
+use log::*;
 use std::fs;
 use std::sync::Arc;
 
@@ -10,7 +11,7 @@ pub fn load_functions(lua: &rlua::Context<'_>) -> LuaResult<()> {
     {
         let f = lua.create_function(|_, name: String| {
             let rc = format!("Hello, {}!", name);
-            println!("{}", rc);
+            trace!("rust_hello({})", name);
             Ok(rc)
         })?;
         emo.set("rust_hello", f)?;
@@ -21,8 +22,9 @@ pub fn load_functions(lua: &rlua::Context<'_>) -> LuaResult<()> {
             let dir = Encoding::ANSI
                 .to_string(bytes)
                 .map_err(|e| LuaError::ExternalError(Arc::new(e)))?;
+            trace!("mkdir({})", dir);
             fs::create_dir_all(dir).map_err(|e| LuaError::ExternalError(Arc::new(e)))?;
-            Ok(())
+            Ok(true)
         })?;
         lfs.set("mkdir", f)?;
     }
