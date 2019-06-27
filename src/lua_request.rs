@@ -1,14 +1,12 @@
 #![allow(clippy::trivially_copy_pass_by_ref)]
-
 use crate::prelude::*;
 use pest;
 use pest::iterators::FlatPairs;
 use pest::Parser as PestParser;
-use rlua::{Context, Table};
 use shiori3::req;
 
 /// SHIORI REQUESTを解析し、luaオブジェクトに展開します。
-pub fn parse_request<'lua>(lua: &Context<'lua>, text: &str) -> MyResult<Table<'lua>> {
+pub fn parse_request<'lua>(lua: &LuaContext<'lua>, text: &str) -> MyResult<LuaTable<'lua>> {
     let mut t = lua.create_table()?;
     t.set("reference", lua.create_table()?)?;
     t.set("dic", lua.create_table()?)?;
@@ -17,7 +15,7 @@ pub fn parse_request<'lua>(lua: &Context<'lua>, text: &str) -> MyResult<Table<'l
     Ok(t)
 }
 
-fn parse1<'lua, 'a>(table: &mut Table<'lua>, mut it: FlatPairs<'a, req::Rule>) -> MyResult<()> {
+fn parse1<'lua, 'a>(table: &mut LuaTable<'lua>, mut it: FlatPairs<'a, req::Rule>) -> MyResult<()> {
     let pair = match it.next() {
         Some(a) => a,
         None => return Ok(()),
@@ -48,14 +46,14 @@ fn parse1<'lua, 'a>(table: &mut Table<'lua>, mut it: FlatPairs<'a, req::Rule>) -
 }
 
 fn parse_key_value<'lua, 'a>(
-    table: &mut Table<'lua>,
+    table: &mut LuaTable<'lua>,
     it: &mut FlatPairs<'a, req::Rule>,
 ) -> MyResult<()> {
     let pair = it.next().unwrap();
     let rule = pair.as_rule();
     let key = pair.as_str();
-    let reference: Table<'_> = table.get("reference")?;
-    let dic: Table<'_> = table.get("dic")?;
+    let reference: LuaTable<'_> = table.get("reference")?;
+    let dic: LuaTable<'_> = table.get("dic")?;
 
     let value = match rule {
         req::Rule::key_ref => {

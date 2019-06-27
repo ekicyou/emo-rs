@@ -4,8 +4,10 @@ use log::*;
 use std::fs;
 use std::sync::Arc;
 
-/// emo.* 関数を登録します。
-pub fn load_functions(lua: &rlua::Context<'_>) -> LuaResult<()> {
+/// lua環境に関数を登録します。
+/// * emo.*
+/// * lfs.*
+pub fn load_functions(lua: &LuaContext<'_>) -> LuaResult<()> {
     let emo = lua.create_table()?;
     let lfs = lua.create_table()?;
     {
@@ -23,7 +25,10 @@ pub fn load_functions(lua: &rlua::Context<'_>) -> LuaResult<()> {
                 .to_string(bytes)
                 .map_err(|e| LuaError::ExternalError(Arc::new(e)))?;
             trace!("mkdir({})", dir);
-            fs::create_dir_all(dir).map_err(|e| LuaError::ExternalError(Arc::new(e)))?;
+            fs::create_dir_all(dir).map_err(|e| {
+                error!("{}", e);
+                LuaError::ExternalError(Arc::new(e))
+            })?;
             Ok(true)
         })?;
         lfs.set("mkdir", f)?;

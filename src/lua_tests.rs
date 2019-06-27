@@ -2,7 +2,6 @@
 use crate::lua_funcs::*;
 use crate::prelude::*;
 use log::*;
-use rlua::{Context, Lua, Table};
 use std::env::current_dir;
 
 use std::fs;
@@ -16,7 +15,7 @@ fn hello_test() {
     let lua = Lua::new();
     lua.context(|lua| {
         let globals = lua.globals();
-        let package = globals.get::<_, Table<'_>>("package").unwrap();
+        let package = globals.get::<_, LuaTable<'_>>("package").unwrap();
         {
             let src_path = current_dir().unwrap();
             set_package_path(&lua, src_path);
@@ -53,7 +52,7 @@ fn hello_test() {
 /// 試験環境のlua モジュール検索パスを作成する。
 /// * [root]\\script\\?.lua
 /// * [root]\\script\\?\\init.lua
-fn set_package_path<P: AsRef<Path>>(lua: &Context<'_>, load_dir: P) {
+fn set_package_path<P: AsRef<Path>>(lua: &LuaContext<'_>, load_dir: P) {
     fn append<P: AsRef<Path>>(buf: &mut String, dir: P) {
         {
             let mut p = dir.as_ref().to_path_buf();
@@ -89,7 +88,7 @@ fn set_package_path<P: AsRef<Path>>(lua: &Context<'_>, load_dir: P) {
         append(&mut buf, pre);
     }
     let globals = lua.globals();
-    let package = globals.get::<_, Table<'_>>("package").unwrap();
+    let package = globals.get::<_, LuaTable<'_>>("package").unwrap();
     package.set("path", buf).unwrap();
 }
 
@@ -154,7 +153,7 @@ fn lua_funcs_test() {
             load_functions(&lua).unwrap();
         }
         let globals = lua.globals();
-        let emo = globals.get::<_, Table<'_>>("emo").unwrap();
+        let emo = globals.get::<_, LuaTable<'_>>("emo").unwrap();
         {
             let f = emo.get::<_, LuaFunction<'_>>("rust_hello").unwrap();
             let rc: String = f.call("world").unwrap();
