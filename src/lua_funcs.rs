@@ -9,8 +9,9 @@ pub fn load_functions(lua: &rlua::Context<'_>) -> LuaResult<()> {
     let lfs = lua.create_table()?;
     {
         let f = lua.create_function(|_, name: String| {
-            println!("Hello, {}!", name);
-            Ok(())
+            let rc = format!("Hello, {}!", name);
+            println!("{}", rc);
+            Ok(rc)
         })?;
         emo.set("rust_hello", f)?;
     }

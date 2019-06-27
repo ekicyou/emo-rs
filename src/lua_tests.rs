@@ -1,4 +1,6 @@
 #![cfg(test)]
+use crate::lua_funcs::*;
+use crate::prelude::*;
 use log::*;
 use rlua::{Context, Lua, Table};
 use std::env::current_dir;
@@ -11,12 +13,12 @@ fn hello_test() {
         let _ = env_logger::try_init();
     }
     let lua = Lua::new();
-    lua.context(|context| {
-        let globals = context.globals();
+    lua.context(|lua| {
+        let globals = lua.globals();
         let package = globals.get::<_, Table<'_>>("package").unwrap();
         {
             let src_path = current_dir().unwrap();
-            set_package_path(&context, src_path);
+            set_package_path(&lua, src_path);
         }
         {
             let path = package.get::<_, String>("path");
@@ -24,24 +26,24 @@ fn hello_test() {
             trace!("path= {:?}", path);
         }
         {
-            let _: usize = context
+            let _: usize = lua
                 .load("require(\"shiori.hello\");return 0;")
                 .eval()
                 .unwrap();
         }
         {
-            let rc: String = context.load("return hello(\"hello\")").eval().unwrap();
+            let rc: String = lua.load("return hello(\"hello\")").eval().unwrap();
             assert_eq!(rc, "hello world");
         }
         {
-            let rc: String = context
+            let rc: String = lua
                 .load("return こんにちわ(\"世界\")")
                 .eval()
                 .unwrap();
             assert_eq!(rc, "こんにちわ、世界");
         }
         {
-            let rc: String = context.load("return _G._VERSION").eval().unwrap();
+            let rc: String = lua.load("return _G._VERSION").eval().unwrap();
             assert_eq!(rc, "Lua 5.3");
         }
     });
@@ -125,4 +127,32 @@ fn os_str_test() {
             assert_eq!(c, Some("c:\\Windows"));
         }
     }
+}
+
+#[cfg(any(windows))]
+#[test]
+fn lua_funcs_test() {
+    {
+        std::env::set_var("RUST_LOG", "trace");
+        let _ = env_logger::try_init();
+    }
+    let lua = Lua::new();
+    lua.context(|lua| {
+        {
+            let src_path = current_dir().unwrap();
+            set_package_path(&lua, src_path);
+            load_functions(&lua).unwrap();
+        }
+        let globals = lua.globals();
+        let emo = globals.get::<_, Table<'_>>("emo").unwrap();
+        {
+            let f = emo.get::<_, LuaFunction<'_>>("rust_hello").unwrap();
+            let rc: String = f.call("world").unwrap();
+            assert_eq!(rc, "Hello, world!");
+        }
+        {
+            let rc: String = lua.load("return emo.rust_hello(\"world\")").eval().unwrap();
+            assert_eq!(rc, "Hello, world!");
+        }
+    });
 }
