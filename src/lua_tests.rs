@@ -47,7 +47,7 @@ fn hello_test() {
     });
 }
 
-fn set_package_path<P: AsRef<Path>>(context: &Context<'_>, load_dir: P) {
+fn set_package_path<P: AsRef<Path>>(lua: &Context<'_>, load_dir: P) {
     fn append<P: AsRef<Path>>(buf: &mut String, dir: P) {
         {
             let mut p = dir.as_ref().to_path_buf();
@@ -76,7 +76,7 @@ fn set_package_path<P: AsRef<Path>>(context: &Context<'_>, load_dir: P) {
         pre.push("script");
         append(&mut buf, pre);
     }
-    let globals = context.globals();
+    let globals = lua.globals();
     let package = globals.get::<_, Table<'_>>("package").unwrap();
     package.set("path", buf).unwrap();
 }

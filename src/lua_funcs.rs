@@ -4,18 +4,18 @@ use std::fs;
 use std::sync::Arc;
 
 /// emo.* 関数を登録します。
-pub fn load_functions(c: &rlua::Context<'_>) -> LuaResult<()> {
-    let emo = c.create_table()?;
-    let lfs = c.create_table()?;
+pub fn load_functions(lua: &rlua::Context<'_>) -> LuaResult<()> {
+    let emo = lua.create_table()?;
+    let lfs = lua.create_table()?;
     {
-        let f = c.create_function(|_, name: String| {
+        let f = lua.create_function(|_, name: String| {
             println!("Hello, {}!", name);
             Ok(())
         })?;
         emo.set("rust_hello", f)?;
     }
     {
-        let f = c.create_function(|_, ansi_dir: LuaString| {
+        let f = lua.create_function(|_, ansi_dir: LuaString| {
             let bytes = ansi_dir.as_bytes();
             let dir = Encoding::ANSI
                 .to_string(bytes)
@@ -25,7 +25,7 @@ pub fn load_functions(c: &rlua::Context<'_>) -> LuaResult<()> {
         })?;
         lfs.set("mkdir", f)?;
     }
-    c.globals().set("emo", emo)?;
-    c.globals().set("lfs", lfs)?;
+    lua.globals().set("emo", emo)?;
+    lua.globals().set("lfs", lfs)?;
     Ok(())
 }

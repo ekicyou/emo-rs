@@ -8,10 +8,10 @@ use rlua::{Context, Table};
 use shiori3::req;
 
 /// SHIORI REQUESTを解析し、luaオブジェクトに展開します。
-pub fn parse_request<'lua>(context: &Context<'lua>, text: &str) -> MyResult<Table<'lua>> {
-    let mut t = context.create_table()?;
-    t.set("reference", context.create_table()?)?;
-    t.set("dic", context.create_table()?)?;
+pub fn parse_request<'lua>(lua: &Context<'lua>, text: &str) -> MyResult<Table<'lua>> {
+    let mut t = lua.create_table()?;
+    t.set("reference", lua.create_table()?)?;
+    t.set("dic", lua.create_table()?)?;
     let it = req::Parser::parse(req::Rule::req, text)?.flatten();
     parse1(&mut t, it)?;
     Ok(t)
