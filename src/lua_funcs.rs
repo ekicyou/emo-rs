@@ -6,6 +6,7 @@ use std::sync::Arc;
 /// emo.* 関数を登録します。
 pub fn load_functions(c: &rlua::Context<'_>) -> LuaResult<()> {
     let emo = c.create_table()?;
+    let lfs = c.create_table()?;
     {
         let f = c.create_function(|_, name: String| {
             println!("Hello, {}!", name);
@@ -22,8 +23,9 @@ pub fn load_functions(c: &rlua::Context<'_>) -> LuaResult<()> {
             fs::create_dir_all(dir).map_err(|e| LuaError::ExternalError(Arc::new(e)))?;
             Ok(())
         })?;
-        emo.set("mkdir", f)?;
+        lfs.set("mkdir", f)?;
     }
     c.globals().set("emo", emo)?;
+    c.globals().set("lfs", lfs)?;
     Ok(())
 }
