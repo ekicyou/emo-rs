@@ -5,16 +5,16 @@ use std::path::PathBuf;
 
 /// luaの検索パスを作成します。
 /// 以下の検索順となります。
-///   1. [GHOST]/profile/emo/?.lua
-///   2. [GHOST]/profile/emo/?/init.lua
-///   3. [GHOST]/dic/lua/?.lua
-///   4. [GHOST]/dic/lua/?/init.lua
-///   5. [GHOST]/emo/lua/?.lua
-///   6. [GHOST]/emo/lua/?/init.lua
+///   1. [GHOST]/profile/emo/save/?.lua
+///   2. [GHOST]/profile/emo/save/?/init.lua
+///   3. [GHOST]/dic/?.lua
+///   4. [GHOST]/dic/?/init.lua
+///   5. [GHOST]/emo/?.lua
+///   6. [GHOST]/emo/?/init.lua
 pub fn lua_search_path<P: AsRef<Path>>(
     load_dir_path: P,
     ext: &str,
-) -> MyResult<(PathBuf, String, String)> {
+) -> MyResult<(PathBuf, String, String, PathBuf)> {
     // load dir(終端文字は除去)
     let load_dir_path = {
         let mut buf = load_dir_path.as_ref().to_path_buf();
@@ -45,12 +45,21 @@ pub fn lua_search_path<P: AsRef<Path>>(
             add_path("\\?.");
             add_path("\\?\\init.");
         };
-        add_path("\\profile\\emo");
-        add_path("\\dic\\lua");
-        add_path("\\emo\\lua");
+        add_path("\\profile\\emo\\save");
+        add_path("\\dic");
+        add_path("\\emo");
     }
 
-    Ok((load_dir_path, load_dir, lua_path))
+    // saveフォルダのパス
+    let save_dir = {
+        let mut dir = load_dir_path.to_owned();
+        dir.push("profile");
+        dir.push("emo");
+        dir.push("save");
+        dir
+    };
+
+    Ok((load_dir_path, load_dir, lua_path, save_dir))
 
     // # luaのモジュール解決
     // modname は以下の順に検索され、最初に解決したものを返す。
@@ -79,9 +88,9 @@ pub fn lua_search_path<P: AsRef<Path>>(
 #[test]
 fn lua_search_path_test() {
     {
-        let (dir, _, path) =
+        let (dir, _, path, _) =
             lua_search_path("c:\\留袖 綺麗ね\\ごーすと\\", "lua").unwrap();
         assert_eq!(dir.to_string_lossy(), "c:\\留袖 綺麗ね\\ごーすと");
-        assert_eq!(path, "c:\\留袖 綺麗ね\\ごーすと\\profile\\emo\\?.lua;c:\\留袖 綺麗ね\\ごーすと\\profile\\emo\\?\\init.lua;c:\\留袖 綺麗ね\\ごーすと\\dic\\lua\\?.lua;c:\\留袖 綺麗ね\\ごーすと\\dic\\lua\\?\\init.lua;c:\\留袖 綺麗ね\\ごーすと\\emo\\lua\\?.lua;c:\\留袖 綺麗ね\\ごーすと\\emo\\lua\\?\\init.lua");
+        assert_eq!(path, "c:\\留袖 綺麗ね\\ごーすと\\profile\\emo\\save\\?.lua;c:\\留袖 綺麗ね\\ごーすと\\profile\\emo\\save\\?\\init.lua;c:\\留袖 綺麗ね\\ごーすと\\dic\\?.lua;c:\\留袖 綺麗ね\\ごーすと\\dic\\?\\init.lua;c:\\留袖 綺麗ね\\ごーすと\\emo\\?.lua;c:\\留袖 綺麗ね\\ごーすと\\emo\\?\\init.lua");
     }
 }

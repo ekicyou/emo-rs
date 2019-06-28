@@ -5,4 +5,5 @@ mod lua_request;
 mod lua_tests;
 mod prelude;
 mod shiori;
+mod utils;
 pub mod windows;

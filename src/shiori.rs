@@ -2,8 +2,10 @@ use crate::lua_funcs::*;
 use crate::lua_path::*;
 use crate::lua_request::*;
 use crate::prelude::*;
+use crate::utils;
 use shiori3::*;
 use std::borrow::Cow;
+use std::fs;
 use std::path::Path;
 use std::path::PathBuf;
 
@@ -39,8 +41,9 @@ impl Shiori3 for Shiori {
         load_dir_path: P,
         load_dir_bytes: &[u8],
     ) -> MyResult<Self> {
-        // 検索パスの作成
-        let (load_dir_path, _, lua_path) = lua_search_path(load_dir_path, "lua")?;
+        // 検索パスの作成、saveフォルダの作成
+        let (load_dir_path, _, lua_path, save_dir) = lua_search_path(load_dir_path, "lua")?;
+        fs::create_dir_all(save_dir)?;
 
         // ##  Lua インスタンスの作成
         let lua = Lua::new();
