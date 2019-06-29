@@ -1,6 +1,7 @@
 #![cfg(test)]
 use crate::lua_funcs::*;
 use crate::prelude::*;
+use crate::utils::*;
 use log::*;
 use std::env::current_dir;
 
@@ -171,11 +172,7 @@ fn lua_funcs_test() {
                 pre
             };
             let _ = fs::remove_dir_all(&save_dir);
-            let ansi_save_dir = {
-                let dir = save_dir.to_str().unwrap();
-                let bytes = Encoding::ANSI.to_bytes(&dir).unwrap();
-                unsafe { String::from_utf8_unchecked(bytes) }
-            };
+            let ansi_save_dir = save_dir.to_ansi().unwrap();
             let mkdir_test = lua.create_table().unwrap();
             mkdir_test.set("ansi_save_dir", ansi_save_dir).unwrap();
             globals.set("mkdir_test", mkdir_test).unwrap();
