@@ -6,6 +6,16 @@ use pest::Parser as PestParser;
 use shiori3::req;
 
 /// SHIORI REQUESTを解析し、luaオブジェクトに展開します。
+/// * req.method: get / notify
+/// * req.version: 30であること
+/// * req.charset: utf-8であること
+/// * req.id: event id
+/// * req.base_id:
+/// * req.status:
+/// * req.security_level:
+/// * req.sender:
+/// * req.reference[num]: reference0～n
+/// * req.dic[key]: 全ての値を辞書テーブルで保管
 pub fn parse_request<'lua>(lua: &LuaContext<'lua>, text: &str) -> MyResult<LuaTable<'lua>> {
     let mut t = lua.create_table()?;
     t.set("reference", lua.create_table()?)?;
