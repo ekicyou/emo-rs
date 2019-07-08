@@ -5,19 +5,12 @@ require "test.shiori.response"
 function test_shiori_event()
     local t = require "test.luaunit"
     local events = require "shiori.events"
+    local response = require "shiori.response"
     local ev = events.get_event_table()
     local ser = require "libs.serpent"
     local env = {}
 
-    local CRLF = "\r\n"
-    local function X(...)
-        local rc = ""
-        local args = {...}
-        for k, v in pairs(args) do
-            rc = rc .. v .. CRLF
-        end
-        return rc .. CRLF
-    end
+    local X = response.join
 
     do
         local req = {}

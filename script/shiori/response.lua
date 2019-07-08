@@ -16,6 +16,15 @@ local env ={
     security_level= "local",
 }
 
+local function join(...)
+    local rc = ""
+    local args = {...}
+    for k, v in pairs(args) do
+        rc = rc .. v .. CRLF
+    end
+    return rc .. CRLF
+end
+
 --Charset
 local function set_char_set(value)
     env.char_set = value
@@ -86,6 +95,7 @@ end
 
 
 local pub = {
+    join                = join,
     env                 = env,
     set_char_set        = set_char_set,
     set_sender          = set_sender,
