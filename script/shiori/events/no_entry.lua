@@ -19,9 +19,11 @@ end
 return function(EV)
 --
 function EV:no_entry(env, req)
-    -- リクエストを保存
+    -- 初めての未処理リクエストなら保存
+    local id = req.id
     local a = get_tree_entry(env ,"save", "no_entry")
-    a[#a+1] = req
+    if a[id] == nil then a[id] = req
+    end
     -- 応答
     local opt = {["X-Warn-Resion"]= "no_entry"}
     return response.no_content(opt)

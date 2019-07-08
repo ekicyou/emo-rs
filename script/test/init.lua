@@ -6,6 +6,7 @@ function test_shiori_event()
     local t = require "test.luaunit"
     local events = require "shiori.events"
     local ev = events.get_event_table()
+    local ser = require "libs.serpent"
     local env = {}
 
     local CRLF = "\r\n"
@@ -33,6 +34,7 @@ function test_shiori_event()
                         "SecurityLevel: local",
                         "X-Warn-Resion: no_entry")
         t.assertEquals(act, exp)
+        t.assertNotIsNil(env.save.no_entry.version)
     end
 
 end
