@@ -55,7 +55,7 @@
 
 
 
-# recipe peg
+## recipe peg
 
 // １：全体定義[start]
 start = eof
@@ -63,7 +63,7 @@ start = eof
       / comment_line start
 
 block = comment_line
-      / 
+      /
 
 
 
