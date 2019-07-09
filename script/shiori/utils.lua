@@ -17,4 +17,16 @@ end
 
 M.get_tree_entry = get_tree_entry
 
+-- SHIORI Request Status: を分解して返す。
+function M.get_status(status)
+    if type(status) ~= "string" then return {}
+    end
+    local rc = {}
+    for k, v in string.gmatch(status, "([%w_]+)(%([^%)]*%))*,?") do
+        if not v then v = true
+        end
+        rc[k] = v
+    end
+end
+
 return M
