@@ -14,6 +14,8 @@ local env ={
     char_set=       "UTF-8",
     sender=         "emo",
     security_level= "local",
+    CRLF=           CRLF,
+    SPLIT=          SPLIT,
 }
 
 local function join(...)

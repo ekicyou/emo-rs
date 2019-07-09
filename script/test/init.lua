@@ -6,6 +6,7 @@ function test_shiori_event()
     local t = require "test.luaunit"
     local events = require "shiori.events"
     local response = require "shiori.response"
+    local make = require "test.shiori.make_request"
     local ev = events.get_event_table()
     local ser = require "libs.serpent"
     local env = {}
@@ -13,13 +14,7 @@ function test_shiori_event()
     local X = response.join
 
     do
-        local req = {}
-        req.version = 30
-        req.method  = "get"
-        req.id      = "version"
-        req.charset = "UTF-8"
-        req.security_level = "local"
-        req.sender = "SSP"
+        local req = make.get("version")
         local act = ev:fire_request(env,req)
         local exp = X(  "SHIORI/3.0 204 No Content",
                         "Charset: UTF-8",

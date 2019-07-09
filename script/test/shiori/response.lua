@@ -3,15 +3,7 @@ local t = require "test.luaunit"
 
 function test_response()
     local response = require "shiori.response"
-    local CRLF = "\r\n"
-    local function X(...)
-        local rc = ""
-        local args = {...}
-        for k, v in pairs(args) do
-            rc = rc .. v .. CRLF
-        end
-        return rc .. CRLF
-    end
+    local X = response.join
     do
         local exp = X(  "SHIORI/3.0 200 OK",
                         "Charset: UTF-8",
