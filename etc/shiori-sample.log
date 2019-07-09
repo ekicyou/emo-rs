@@ -1233,7 +1233,7 @@ Charset: UTF-8
 Sender: SSP
 SecurityLevel: local
 Reference0: \1\s[1512]\1\![bind,アクセサリ,CLOSED,0]\![set,otherghosttalk,true]\n\0\s[0]こんばんは。\w7\nユーザさんは晩ご飯食べた？\w9\n\n\s[5]まだだったら、\w4用意するよ。\w6\e
-Reference1: 
+Reference1:
 Reference2: OnBoot
 Reference3: マスターシェル
 

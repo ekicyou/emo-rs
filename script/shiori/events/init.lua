@@ -8,7 +8,7 @@ do
     local items = {
         "shiori.events.fire_request",
         "shiori.events.no_entry",
-        "shiori.events.on_secound_change"
+        "shiori.events.talk_normal"
     }
     for i,v in ipairs(items) do
         local reg = require(v)

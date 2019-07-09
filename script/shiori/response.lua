@@ -46,8 +46,8 @@ end
 local function build(code, dic)
     local rc = "SHIORI/3.0 " .. code .. CRLF
     rc = rc .. "Charset"        .. SPLIT .. env.char_set        .. CRLF
-    rc = rc .. "Sender"         .. SPLIT .. env.sender          .. CRLF
-    rc = rc .. "SecurityLevel"  .. SPLIT .. env.security_level  .. CRLF
+    --rc = rc .. "Sender"         .. SPLIT .. env.sender          .. CRLF
+    --rc = rc .. "SecurityLevel"  .. SPLIT .. env.security_level  .. CRLF
 
     if type(dic) == 'table' then
         for k, v in pairs(dic) do
