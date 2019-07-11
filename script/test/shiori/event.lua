@@ -12,12 +12,15 @@ function test_shiori_event()
 
     do
         local req = make.get("version")
+        req.status ="talking,balloon(0=0)"
         local act = ev:fire_request(env,req)
         local exp = X(  "SHIORI/3.0 204 No Content",
                         "Charset: UTF-8",
                         "X-Warn-Resion: no_entry")
         t.assertEquals(act, exp)
         t.assertNotIsNil(env.save.no_entry.version)
+        t.assertEquals(req.status_dic.talking, true)
+        t.assertEquals(req.status_dic.balloon['0'], '0')
     end
     do
         local args = {}
