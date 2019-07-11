@@ -18,15 +18,50 @@ end
 M.get_tree_entry = get_tree_entry
 
 -- SHIORI Request Status: を分解して返す。
+
+local function get_status(status, pos, t)
+    -- ローカル関数：(k=v)のマッチ
+    local function kv(t)
+        local all, k, v = string.match(status, "^(,?([^=%),]+)=([^=%),]+))", pos)
+        if all == nil then return
+        end
+        pos = pos + #all
+        t[k] =v
+        kv(t)
+    end
+
+    -- ローカル関数：()のマッチ
+    local function kakko()
+        local all = string.match(status, "^%(", pos)
+        if all == nil then return true
+        end
+        pos = pos + #all
+        local t = {}
+        kv(t)
+
+        local all = string.match(status, "^%)", pos)
+        if all ~= nil then pos = pos + #all
+        end
+        return t
+    end
+
+    -- keyのマッチ
+    local all, k = string.match(status, "^(,?([%w_]+))", pos)
+    if k == nil then return
+    end
+    pos = pos + #all
+
+    -- (k=v,...)のマッチ
+    t[k] = kakko()
+    return get_status(status, pos, t)
+end
+
 function M.get_status(status)
     if type(status) ~= "string" then return {}
     end
-    local rc = {}
-    for k, v in string.gmatch(status, "([%w_]+)(%([^%)]*%))*,?") do
-        if not v then v = true
-        end
-        rc[k] = v
-    end
+    local t = {}
+    get_status(status, 1, t)
+    return t
 end
 
 return M
