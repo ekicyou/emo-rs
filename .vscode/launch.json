@@ -8,6 +8,9 @@
         "request": "launch",
         "name": "Launch",
         "program": "${file}",
+        "env": {
+            "WORK_SPACE_DOLDER": "${workspaceFolder}"
+        },
         "stopOnEntry": false,
         "path": "${workspaceFolder}/script/test/mock/?.lua;${workspaceFolder}/script/test/mock/?/init.lua;${workspaceFolder}/script/?.lua;${workspaceFolder}/script/?/init.lua"
     }]

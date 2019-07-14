@@ -50,12 +50,14 @@ local function init(args)
     local emo_dir     = profile_dir ..x.."emo"
     local cache_dir   = emo_dir     ..x.."cache"
     local save_path   = emo_dir     ..x.."save.txt"
+    --[[
     print("package.path:["..package.path .."]")
     print("load_dir:    ["..load_dir     .."]")
     print("profile_dir: ["..profile_dir  .."]")
     print("emo_dir:     ["..emo_dir      .."]")
     print("cache_dir:   ["..cache_dir    .."]")
     print("save_path:   ["..save_path    .."]")
+    --]]
 
     local env = data.env
     env.hinst     = args.hinst

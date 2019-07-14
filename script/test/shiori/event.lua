@@ -48,7 +48,6 @@ function test_shiori_event()
         t.assertEquals(env.notify.basewareversion.reference[2], "2.3.86.3000")
         t.assertIsNil(env.notify.basewareversion.reference[3])
     end
-    do
 --[[
 =====send=====
 GET SHIORI/3.0
@@ -68,6 +67,7 @@ Value: \1\s[1512]\1\![bind,アクセサリ,CLOSED,0]\![set,otherghosttalk,true]\
 Charset: UTF-8
 
 ]]--
+    do
         local args = {}
         args[0] = "変換対象の文章"
         args[1] = ""
@@ -79,6 +79,34 @@ Charset: UTF-8
                         "Charset: UTF-8",
                         "Value: 変換対象の文章")
         t.assertEquals(act, exp)
+    end
+--[[
+=====send=====
+GET SHIORI/3.0
+Charset: UTF-8
+Sender: SSP
+SecurityLevel: local
+ID: OnBoot
+Reference0: マスターシェル
+
+=====response=====
+***CallTime:2146msec.
+SHIORI/3.0 200 OK
+Value: \1\s[1512]\1\![bind,アクセサリ,CLOSED,0]\![set,otherghosttalk,true]\n\0\s[0]こんばんは。\w7\nユーザさんは晩ご飯食べた？\w9\n\n\s[5]まだだったら、\w4用意するよ。\w6\e
+Charset: UTF-8
+
+]]--
+    do
+        local args = {}
+        args[0] = "マスターシェル"
+        local req = make.get("OnBoot", args)
+        local act = ev:fire_request(env,req)
+        local exp = X(  "SHIORI/3.0 200 OK",
+                        "Charset: UTF-8",
+                        [=[Value: \1\s[10]\0\s[0]OnBoot:起動トークです。\e]=])
+        t.assertEquals(act, exp)
+        t.assertEquals(env.notify.OnInitialize.reference[0], "")
+        t.assertIsNil(env.notify.OnInitialize.reference[1])
     end
 
 end

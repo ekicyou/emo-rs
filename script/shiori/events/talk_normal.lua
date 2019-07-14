@@ -12,5 +12,11 @@ function EV:OnTranslate(env, req)
     return response.ok(value)
 end
 
+--起動トーク
+function EV:OnBoot(env, req)
+    local value = [=[\1\s[10]\0\s[0]OnBoot:起動トークです。\e]=]
+    return response.ok(value)
+end
+
 --
 end
