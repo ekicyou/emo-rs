@@ -30,7 +30,7 @@ function test_every()
         local exp = X(  "SHIORI/3.0 200 OK",
                         "Charset: UTF-8",
                         [=[Value: \1\s[10]\0\s[0]OnBoot:起動トークです。\e]=])
-        t.assertEquals(act, exp)
+        t.assertEquals(res, exp)
     end
     do
         local rc = shiori.unload()

@@ -6,19 +6,19 @@ function test_shiori_event()
     local make = require "test.shiori.make_request"
     local ev = events.get_event_table()
     local ser = require "libs.serpent"
-    local env = {}
+    local data = {}
 
     local X = response.join
 
     do
         local req = make.get("version")
         req.status ="talking,balloon(0=0)"
-        local act = ev:fire_request(env,req)
+        local act = ev:fire_request(data,req)
         local exp = X(  "SHIORI/3.0 204 No Content",
                         "Charset: UTF-8",
                         "X-Warn-Resion: no_entry")
         t.assertEquals(act, exp)
-        t.assertNotIsNil(env.save.no_entry.version)
+        t.assertNotIsNil(data.save.no_entry.version)
         t.assertEquals(req.status_dic.talking, true)
         t.assertEquals(req.status_dic.balloon['0'], '0')
     end
@@ -26,12 +26,12 @@ function test_shiori_event()
         local args = {}
         args[0] = ""
         local req = make.notify("OnInitialize", args)
-        local act = ev:fire_request(env,req)
+        local act = ev:fire_request(data,req)
         local exp = X(  "SHIORI/3.0 204 No Content",
                         "Charset: UTF-8")
         t.assertEquals(act, exp)
-        t.assertEquals(env.notify.OnInitialize.reference[0], "")
-        t.assertIsNil(env.notify.OnInitialize.reference[1])
+        t.assertEquals(data.notify.OnInitialize.reference[0], "")
+        t.assertIsNil(data.notify.OnInitialize.reference[1])
     end
     do
         local args = {}
@@ -39,14 +39,14 @@ function test_shiori_event()
         args[1] = "SSP"
         args[2] = "2.3.86.3000"
         local req = make.notify("basewareversion", args)
-        local act = ev:fire_request(env,req)
+        local act = ev:fire_request(data,req)
         local exp = X(  "SHIORI/3.0 204 No Content",
                         "Charset: UTF-8")
         t.assertEquals(act, exp)
-        t.assertEquals(env.notify.basewareversion.reference[0], "2.3.86")
-        t.assertEquals(env.notify.basewareversion.reference[1], "SSP")
-        t.assertEquals(env.notify.basewareversion.reference[2], "2.3.86.3000")
-        t.assertIsNil(env.notify.basewareversion.reference[3])
+        t.assertEquals(data.notify.basewareversion.reference[0], "2.3.86")
+        t.assertEquals(data.notify.basewareversion.reference[1], "SSP")
+        t.assertEquals(data.notify.basewareversion.reference[2], "2.3.86.3000")
+        t.assertIsNil(data.notify.basewareversion.reference[3])
     end
 --[[
 =====send=====
@@ -74,7 +74,7 @@ Charset: UTF-8
         args[2] = "OnBoot"
         args[3] = "マスターシェル"
         local req = make.get("OnTranslate", args)
-        local act = ev:fire_request(env,req)
+        local act = ev:fire_request(data,req)
         local exp = X(  "SHIORI/3.0 200 OK",
                         "Charset: UTF-8",
                         "Value: 変換対象の文章")
@@ -100,13 +100,13 @@ Charset: UTF-8
         local args = {}
         args[0] = "マスターシェル"
         local req = make.get("OnBoot", args)
-        local act = ev:fire_request(env,req)
+        local act = ev:fire_request(data,req)
         local exp = X(  "SHIORI/3.0 200 OK",
                         "Charset: UTF-8",
                         [=[Value: \1\s[10]\0\s[0]OnBoot:起動トークです。\e]=])
         t.assertEquals(act, exp)
-        t.assertEquals(env.notify.OnInitialize.reference[0], "")
-        t.assertIsNil(env.notify.OnInitialize.reference[1])
+        t.assertEquals(data.notify.OnInitialize.reference[0], "")
+        t.assertIsNil(data.notify.OnInitialize.reference[1])
     end
 
 end

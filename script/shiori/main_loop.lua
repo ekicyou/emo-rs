@@ -79,7 +79,7 @@ end
 
 --リクエスト処理を実行します。
 local function request(req)
-    local res = ev:fire_request(env,req)
+    local res = ev:fire_request(data, req)
     return res
 end
 
@@ -88,7 +88,11 @@ local function main_loop(req)
     local res = init(req)
     while req do
         req = coroutine.yield(res)
-        res = request(req)
+        if req then
+            res = request(req)
+        else
+            break
+        end
     end
     return drop()
 end
