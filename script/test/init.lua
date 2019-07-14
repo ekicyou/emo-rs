@@ -10,14 +10,16 @@ function test_every()
     local utils = require "shiori.utils"
     local ser = require "libs.serpent"
     local shiori = require "shiori"
+    local response = require "shiori.response"
     local make = require "test.shiori.make_request"
+    local X = response.join
 
     local hinst = 1234
     local WORK_SPACE_DOLDER = os.getenv('WORK_SPACE_DOLDER')
     local ansi_load_dir = WORK_SPACE_DOLDER .. '\\script\\test\\load_dir'
     t.assertEquals(ansi_load_dir, 'C:\\home\\maz\\git\\emo-rs\\script\\test\\load_dir')
     do
-        local rc = shiori.raw.load(hinst, ansi_load_dir)
+        local rc = shiori.load(hinst, ansi_load_dir)
         t.assertIsTrue(rc)
     end
     do

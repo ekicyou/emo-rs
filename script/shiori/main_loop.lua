@@ -4,6 +4,8 @@ SHIORI requestを受け取り、responseを返すジェネレータです。
 ]]
 
 local binser  = require "libs.binser"
+local events = require "shiori.events"
+local ev = events.get_event_table()
 
 local data = {env={}, save={}}
 
@@ -77,7 +79,7 @@ end
 
 --リクエスト処理を実行します。
 local function request(req)
-    local res = "shiori response"
+    local res = ev:fire_request(env,req)
     return res
 end
 

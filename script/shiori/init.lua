@@ -7,6 +7,7 @@ local response  = require "shiori.response"
 
 local co = nil
 
+
 --SHIORI.unload() -> bool
 local function raw_unload()
     local co_item = co
@@ -17,7 +18,6 @@ local function raw_unload()
         return false
     end
 end
-
 local function shiori_unload()
     local ok, rc = pcall(raw_unload)
     if ok then  return rc
@@ -28,13 +28,6 @@ end
 
 --SHIORI.load(hinst, ansi_load_dir) -> bool
 --load_dirはpath解決用のANSI文字列
-local function shiori_load(hinst, ansi_load_dir)
-    local ok, rc = pcall(raw_load, hinst, ansi_load_dir)
-    if ok then  return rc
-    else        return false
-    end
-end
-
 local function raw_load(hinst, ansi_load_dir)
     shiori_unload()
     local args = {
@@ -44,9 +37,18 @@ local function raw_load(hinst, ansi_load_dir)
     co = main_loop.create();
     return co(args)
 end
+local function shiori_load(hinst, ansi_load_dir)
+    local ok, rc = pcall(raw_load, hinst, ansi_load_dir)
+    if ok then  return rc
+    else        return false
+    end
+end
 
 
 --SHIORI.request(req) -> res
+local function raw_request(req)
+    return co(req)
+end
 local function shiori_request(req)
     local ok, rc = pcall(raw_request, req)
     if ok then  return rc
@@ -56,9 +58,6 @@ local function shiori_request(req)
     end
 end
 
-local function raw_request(req)
-    return co(req)
-end
 
 
 
