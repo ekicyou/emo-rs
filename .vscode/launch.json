@@ -12,6 +12,6 @@
             "WORK_SPACE_DOLDER": "${workspaceFolder}"
         },
         "stopOnEntry": false,
-        "path": "${workspaceFolder}/script/test/?.lua;${workspaceFolder}/script/test/?/init.lua;${workspaceFolder}/script/src/?.lua;${workspaceFolder}/script/src/?/init.lua"
+        "path": "${workspaceFolder}/script/test/?.lua;${workspaceFolder}/script/test/?/init.lua;${workspaceFolder}/script/src/?.lua;${workspaceFolder}/script/src/?/init.lua;${workspaceFolder}/script/profile/emo/?.lua;${workspaceFolder}/script/profile/emo/?/init.lua"
     }]
 }
