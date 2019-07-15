@@ -3,23 +3,23 @@
 SHIORI requestを受け取り、responseを返すジェネレータです。
 ]]
 
-local binser  = require "libs.binser"
+local ser    = require "libs.serpent"
+local utils  = require "shiori.utils" 
 local events = require "shiori.events"
 local ev = events.get_event_table()
 
 local data = {env={}, save={}}
 
 --データを読み込みます。存在しない場合は空のテーブルを返します。
-local function read(path)
-    local status, result = pcall(binser.readFile, path)
-    if status then return result
-    else return {}
-    end
-end
+
 
 --データを保存します。エラーは無視します。
 local function write(path, data)
-    local status, result = pcall(binser.writeFile, path, data)
+    data.is_first_boot=nil
+    local text = ser.dump(data, {indent = '  ', sortkeys = true, comment = true, sparse = true})
+    local h = io.open(path, "w+")
+    h:write(text)
+    h:close()
 end
 
 --ディレクトリを作成します。エラーは無視します。
@@ -51,7 +51,7 @@ local function init(args)
     local profile_dir = load_dir    ..x.."profile"
     local emo_dir     = profile_dir ..x.."emo"
     local cache_dir   = emo_dir     ..x.."cache"
-    local save_path   = emo_dir     ..x.."save.txt"
+    local save_path   = emo_dir     ..x.."save.lua"
     --[[
     print("package.path:["..package.path .."]")
     print("load_dir:    ["..load_dir     .."]")
@@ -67,18 +67,28 @@ local function init(args)
     env.cache_dir = cache_dir
     env.save_path = save_path
 
-    data.save = read(save_path)
+    data.save = require "save"
+
+    local touch = utils.get_tree_entry(data.save, touch)
+    touch.load = os.date()
+
     return true
 end
 
 --解放処理を実行します。
 local function drop()
+    local touch = utils.get_tree_entry(data.save, touch)
+    touch.drop = os.date()
+
     write(data.env.save_path, data.save)
     return true
 end
 
 --リクエスト処理を実行します。
 local function request(req)
+    local touch = utils.get_tree_entry(data.save, touch)
+    touch.request = os.date()
+
     local res = ev:fire_request(data, req)
     return res
 end

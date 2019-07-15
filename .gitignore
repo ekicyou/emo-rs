@@ -20,3 +20,4 @@ bin
 *.db
 *.opendb
 .vs
+/script/profile/emo/save.lua
