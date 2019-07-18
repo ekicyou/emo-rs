@@ -17,7 +17,7 @@ function test_every()
     local hinst = 1234
     local WORK_SPACE_DOLDER = os.getenv('WORK_SPACE_DOLDER')
     local ansi_load_dir = WORK_SPACE_DOLDER .. '\\script'
-    t.assertEquals(ansi_load_dir, 'C:\\home\\maz\\git\\emo-rs\\script')
+    t.assertEquals(ansi_load_dir, 'E:\\home\\maz\\git\\emo-rs\\script')
     do
         local rc = shiori.load(hinst, ansi_load_dir)
         t.assertIsTrue(rc)
