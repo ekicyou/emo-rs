@@ -96,7 +96,7 @@ fn set_package_path<P: AsRef<Path>>(lua: &LuaContext<'_>, load_dir: P) {
     {
         let mut pre = load_dir.as_ref().to_path_buf();
         pre.push("script");
-        pre.push("etc");
+        pre.push("emo");
         append(&mut buf, pre);
     }
     let globals = lua.globals();

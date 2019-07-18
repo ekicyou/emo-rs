@@ -6,10 +6,11 @@
 # More information here http://doc.crates.io/guide.html#cargotoml-vs-cargolock
 Cargo.lock
 target
-Debug/
-Release/
-ipch/
-packages/
+Debug
+Release
+ipch
+packages
+profile
 *.suo
 *.sdf
 *.opensdf
@@ -20,4 +21,3 @@ bin
 *.db
 *.opendb
 .vs
-/script/profile/emo/save.lua
