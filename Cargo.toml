@@ -25,6 +25,7 @@ pest = "2.1"
 pest_derive = "2.1"
 rustyline = "4.0"
 shiori3 = "0.4.1"
+chrono = "0.4.7"
 #shiori3 = { git = 'https://github.com/ekicyou/shiori3-rs', branch = 'master' }
 
 [target."cfg(windows)".dependencies]

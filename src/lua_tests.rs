@@ -51,8 +51,12 @@ fn hello_test() {
 }
 
 /// 試験環境のlua モジュール検索パスを作成する。
-/// * [root]\\script\\?.lua
-/// * [root]\\script\\?\\init.lua
+/// * [save]\\?.lua
+/// * [save]\\?\\init.lua
+/// * [root]\\script\\dic\\?.lua
+/// * [root]\\script\\dic\\?\\init.lua
+/// * [root]\\script\\emo\\?.lua
+/// * [root]\\script\\emo\\?\\init.lua
 fn set_package_path<P: AsRef<Path>>(lua: &LuaContext<'_>, load_dir: P) {
     fn append<P: AsRef<Path>>(buf: &mut String, dir: P) {
         {
@@ -86,7 +90,13 @@ fn set_package_path<P: AsRef<Path>>(lua: &LuaContext<'_>, load_dir: P) {
     {
         let mut pre = load_dir.as_ref().to_path_buf();
         pre.push("script");
-        pre.push("src");
+        pre.push("dic");
+        append(&mut buf, pre);
+    }
+    {
+        let mut pre = load_dir.as_ref().to_path_buf();
+        pre.push("script");
+        pre.push("etc");
         append(&mut buf, pre);
     }
     let globals = lua.globals();

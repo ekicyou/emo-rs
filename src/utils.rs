@@ -1,6 +1,6 @@
 use crate::prelude::*;
 use std::ffi::OsStr;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 pub trait ToAnsi {
     /// rust文字列をANSI文字列に変換します。
@@ -37,4 +37,30 @@ fn osstr_to_ansi<S: AsRef<OsStr>>(src: S) -> MyResult<String> {
     let osstr = src.as_ref();
     let s = osstr.to_string_lossy();
     str_to_ansi(s)
+}
+
+pub fn setup_logger<P: AsRef<Path>>(load_dir: P) -> MyResult<()> {
+    let log_path = {
+        let mut p = load_dir.as_ref().to_owned();
+        p.push("profile");
+        p.push("emo");
+        p.push("emo.log");
+        p
+    };
+
+    fern::Dispatch::new()
+        .format(|out, message, record| {
+            out.finish(format_args!(
+                "{}[{}][{}] {}",
+                chrono::Local::now().format("[%Y-%m-%d][%H:%M:%S]"),
+                record.target(),
+                record.level(),
+                message
+            ))
+        })
+        .level(log::LevelFilter::Debug)
+        .chain(std::io::stdout())
+        .chain(fern::log_file(log_path)?)
+        .apply()?;
+    Ok(())
 }
