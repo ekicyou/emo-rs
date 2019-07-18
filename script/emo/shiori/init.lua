@@ -62,7 +62,8 @@ end
 
 
 --エントリーポイント
-return {
+
+shiori = {
     load   = shiori_load,
     unload = shiori_unload,
     request= shiori_request,
@@ -72,3 +73,5 @@ return {
         request = raw_request,
     }
 }
+
+return shiori

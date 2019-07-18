@@ -93,7 +93,7 @@ impl Shiori3 for Shiori {
                     let s = std::str::from_utf8_unchecked(load_dir_bytes);
                     s.to_owned()
                 };
-                func.call::<_, std::string::String>((h_inst, ansi_load_dir))?;
+                func.call::<_, bool>((h_inst, ansi_load_dir))?;
             }
 
             // ##  luaモジュールのロード
@@ -102,7 +102,7 @@ impl Shiori3 for Shiori {
         result?;
 
         // リザルト
-        trace!("SHIORI:load() -> Ok(())");
+        debug!("SHIORI:load() -> Ok(())");
         Ok(Shiori {
             h_inst,
             load_dir: load_dir_path,

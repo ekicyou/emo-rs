@@ -1,5 +1,6 @@
 use crate::prelude::*;
 use std::ffi::OsStr;
+use std::fs;
 use std::path::{Path, PathBuf};
 
 pub trait ToAnsi {
@@ -40,12 +41,17 @@ fn osstr_to_ansi<S: AsRef<OsStr>>(src: S) -> MyResult<String> {
 }
 
 pub fn setup_logger<P: AsRef<Path>>(load_dir: P) -> MyResult<()> {
-    let log_path = {
+    let log_file = {
         let mut p = load_dir.as_ref().to_owned();
         p.push("profile");
         p.push("emo");
         p.push("emo.log");
-        p
+        let f = fs::OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .append(false)
+            .open(p)?;
+        f
     };
 
     fern::Dispatch::new()
@@ -58,9 +64,9 @@ pub fn setup_logger<P: AsRef<Path>>(load_dir: P) -> MyResult<()> {
                 message
             ))
         })
-        .level(log::LevelFilter::Debug)
+        .level(log::LevelFilter::Trace)
         .chain(std::io::stdout())
-        .chain(fern::log_file(log_path)?)
+        .chain(log_file)
         .apply()?;
     Ok(())
 }
