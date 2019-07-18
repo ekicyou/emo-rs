@@ -18,9 +18,6 @@ pub struct Shiori {
     lua_path: String,
     lua: Lua,
 }
-impl Drop for Shiori {
-    fn drop(&mut self) {}
-}
 
 #[allow(dead_code)]
 impl Shiori {
@@ -32,6 +29,24 @@ impl Shiori {
     }
     fn lua(&self) -> &Lua {
         &(self.lua)
+    }
+}
+
+impl Drop for Shiori {
+    fn drop(&mut self) {
+        let result: MyResult<_> = self.lua().context(|context| {
+            let globals = context.globals();
+            let shiori: LuaTable<'_> = globals.get("shiori")?;
+            let func: LuaFunction<'_> = shiori.get("unload")?;
+            let res = func.call::<_, bool>(0)?;
+            Ok(res)
+        });
+        match result {
+            Err(e) => {
+                error!("[drop] {}", e);
+            }
+            _ => (),
+        }
     }
 }
 
@@ -65,10 +80,10 @@ impl Shiori3 for Shiori {
             // 2. モジュール解決対象のファイル名はASCII名称とする。
             let globals = context.globals();
             {
-                // ### モジュールパスを設定してinit.luaを読み込む
+                // ### モジュールパスを設定してshiori/init.luaを読み込む
                 let package: LuaTable<'_> = globals.get("package")?;
                 package.set("path", lua_path.clone())?;
-                let _: usize = context.load("require(\"init\");return 0;").eval()?;
+                let _: usize = context.load("require(\"shiori.init\");return 0;").eval()?;
             }
             {
                 // ### shiori.load()の呼び出し

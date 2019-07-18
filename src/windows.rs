@@ -16,7 +16,7 @@ lazy_static! {
 pub extern "C" fn load(h_dir: HGLOBAL, len: usize) -> bool {
     match (*API).lock() {
         Err(e) => {
-            error!("{}", e);
+            error!("[emo::load] {}", e);
             false
         }
         Ok(mut a) => a.raw_load(h_dir, len),
@@ -27,7 +27,7 @@ pub extern "C" fn load(h_dir: HGLOBAL, len: usize) -> bool {
 pub extern "C" fn unload() -> bool {
     match (*API).lock() {
         Err(e) => {
-            error!("{}", e);
+            error!("[emo::unload] {}", e);
             false
         }
         Ok(mut a) => a.raw_unload(),
@@ -38,7 +38,7 @@ pub extern "C" fn unload() -> bool {
 pub extern "C" fn request(h: HGLOBAL, len: &mut usize) -> HGLOBAL {
     match (*API).lock() {
         Err(e) => {
-            error!("{}", e);
+            error!("[emo::request] {}", e);
             *len = 0;
             ptr::null_mut()
         }
@@ -54,7 +54,7 @@ pub extern "stdcall" fn DllMain(
 ) -> bool {
     match (*API).lock() {
         Err(e) => {
-            error!("{}", e);
+            error!("[emo::DllMain] {}", e);
             false
         }
         Ok(mut a) => a.raw_dllmain(h_inst, ul_reason_for_call, lp_reserved),
