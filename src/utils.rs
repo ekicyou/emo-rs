@@ -49,7 +49,6 @@ pub fn setup_logger<P: AsRef<Path>>(load_dir: P) -> MyResult<()> {
         let f = fs::OpenOptions::new()
             .write(true)
             .create_new(true)
-            .append(false)
             .open(p)?;
         f
     };
@@ -58,7 +57,7 @@ pub fn setup_logger<P: AsRef<Path>>(load_dir: P) -> MyResult<()> {
         .format(|out, message, record| {
             out.finish(format_args!(
                 "{} {} {} {}",
-                chrono::Local::now().format("%Y-%m-%d %H:%M:%S.%.6f"),
+                chrono::Local::now().format("%Y-%m-%d %H:%M:%S%.6f"),
                 record.level(),
                 record.target(),
                 message
