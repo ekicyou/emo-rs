@@ -48,7 +48,9 @@ pub fn setup_logger<P: AsRef<Path>>(load_dir: P) -> MyResult<()> {
         p.push("emo.log");
         let f = fs::OpenOptions::new()
             .write(true)
-            .create_new(true)
+            .create(true)
+            .append(true)
+//            .truncate(true)
             .open(p)?;
         f
     };
