@@ -1,9 +1,34 @@
 #![allow(clippy::trivially_copy_pass_by_ref)]
 use crate::prelude::*;
+use chrono;
+use chrono::Datelike;
+use chrono::Timelike;
 use pest;
 use pest::iterators::FlatPairs;
 use pest::Parser as PestParser;
 use shiori3::req;
+
+/// 現在時刻でdateテーブルを作成します。
+pub fn lua_date<'lua>(lua: &LuaContext<'lua>) -> MyResult<LuaTable<'lua>> {
+    let now = chrono::Local::now();
+    let t = lua.create_table()?;
+    t.set("year", now.year())?;
+    t.set("month", now.month())?;
+    t.set("day", now.day())?;
+    t.set("hour", now.hour())?;
+    t.set("min", now.minute())?;
+    t.set("sec", now.second())?;
+    t.set("ns", now.nanosecond())?;
+
+    let ordinal = now.ordinal();
+    let num_days_from_sunday = now.weekday().num_days_from_sunday();
+
+    t.set("yday", ordinal)?;
+    t.set("ordinal", ordinal)?;
+    t.set("wday", num_days_from_sunday)?;
+    t.set("num_days_from_sunday", num_days_from_sunday)?;
+    Ok(t)
+}
 
 /// SHIORI REQUESTを解析し、luaオブジェクトに展開します。
 /// * req.method: get / notify

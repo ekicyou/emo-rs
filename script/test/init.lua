@@ -11,6 +11,7 @@ function test_os_date()
     local ser = require "libs.serpent"
 
     local d = os.date("*t")
+    print(ser.block(d))
     t.assertIsTrue(d.year > 2018)
 end
 

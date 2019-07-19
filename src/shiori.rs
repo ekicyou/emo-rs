@@ -34,6 +34,7 @@ impl Shiori {
 
 impl Drop for Shiori {
     fn drop(&mut self) {
+        info!("SHIORI:unload()");
         let result: MyResult<_> = self.lua().context(|context| {
             let globals = context.globals();
             let shiori: LuaTable<'_> = globals.get("shiori")?;
@@ -114,8 +115,12 @@ impl Shiori3 for Shiori {
 
     /// SHIORIリクエストを解釈し、応答を返します。
     fn request<'a, S: Into<&'a str>>(&mut self, req: S) -> MyResult<Cow<'a, str>> {
+        let req = req.into();
+        debug!("SHIORI:request()****\n{}\n****", &req);
         let result: MyResult<_> = self.lua().context(|context| {
-            let req = parse_request(&context, req.into())?;
+            let req = parse_request(&context, &req)?;
+            let time = lua_date(&context)?;
+            req.set("time", time)?;
             let globals = context.globals();
             let shiori: LuaTable<'_> = globals.get("shiori")?;
             let func: LuaFunction<'_> = shiori.get("request")?;
