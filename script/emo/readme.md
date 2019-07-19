@@ -12,6 +12,7 @@
 ## load()で実行する疑似luaコード
 
 ```lua
+-- 呼び出し引数
 local hinst = 99                -- DllMainで渡されるhinst
 local ansi_load_dir = '{GHOST}' -- ANSI文字コードの emo.dll ディレクトリ
 

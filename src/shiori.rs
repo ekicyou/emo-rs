@@ -59,13 +59,14 @@ impl Shiori3 for Shiori {
     ) -> MyResult<Self> {
         // 検索パスの作成、saveフォルダの作成、ロガー設定
         let (load_dir_path, _, lua_path, save_dir) = lua_search_path(load_dir_path, "lua")?;
-        fs::create_dir_all(save_dir)?;
+        fs::create_dir_all(&save_dir)?;
         utils::setup_logger(&load_dir_path)?;
-        trace!(
+        debug!(
             "SHIORI:load(hinst={}, load_dir={:?})",
-            &h_inst,
-            &load_dir_path
+            &h_inst, &load_dir_path
         );
+        trace!("save_dir={:?}", &save_dir);
+        trace!("lua_path={}", &lua_path);
 
         // ##  Lua インスタンスの作成
         let lua = Lua::new();
