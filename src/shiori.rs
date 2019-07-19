@@ -83,7 +83,7 @@ impl Shiori3 for Shiori {
                 // ### モジュールパスを設定してshiori/init.luaを読み込む
                 let package: LuaTable<'_> = globals.get("package")?;
                 package.set("path", lua_path.clone())?;
-                let _: usize = context.load("require(\"shiori.init\");return 0;").eval()?;
+                let _: usize = context.load("require(\"shiori\");return 0;").eval()?;
             }
             {
                 // ### shiori.load()の呼び出し
