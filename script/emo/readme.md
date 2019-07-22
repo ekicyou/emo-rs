@@ -1,4 +1,4 @@
-# emo.dllのluaコード呼び出しルール
+# emo.dll の lua コード呼び出し手順
 
 ## package.path
 
@@ -9,7 +9,7 @@
 5. {GHOST}/emo/?.lua
 6. {GHOST}/emo/?/init.lua
 
-## load()で実行するlua疑似コード
+## load()で実行する lua 疑似コード
 
 ```lua
 -- 呼び出し引数
@@ -24,7 +24,7 @@ local rc = shiori.load(hinst, ansi_load_dir)
 -- rc = trueの時、正常終了とする
 ```
 
-## request()のLua疑似コード
+## request()の Lua 疑似コード
 
 ```lua
 -- 呼び出し引数
