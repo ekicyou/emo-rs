@@ -58,14 +58,14 @@ local res = shiori.request(req)
 　 → 会話終了後、一定時間無声であること。
 　 → 時報会話の邪魔をしないこと。
 時間間隔
-　 →10 分間に会話する回数 {env.talk.freq_10min}
-　 → 会話終了後の無声秒数 {env.talk.sleep_talk_sec}
-　 → 時報前無声秒数 {env.talk.sleep_news_sec}
+　 →10 分間に会話する回数 `env.talk.freq_10min`
+　 → 会話終了後の無声秒数 `env.talk.sleep_sec`
+　 → 時報前無声秒数 `env.talk.sleep_news_sec`
 
 ### 会話の開始判定
 
-- 会話をしていない{req.status_dic.talking == false}
+- 会話をしていない `req.status_dic.talking == false`
 
-  - 直前が talking == true だった場合、会話終了時刻を保存{env.talk.end_talk_time}
+  - 直前が talking == true だった場合、会話終了時刻を保存`env.talk.end_talk_time`
 
-* 開始時刻の会話あり(env.talk.next_time[{time}])
+- 開始時刻の会話あり `env.talk.next_time[{time}]`

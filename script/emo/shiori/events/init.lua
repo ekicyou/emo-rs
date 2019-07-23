@@ -4,7 +4,7 @@
 local event_defs = {
     "shiori.events.fire_request",
     "shiori.events.no_entry",
-    "shiori.events.talk_normal"
+    "shiori.events.talk"
     "shiori.events.talk_event"
 }
 
