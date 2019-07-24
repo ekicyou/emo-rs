@@ -4,8 +4,8 @@
 local event_defs = {
     "shiori.events.fire_request",
     "shiori.events.no_entry",
-    "shiori.events.talk"
-    "shiori.events.talk_event"
+    "shiori.events.talk",
+    "shiori.events.talk_event",
 }
 
 --イベントテーブルの読み込み

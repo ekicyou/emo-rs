@@ -1,72 +1,91 @@
 local response  = require "shiori.response"
 local utils     = require "shiori.utils"
 
-local function check_impl(data, req)
+local ENTRY = utils.get_tree_entry
+
+local function check_impl(EV, data, req)
     if req.status_dic.talking == true then return false
     end
-    local talk = get_tree_entry(data ,"env" ,"talk")
-    -- トーク終了
-    local end_talk_time = talk.end_talk_time
-    if end_talk_time == nil then
-        talk.end_talk_time = os.time()
-        return false
-    end
+    -- トーク終了を記録
+    local talk = ENTRY(data ,"save" ,"talk")
+    local end_talk_time = mark_fin(talk)
+
     -- 会話終了後の無音秒数
-    if talk.sleep_sec == nil then
-        talk.sleep_sec = 3
-        return false
-    end
     local now = os.time()
-    local sleep_sec = os.difftime(now, end_talk_time)
-    if sleep_sec < talk.sleep_sec then return false
+    if os.difftime(now, end_talk_time) < talk.sleep_sec then return false
     end
-    -- 10分間に会話する回数
-    if talk.freq_10min == nil then
-        talk.freq_10min = 10*3
-        return false
-    end
-    local
+
 
 
 
 
     return false
 end
-local function check(data, req)
-    local ok, rc = pcall(check_impl, data, req)
+local function check(EV, data, req)
+    local ok, rc = pcall(check_impl, EV, data, req)
     if ok and rc then
-        start(data)
+        mark_start(data)
         return true
     else
         return false
     end
 end
 
--- 会話開始、会話間隔に関する情報の記録
-local function start(data)
-    local talk = get_tree_entry(data ,"env" ,"talk")
-    talk.start_talk_time = os.time()
-    talk.end_talk_time = nil
-
-
+-- 会話終了の記録
+local function mark_fin(talk)
+    if not talk.end_talk_time then
+        talk.end_talk_time = os.time()
+    end
+    return talk.end_talk_time
 end
 
--- 会話間隔に関する情報のリセット
-local function reset(data)
-    local talk = get_tree_entry(data ,"env" ,"talk")
+-- 会話開始の記録
+local function mark_start(data)
+    local talk = ENTRY(data ,"save" ,"talk")
+    local now = os.time()
+    if talk.start_talk_time then
+        talk.count = talk.count or 0 + 1
+        local due = os.difftime(now, talk.start_talk_time)
+        talk.due = talk.due or 0 + due
+    end
+    talk.start_talk_time = now
+    talk.end_talk_time = nil
+    -- 次回会話の時刻決定
+    if talk.freq_10min == nil then
+        talk.freq_10min = 10*3
+    end
+    do
+        local span      = 600 / talk.freq_10min
+        local all_due   = talk.due   or span
+        local all_count = talk.count or 1
+        local due       = all_due / all_count
+        local adjust    = (span - due) / 3
+        if      adjust >  2 then adjust =  2
+        elseif  adjust < -2 then adjust = -2
+        end
+        span = span + adjust
+        if span < 5 then span = 5
+        end
+        talk.next_talk_time = now + span
+    end
+end
+
+-- 会話時刻情報のリセット
+local function mark_reset(data)
+    local talk = ENTRY(data ,"save" ,"talk")
     -- 会話の時間間隔を測定
-    talk.start_talk_time = os.time()
+    talk.start_talk_time = nil
     talk.end_talk_time = nil
-
-
+    talk.count = nil
+    talk.due = nil
+    talk.next_talk_time = nil
+    talk.next_news = nil
 end
-
-
 
 return function(EV)
 -- 秒の更新
 function EV:OnSecondChange(data, req)
-    local rc = check(data, req)
+    local rc = check(EV, data, req)
     if rc then
         self:on_talk_normal(data, req)
     else

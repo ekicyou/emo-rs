@@ -18,7 +18,6 @@ end
 M.get_tree_entry = get_tree_entry
 
 -- SHIORI Request Status: を分解して返す。
-
 local function get_status(status, pos, t)
     -- ローカル関数：(k=v)のマッチ
     local function kv(t)
