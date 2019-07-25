@@ -109,4 +109,40 @@ Charset: UTF-8
         t.assertIsNil(data.notify.OnInitialize.reference[1])
     end
 
+--[[
+=====send=====
+GET SHIORI/3.0
+Charset: UTF-8
+Sender: SSP
+SecurityLevel: local
+Status: balloon(0=0)
+ID: OnSecondChange
+Reference0: 1
+Reference1: 0
+Reference2: 0
+Reference3: 1
+Reference4: 0
+]]--
+    do
+        local now = os.time({
+            year =2019,
+            month=   7,
+            day  =  25,
+            hour =  21,
+            min  =  17,
+            sec  =   0,
+        })
+        local args = {}
+        args[0] = "マスターシェル"
+        local req = make.get("OnSecondChange", args)
+        req.now  = now
+        local act = ev:fire_request(data,req)
+        local exp = X(  "SHIORI/3.0 200 OK",
+                        "Charset: UTF-8",
+                        [=[Value: \1\s[10]\0\s[0]OnBoot:起動トークです。\e]=])
+        --t.assertEquals(act, exp)
+        --t.assertEquals(data.notify.OnInitialize.reference[0], "")
+        --t.assertIsNil(data.notify.OnInitialize.reference[1])
+    end
+
 end

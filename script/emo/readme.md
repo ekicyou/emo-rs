@@ -58,9 +58,9 @@ local res = shiori.request(req)
 　 → 会話終了後、一定時間無声であること。
 　 → 時報会話の邪魔をしないこと。
 時間間隔
-　 →10 分間に会話する回数 `env.talk.freq_10min`
-　 → 会話終了後の無声秒数 `env.talk.sleep_sec`
-　 → 時報前無声秒数 `env.talk.sleep_news_sec`
+　 →10 分間に会話する回数 `talk.freq_10min`
+　 → 会話終了後の無声秒数 `talk.sleep_sec`
+　 → 時報前無声秒数       `talk.sleep_news_sec`
 
 ### 会話の開始判定の流れ
 
@@ -69,7 +69,7 @@ local res = shiori.request(req)
 
 2. 会話終了時刻が未記録なら登録
    `local now = os.time()`
-   `if not talk.end_talk_time then talk.end_talk_time = now`
+   `if not env.end_talk_time then env.end_talk_time = now`
 
 3. 時報会話が存在すれば返す
    `local news = check_news(EV, data, now)`
@@ -77,15 +77,15 @@ local res = shiori.request(req)
 
 4. 無音秒数が経過していなければ中断
    ```lua
-   if os.difftime(now, talk.end_talk_time) < talk.sleep_sec then
+   if os.difftime(now, env.end_talk_time) < talk.sleep_sec then
        return false
    end
    ```
 
 5. 次回会話時刻に到達していなければ中断
    ```lua
-   if     talk.next_talk_time
-      and os.difftime(now, talk.next_talk_time) < 0 then
+   if     env.next_talk_time
+      and os.difftime(now, env.next_talk_time) < 0 then
        return false
    end
    ```
@@ -109,3 +109,15 @@ local res = shiori.request(req)
 |TW5H17             |金曜日 17:00     |
 |TW1                |日曜日           |
 |TW3                |火曜日           |
+
+### 時報テーブルの処理
+
+1. 発報時刻が未決定の時報について、時刻を確定する。
+2. 時刻が到着している時報を列挙する。
+3. 優先度の高い時報を選択する。
+4. 選択されなかった時報の内、無視可能なものは発報済みとする。
+5. 選択時報を発報済みにして返す。
+
+
+
+

@@ -119,8 +119,8 @@ impl Shiori3 for Shiori {
         debug!("SHIORI:request()****\n{}\n****", &req);
         let result: MyResult<_> = self.lua().context(|context| {
             let req = parse_request(&context, &req)?;
-            let time = lua_date(&context)?;
-            req.set("time", time)?;
+            //let time = lua_date(&context)?;
+            //req.set("time", time)?;
             let globals = context.globals();
             let shiori: LuaTable<'_> = globals.get("shiori")?;
             let func: LuaFunction<'_> = shiori.get("request")?;

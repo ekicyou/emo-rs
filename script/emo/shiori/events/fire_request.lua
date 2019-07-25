@@ -9,8 +9,11 @@ function EV:fire_request(data, req)
     req.status_dic = status_dic
 
     -- 日時フィールドが未登録なら登録
-    if req.date == nil then
-        req.date = os.date("*t")
+    if not req.now then
+        req.now = os.time()
+    end
+    if not req.date then
+        req.date = os.date("*t", req.now)
     end
 
     -- イベント分岐

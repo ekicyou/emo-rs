@@ -96,6 +96,19 @@ end
 
 
 
+
+-- 特別：会話（reg.talkを呼び出した結果を返す）
+local function call_reg_talk(value, dic)
+    return pub.reg.talk(value, dic)
+end
+
+local function talk(value, dic)
+    local ok, rc = pcall(call_reg_talk, value, dic)
+    local talk = ok and rc or value
+    return ok(talk, dic)
+end
+
+
 local pub = {
     join                = join,
     env                 = env,
@@ -109,6 +122,7 @@ local pub = {
     advice              = advice,
     bad_request         = bad_request,
     err                 = err,
+    talk                = talk,
 }
 
 return pub

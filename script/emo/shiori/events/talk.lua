@@ -3,8 +3,10 @@ local utils     = require "shiori.utils"
 
 local ENTRY = utils.get_tree_entry
 
--- 現在時刻で時報会話があればkeyを返す
--- 無ければnil
+-- 現在時刻で時報会話があるか確認
+-- 　時報       :(key, true )
+--   時報待機   :(key, false)
+--   時報無し   :(nil, nil  )
 local function check_news(EV, data, now)
     return utils.unimplemented()
 end
@@ -13,57 +15,55 @@ end
 -- 開始タイミングでなければnil
 local function check_impl(EV, data, req)
     if req.status_dic.talking == true then return nil end
-    local talk = ENTRY(data ,"save" ,"talk")
-    local now = os.time()
-    if not talk.end_talk_time then talk.end_talk_time = now end
+    local save = ENTRY(data ,"save" ,"talk")
+    local env  = ENTRY(data ,"env"  ,"talk")
+    local now = req.now
+    if not env.end_talk_time then env.end_talk_time = now end
     do
-        local rc = check_news(EV, data, now)
-        if rc then return rc end
+        local news, flag = check_news(EV, data, now)
+        if news then
+            if flag then return news
+            else         return nil
+            end
+        end
     end
-    if os.difftime(now, talk.end_talk_time) < talk.sleep_sec then
+    if os.difftime(now, env.end_talk_time) < save.sleep_sec then
         return nil
     end
-    if talk.next_talk_time and os.difftime(now, talk.next_talk_time) < 0 then
-        return false
+    if env.next_talk_time and os.difftime(now, env.next_talk_time) < 0 then
+        return nil
     end
     return 'normal'
 end
 local function check(EV, data, req)
     local ok, rc = pcall(check_impl, EV, data, req)
     if ok and rc then
-        mark_start(data)
+        mark_start(data, req.now)
         return rc
     else
         return nil
     end
 end
 
--- 会話終了の記録
-local function mark_fin(talk, now)
-    if not talk.end_talk_time then
-        talk.end_talk_time = now
-    end
-end
-
 -- 会話開始の記録
-local function mark_start(data)
-    local talk = ENTRY(data ,"save" ,"talk")
-    local now = os.time()
-    if talk.start_talk_time then
-        talk.count = talk.count or 0 + 1
-        local due = os.difftime(now, talk.start_talk_time)
-        talk.due = talk.due or 0 + due
+local function mark_start(data, now)
+    local save = ENTRY(data ,"save" ,"talk")
+    local env  = ENTRY(data ,"env"  ,"talk")
+    if env.start_talk_time then
+        env.count = env.count or 0 + 1
+        local due = os.difftime(now, env.start_talk_time)
+        env.due = env.due or 0 + due
     end
-    talk.start_talk_time = now
-    talk.end_talk_time = nil
+    env.start_talk_time = now
+    env.end_talk_time = nil
     -- 次回会話の時刻決定
-    if talk.freq_10min == nil then
-        talk.freq_10min = 10*3
+    if save.freq_10min == nil then
+        save.freq_10min = 10*3
     end
     do
-        local span      = 600 / talk.freq_10min
-        local all_due   = talk.due   or span
-        local all_count = talk.count or 1
+        local span      = 600 / save.freq_10min
+        local all_due   = env.due   or span
+        local all_count = env.count or 1
         local due       = all_due / all_count
         local adjust    = (span - due) / 3
         if      adjust >  2 then adjust =  2
@@ -72,7 +72,7 @@ local function mark_start(data)
         span = span + adjust
         if span < 5 then span = 5
         end
-        talk.next_talk_time = now + span
+        env.next_talk_time = now + span
     end
 end
 
@@ -80,20 +80,20 @@ end
 local function mark_reset(data)
     local talk = ENTRY(data ,"save" ,"talk")
     -- 会話の時間間隔を測定
-    talk.start_talk_time = nil
-    talk.end_talk_time = nil
-    talk.count = nil
-    talk.due = nil
-    talk.next_talk_time = nil
+    env.start_talk_time = nil
+    env.end_talk_time = nil
+    env.count = nil
+    env.due = nil
+    env.next_talk_time = nil
     talk.next_news = nil
 end
 
 return function(EV)
 -- 秒の更新
 function EV:OnSecondChange(data, req)
-    local rc = check(EV, data, req)
-    if rc then
-        return self['T'..rc](self, data, req)
+    local key = check(EV, data, req)
+    if key then
+        return self['T'..key](self, data, req)
     else
         return self:no_entry(data, req)
     end

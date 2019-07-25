@@ -9,6 +9,7 @@ use pest::Parser as PestParser;
 use shiori3::req;
 
 /// 現在時刻でdateテーブルを作成します。
+#[allow(dead_code)]
 pub fn lua_date<'lua>(lua: &LuaContext<'lua>) -> MyResult<LuaTable<'lua>> {
     let now = chrono::Local::now();
     let t = lua.create_table()?;
