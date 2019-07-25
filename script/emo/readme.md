@@ -62,10 +62,35 @@ local res = shiori.request(req)
 　 → 会話終了後の無声秒数 `env.talk.sleep_sec`
 　 → 時報前無声秒数 `env.talk.sleep_news_sec`
 
-### 会話の開始判定
+### 会話の開始判定の流れ
 
-- 会話をしていない `req.status_dic.talking == false`
+1. 現在会話中なら中断
+   `if req.status_dic.talking then return false end`
 
-  - 直前が talking == true だった場合、会話終了時刻を保存`env.talk.end_talk_time`
+2. 会話終了時刻が未記録なら登録
+   `local now = os.time()`
+   `if not talk.end_talk_time then talk.end_talk_time = now`
 
-- 開始時刻の会話あり `env.talk.next_time[{time}]`
+3. 時報会話が存在すれば返す
+   `local news = check_news(EV, data, now)`
+   `if news return news end`
+
+4. 無音秒数が経過していなければ中断
+   ```lua
+   if os.difftime(now, talk.end_talk_time) < talk.sleep_sec then
+       return false
+   end
+   ```
+
+5. 次回会話時刻に到達していなければ中断
+   ```lua
+   if     talk.next_talk_time
+      and os.difftime(now, talk.next_talk_time) < 0 then
+       return false
+   end
+   ```
+
+6. 通常会話の開始を返す
+   `return 'normal'`
+
+

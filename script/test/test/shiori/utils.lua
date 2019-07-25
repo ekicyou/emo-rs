@@ -20,3 +20,33 @@ function test_shiori_status()
         t.assertEquals(act.balloon['1'], '0')
     end
 end
+
+-- merge(a, b) テーブルaにbを合成する。同じキーの場合はaを優先する。
+function test_shiori_status()
+    local t = require "test.luaunit"
+    local utils = require "shiori.utils"
+    local ser = require "libs.serpent"
+
+    do
+        local a = {
+            a = 1,
+            b = 2,
+            c={d=14,e="123"},
+        }
+        local b = {
+            a = 2,
+            c = {d=16, f="456"},
+            f = {d=16, f="456"},
+            g = 999,
+        }
+        local act = utils.merge(a,b)
+        t.assertEquals(act.a  , 1)
+        t.assertEquals(act.b  , 2)
+        t.assertEquals(act.c.d, 14)
+        t.assertEquals(act.c.e, "123")
+        t.assertEquals(act.c.f, "456")
+        t.assertEquals(act.f.d, 16)
+        t.assertEquals(act.f.f, "456")
+        t.assertEquals(act.g, 999)
+    end
+end

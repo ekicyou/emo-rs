@@ -63,4 +63,29 @@ function M.get_status(status)
     return t
 end
 
+-- merge(a, b) テーブルaにbを合成する。同じキーの場合はaを優先する。
+local function merge(a, b)
+    if type(a) ~= "table" or type(b) ~= "table" then
+        return a or b
+    end
+    for k,bv in pairs(b) do
+        local av = a[k]
+        local at = type(av)
+        if at == "nil" then
+            a[k] = bv
+        elseif at == "table" then
+            a[k] = merge(av, bv)
+        end
+    end
+    return a
+end
+function M.merge(a, b)
+    return merge(a, b)
+end
+
+-- unimplemented() 未実装の戻り値、nilを返す。
+function M.unimplemented()
+    return nil
+end
+
 return M
