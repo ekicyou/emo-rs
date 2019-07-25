@@ -93,7 +93,7 @@ return function(EV)
 function EV:OnSecondChange(data, req)
     local rc = check(EV, data, req)
     if rc then
-        self['T'..rc](self, data, req)
+        return self['T'..rc](self, data, req)
     else
         return self:no_entry(data, req)
     end
