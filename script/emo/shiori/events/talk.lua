@@ -106,7 +106,7 @@ end
 
 -- 全ての会話発生時に発生するイベント
 function EV:on_talk_start(data, now, value, dic)
-    --mark_start(data, now)
+    mark_start(data, now)
 end
 
 -- 10分間に会話する回数を変更

@@ -97,7 +97,7 @@ end
 local reg = {}
 local function talk(now, value, dic)
     local fn = reg.talk
-    if fn then fn()
+    if fn then fn(now, value, dic)
     end
     return ok(value, dic)
 end

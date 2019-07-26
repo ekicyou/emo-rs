@@ -74,7 +74,7 @@ local function init(drop, args)
     local events = require "shiori.events"
     local ev = events.get_event_table()
     -- response.reg.talk(value, dic)call backの結合
-    response.reg.talk = function(value, now, dic)
+    response.reg.talk = function(now, value, dic)
         ev:on_talk_start(data, now, value, dic)
     end
 
