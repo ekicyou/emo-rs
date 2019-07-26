@@ -10,7 +10,7 @@ end
     --起動トーク
 function EV:OnBoot(data, req)
     local value = [=[\1\s[10]\0\s[0]OnBoot:起動トークです。\e]=]
-    return response.ok(value)
+    return response.talk(req.now, value)
 end
 
 --

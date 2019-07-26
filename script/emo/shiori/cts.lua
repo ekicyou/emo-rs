@@ -20,7 +20,7 @@ local function run_drop(fn)
 end
 function CTS:drop()
     local items = self.items
-    self.items = {}
+    self.items = nil
     for i = #items, 1, -1 do
         pcall(items[i])
     end

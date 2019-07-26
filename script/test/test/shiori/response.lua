@@ -8,7 +8,7 @@ function test_response()
         local exp = X(  "SHIORI/3.0 200 OK",
                         "Charset: UTF-8",
                         "Value: ほにゃららら")
-        local act = response.ok("ほにゃららら")
+        local act = response.talk(os.time(), "ほにゃららら")
         t.assertEquals(act, exp)
     end
     do

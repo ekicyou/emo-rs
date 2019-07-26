@@ -38,7 +38,6 @@ end
 local function check(EV, data, req)
     local ok, rc = pcall(check_impl, EV, data, req)
     if ok and rc then
-        mark_start(data, req.now)
         return rc
     else
         return nil
@@ -102,7 +101,12 @@ end
 -- 通常会話
 function EV:Tnormal(data, req)
     local value = [=[\1\s[10]\0\s[0]OnOnSecondChange/Tnormal:通常会話です。\e]=]
-    return response.ok(value)
+    return response.talk(req.now, value)
+end
+
+-- 全ての会話発生時に発生するイベント
+function EV:on_talk_start(data, now, value, dic)
+    --mark_start(data, now)
 end
 
 -- 10分間に会話する回数を変更

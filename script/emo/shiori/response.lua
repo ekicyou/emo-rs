@@ -94,20 +94,13 @@ local function err(resion ,dic)
     return build("500 Internal Server Error", dic)
 end
 
-
-
-
--- 特別：会話（reg.talkを呼び出した結果を返す）
-local function call_reg_talk(value, dic)
-    return pub.reg.talk(value, dic)
+local reg = {}
+local function talk(now, value, dic)
+    local fn = reg.talk
+    if fn then fn()
+    end
+    return ok(value, dic)
 end
-
-local function talk(value, dic)
-    local ok, rc = pcall(call_reg_talk, value, dic)
-    local talk = ok and rc or value
-    return ok(talk, dic)
-end
-
 
 local pub = {
     join                = join,
@@ -123,6 +116,7 @@ local pub = {
     bad_request         = bad_request,
     err                 = err,
     talk                = talk,
+    reg=reg,
 }
 
 return pub

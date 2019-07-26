@@ -3,9 +3,10 @@
 SHIORI requestを受け取り、responseを返すジェネレータです。
 ]]
 
-local ser    = require "libs.serpent"
-local utils  = require "shiori.utils" 
-local cts    = require "shiori.cts"
+local response  = require "shiori.response"
+local ser       = require "libs.serpent"
+local utils     = require "shiori.utils"
+local cts       = require "shiori.cts"
 
 --データを保存します。エラーは無視します。
 local function write(path, data)
@@ -36,7 +37,7 @@ end
 
 --初期化処理を実行します。
 local function init(drop, args)
-    local data = {env={}, save={}}
+    local data = {env={}, save={}, drop={unload=drop}}
     local env  = data.env
     local save = data.save
 
@@ -58,7 +59,7 @@ local function init(drop, args)
     env.cache_dir = cache_dir
     env.save_path = save_path
 
-    -- save.luaの読み込み
+    -- save.luaの読み込み/保存
     local touch = utils.get_tree_entry(save, touch)
     do
         save = require "save"
@@ -72,6 +73,10 @@ local function init(drop, args)
     -- イベントテーブルの読み込み
     local events = require "shiori.events"
     local ev = events.get_event_table()
+    -- response.reg.talk(value, dic)call backの結合
+    response.reg.talk = function(value, now, dic)
+        ev:on_talk_start(data, now, value, dic)
+    end
 
     --
     return true, ev, data
@@ -80,6 +85,7 @@ end
 --リクエスト処理を実行します。
 local function request(ev, data, req)
     local ok, rc = cts.using(function(drop)
+        data.drop.request = drop
         local touch = utils.get_tree_entry(data.save, touch)
         touch.request = os.date()
         local res = ev:fire_request(data, req)
