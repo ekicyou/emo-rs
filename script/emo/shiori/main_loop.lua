@@ -5,8 +5,7 @@ SHIORI requestを受け取り、responseを返すジェネレータです。
 
 local ser    = require "libs.serpent"
 local utils  = require "shiori.utils" 
-local events = require "shiori.events"
-local ev = events.get_event_table()
+local cts    = require "shiori.cts"
 
 local data = {env={}, save={}}
 
@@ -42,25 +41,18 @@ end
 
 --初期化処理を実行します。
 local function init(args)
+    -- ディレクトリ解決と環境の作成
     local config  = split(package.config, "\n")
     local x       = config[1]
     local tmp_sep = config[2]
     local swap    = config[3]
 
-    local load_dir  = args.ansi_load_dir
-    local profile_dir = load_dir    ..x.."profile"
-    local emo_dir     = profile_dir ..x.."emo"
-    local cache_dir   = emo_dir     ..x.."cache"
-    local save_dir    = emo_dir     ..x.."save"
-    local save_path   = save_dir    ..x.."save.lua"
-    --[[
-    --]]
-    print("package.path:["..package.path .."]")
-    print("load_dir:    ["..load_dir     .."]")
-    print("profile_dir: ["..profile_dir  .."]")
-    print("emo_dir:     ["..emo_dir      .."]")
-    print("cache_dir:   ["..cache_dir    .."]")
-    print("save_path:   ["..save_path    .."]")
+    local load_dir  = args.ansi_load_dir            -- ghost/masterフォルダ
+    local profile_dir = load_dir    ..x.."profile"  -- {ghost}/profile  一時情報フォルダ
+    local emo_dir     = profile_dir ..x.."emo"      -- ..{profile}/emo      一時保存先
+    local cache_dir   = emo_dir     ..x.."cache"    -- ..{emo}/cache        キャッシュ
+    local save_dir    = emo_dir     ..x.."save"     -- ..{emo}/save         saveフォルダ
+    local save_path   = save_dir    ..x.."save.lua" -- ..{save}/save.lua    saveファイル
 
     local env = data.env
     env.hinst     = args.hinst
@@ -68,12 +60,16 @@ local function init(args)
     env.cache_dir = cache_dir
     env.save_path = save_path
 
+    -- save.luaの読み込み
     data.save = require "save"
-
     local touch = utils.get_tree_entry(data.save, touch)
     touch.load = os.date()
 
-    return true
+    -- イベントテーブルの読み込み
+    local events = require "shiori.events"
+    local ev = events.get_event_table()
+
+    return true, ev
 end
 
 --解放処理を実行します。
@@ -86,7 +82,7 @@ local function drop()
 end
 
 --リクエスト処理を実行します。
-local function request(req)
+local function request(ev, req)
     local touch = utils.get_tree_entry(data.save, touch)
     touch.request = os.date()
 
@@ -96,11 +92,11 @@ end
 
 --メインループ（コルーチン）
 local function main_loop(req)
-    local res = init(req)
+    local res, ev = init(req)
     while req do
         req = coroutine.yield(res)
         if req then
-            res = request(req)
+            res = request(ev, req)
         else
             break
         end
