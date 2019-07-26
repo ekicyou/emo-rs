@@ -7,11 +7,6 @@ local ser    = require "libs.serpent"
 local utils  = require "shiori.utils" 
 local cts    = require "shiori.cts"
 
-local data = {env={}, save={}}
-
---データを読み込みます。存在しない場合は空のテーブルを返します。
-
-
 --データを保存します。エラーは無視します。
 local function write(path, data)
     data.is_first_boot=nil
@@ -40,8 +35,12 @@ local function split(str, ts)
 end
 
 --初期化処理を実行します。
-local function init(args)
-    -- ディレクトリ解決と環境の作成
+local function init(drop, args)
+    local data = {env={}, save={}}
+    local env  = data.env
+    local save = data.save
+
+-- ディレクトリ解決と環境の作成
     local config  = split(package.config, "\n")
     local x       = config[1]
     local tmp_sep = config[2]
@@ -54,54 +53,56 @@ local function init(args)
     local save_dir    = emo_dir     ..x.."save"     -- ..{emo}/save         saveフォルダ
     local save_path   = save_dir    ..x.."save.lua" -- ..{save}/save.lua    saveファイル
 
-    local env = data.env
     env.hinst     = args.hinst
     env.load_dir  = load_dir
     env.cache_dir = cache_dir
     env.save_path = save_path
 
     -- save.luaの読み込み
-    data.save = require "save"
-    local touch = utils.get_tree_entry(data.save, touch)
-    touch.load = os.date()
+    local touch = utils.get_tree_entry(save, touch)
+    do
+        save = require "save"
+        touch.load = os.date()
+    end
+    drop:reg(function()
+        touch.drop = os.date()
+        write(env.save_path, save)
+    end)
 
     -- イベントテーブルの読み込み
     local events = require "shiori.events"
     local ev = events.get_event_table()
 
-    return true, ev
-end
-
---解放処理を実行します。
-local function drop()
-    local touch = utils.get_tree_entry(data.save, touch)
-    touch.drop = os.date()
-
-    write(data.env.save_path, data.save)
-    return true
+    --
+    return true, ev, data
 end
 
 --リクエスト処理を実行します。
-local function request(ev, req)
-    local touch = utils.get_tree_entry(data.save, touch)
-    touch.request = os.date()
-
-    local res = ev:fire_request(data, req)
-    return res
+local function request(ev, data, req)
+    local ok, rc = cts.using(function(drop)
+        local touch = utils.get_tree_entry(data.save, touch)
+        touch.request = os.date()
+        local res = ev:fire_request(data, req)
+        return res
+    end)
+    return ok and rc or response.err(rc)
 end
 
 --メインループ（コルーチン）
 local function main_loop(req)
-    local res, ev = init(req)
-    while req do
-        req = coroutine.yield(res)
-        if req then
-            res = request(ev, req)
-        else
-            break
+    local ok, rc = cts.using(function(drop)
+        local res, ev, data = init(drop, req)
+        while req do
+            req = coroutine.yield(res)
+            if req then
+                res = request(ev, data, req)
+            else
+                break
+            end
         end
-    end
-    return drop()
+        return true
+    end)
+    return ok and rc or false
 end
 
 local function create()
