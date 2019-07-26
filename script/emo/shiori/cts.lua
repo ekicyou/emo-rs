@@ -1,11 +1,9 @@
 local CT={}
 
-function CT:register(fn)
+function CT:reg(fn)
     local items=self.cts.items
     items[#items+1]=fn
 end
-
-
 
 
 local CTS={}
@@ -13,29 +11,42 @@ local CTS={}
 local meta_CT = {__index=CT}
 function CTS:token()
     local ct={cts=self}
-    setmetatable(cts, meta_CT)
-    return cts
-end
-local function run_drop(i,t)
-
+    setmetatable(ct, meta_CT)
+    return ct
 end
 
+local function run_drop(fn)
+    fn()
+end
 function CTS:drop()
-
-
+    local items = self.items
+    self.items = {}
+    for i = #items, 1, -1 do
+        pcall(items[i])
+    end
 end
-
-
+function CTS:pcall(fn, ...)
+    local ct = self:token()
+    local ok, rc = pcall(fn, ct, ...)
+    self:drop()
+    return ok, rc
+end
 
 local M={}
 
 local meta_CTS = {__index=CTS}
-local function M.create()
+function M.create()
     local cts={
         items={},
     }
     setmetatable(cts, meta_CTS)
     return cts
 end
+
+function M.pcall(fn, ...)
+    local cts = M.create()
+    return cts:pcall(fn, ...)
+end
+M.using = M.pcall
 
 return M

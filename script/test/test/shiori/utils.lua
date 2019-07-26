@@ -50,3 +50,15 @@ function test_shiori_status()
         t.assertEquals(act.g, 999)
     end
 end
+
+function test_os_date()
+    local t = require "test.luaunit"
+    local ser = require "libs.serpent"
+
+    local d = os.date("*t")
+    t.assertIsTrue(d.year > 2018)
+
+    local act = (nil or 0) + 1
+    t.assertEquals(act, 1)
+end
+
