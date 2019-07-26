@@ -14,8 +14,23 @@ local function get_tree_entry(table, key, ...)
     end
     return get_tree_entry(sub, ...)
 end
-
 M.get_tree_entry = get_tree_entry
+
+-- dataオブジェクトから対応するenv/saveを取得する
+local function get_data_entry(self, ...)
+    local env  = get_tree_entry(self , "env" , ...)
+    local save = get_tree_entry(self , "save", ...)
+    return env, save
+end
+local Data={}
+M.get_data_entry = get_data_entry
+Data.ENTRY       = get_data_entry
+local meta_Data = {__index=Data}
+function M.create_data_table(t)
+    local data= t or {}
+    setmetatable(data, meta_Data)
+    return data
+end
 
 -- SHIORI Request Status: を分解して返す。
 local function get_status(status, pos, t)

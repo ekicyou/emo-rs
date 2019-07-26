@@ -37,7 +37,8 @@ end
 
 --初期化処理を実行します。
 local function init(drop, args)
-    local data = {env={}, save={}, drop={unload=drop}}
+    local init_data = {env={}, save={}, drop={unload=drop}}
+    local data = utils.create_data_table(init_data)
     local env  = data.env
     local save = data.save
 
