@@ -36,8 +36,8 @@ local function split(str, ts)
 end
 
 --初期化処理を実行します。
-local function init(drop, args)
-    local init_data = {env={}, save={}, drop={unload=drop}}
+local function init(unload, args)
+    local init_data = {env={}, save={}, drop={unload=unload}}
     local data = utils.create_data_table(init_data)
     local env  = data.env
     local save = data.save
@@ -66,7 +66,7 @@ local function init(drop, args)
         save = require "save"
         touch.load = os.date()
     end
-    drop:reg(function()
+    unload:reg(function()
         touch.drop = os.date()
         write(env.save_path, save)
     end)
@@ -97,8 +97,8 @@ end
 
 --メインループ（コルーチン）
 local function main_loop(req)
-    local ok, rc = cts.using(function(drop)
-        local res, ev, data = init(drop, req)
+    local ok, rc = cts.using(function(unload)
+        local res, ev, data = init(unload, req)
         while req do
             req = coroutine.yield(res)
             if req then
