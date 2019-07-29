@@ -63,6 +63,7 @@ local function init(unload, args)
     -- save.luaの読み込み/保存
     local touch = utils.get_tree_entry(save, touch)
     do
+        package.loaded["save"] = nil
         save = require "save"
         touch.load = os.date()
     end
