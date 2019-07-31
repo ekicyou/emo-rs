@@ -59,6 +59,11 @@ local function init(unload, args)
     load.cache_dir = cache_dir
     load.save_path = save_path
 
+    -- conf.luaの読み込み
+    package.loaded["conf"] = nil
+    local conf = require "conf"
+    data.conf = utils.init_tree_entry(conf)
+
     -- save.luaの読み込み/保存
     package.loaded["save"] = nil
     data.save = require "save"
@@ -111,6 +116,8 @@ local function main_loop(req)
         end
         return true
     end)
+    if not ok then print rc
+    end
     return ok and rc or false
 end
 

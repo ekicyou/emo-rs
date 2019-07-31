@@ -6,4 +6,8 @@ return {
         sleep_sec=3,        -- 会話終了後の無声秒数
         sleep_news_sec=20,  -- 時報前無声秒数
     },
+    get={
+        username  ="ユーザさん",
+    },
+
 }
