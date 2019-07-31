@@ -2,19 +2,26 @@ local M = {}
 
 -- tableのツリー構造をたどり、tableを取得する
 -- 存在しない場合は空テーブルを登録して返す
-local function get_tree_entry(table, key, ...)
-    if type(table) ~= "table" then return nil
+local function get_tree_entry(self, key, ...)
+    if type(self) ~= "table" then return nil
     end
-    if key == nil then return table
+    if key == nil then return self
     end
-    local sub = table[key]
+    local sub = self[key]
     if type(sub) ~= "table" then
         sub = {}
-        table[key] = sub
+        self[key] = sub
     end
     return get_tree_entry(sub, ...)
 end
+local Tree={}
 M.get_tree_entry = get_tree_entry
+Tree.ENTRY       = get_tree_entry
+local meta_Tree  = {__index=Tree}
+function M.init_tree_entry(t)
+    setmetatable(t, meta_Tree)
+    return t
+end
 
 -- dataオブジェクトから対応するenv/saveを取得する
 local function get_data_entry(self, ...)
@@ -26,9 +33,11 @@ local Data={}
 M.get_data_entry = get_data_entry
 Data.ENTRY       = get_data_entry
 local meta_Data = {__index=Data}
-function M.create_data_table(t)
-    local data= t or {}
+function M.init_data_table(data)
     setmetatable(data, meta_Data)
+    local env, save = data:ENTRY()
+    M.init_tree_entry(env)
+    M.init_tree_entry(save)
     return data
 end
 

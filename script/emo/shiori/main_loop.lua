@@ -37,10 +37,9 @@ end
 
 --初期化処理を実行します。
 local function init(unload, args)
-    local init_data = {env={}, save={}, drop={unload=unload}}
-    local data = utils.create_data_table(init_data)
-    local env  = data.env
-    local save = data.save
+    local load = {}
+    local env  = {load=load}
+    local data = {env=env}
 
 -- ディレクトリ解決と環境の作成
     local config  = split(package.config, "\n")
@@ -55,26 +54,27 @@ local function init(unload, args)
     local save_dir    = emo_dir     ..x.."save"     -- ..{emo}/save         saveフォルダ
     local save_path   = save_dir    ..x.."save.lua" -- ..{save}/save.lua    saveファイル
 
-    env.hinst     = args.hinst
-    env.load_dir  = load_dir
-    env.cache_dir = cache_dir
-    env.save_path = save_path
+    load.hinst     = args.hinst
+    load.load_dir  = load_dir
+    load.cache_dir = cache_dir
+    load.save_path = save_path
 
     -- save.luaの読み込み/保存
-    local touch = utils.get_tree_entry(save, touch)
-    do
-        package.loaded["save"] = nil
-        save = require "save"
-        touch.load = os.date()
-    end
+    package.loaded["save"] = nil
+    data.save = require "save"
+    utils.init_data_table(data)
+    local env, save = data:ENTRY()
+    local touch = save:ENTRY("touch")
+    touch.load = os.date()
     unload:reg(function()
-        touch.drop = os.date()
-        write(env.save_path, save)
+        touch.unload = os.date()
+        write(load.save_path, save)
     end)
 
     -- イベントテーブルの読み込み
     local events = require "shiori.events"
-    local ev = events.get_event_table()
+    local ev = events.get_event_table(unload, data)
+
     -- response.reg.talk(value, dic)call backの結合
     response.reg.talk = function(now, value, dic)
         ev:on_talk_start(data, now, value, dic)
@@ -87,12 +87,13 @@ end
 --リクエスト処理を実行します。
 local function request(ev, data, req)
     local ok, rc = cts.using(function(drop)
-        data.drop.request = drop
-        local touch = utils.get_tree_entry(data.save, touch)
+        data.drop = drop
+        local touch = data.save:ENTRY("touch")
         touch.request = os.date()
         local res = ev:fire_request(data, req)
         return res
     end)
+    data.drop = nil
     return ok and rc or response.err(rc)
 end
 
