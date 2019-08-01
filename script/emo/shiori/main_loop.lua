@@ -116,7 +116,7 @@ local function main_loop(req)
         end
         return true
     end)
-    if not ok then print rc
+    if not ok then print(rc)
     end
     return ok and rc or false
 end
