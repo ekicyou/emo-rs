@@ -5,14 +5,16 @@ extern crate cc;
 extern crate pkg_config;
 
 fn main() {
+    use std::env;
+    use std::path;
+    use std::fs::File;
+    use std::io::Write;
     if cfg!(all(feature = "builtin-lua", feature = "system-lua")) {
         panic!("cannot enable both builtin-lua and system-lua features when building rlua");
     }
 
     #[cfg(feature = "builtin-lua")]
     {
-        use std::env;
-
         let target_os = env::var("CARGO_CFG_TARGET_OS");
         let target_family = env::var("CARGO_CFG_TARGET_FAMILY");
 
@@ -76,5 +78,22 @@ fn main() {
             .atleast_version("5.3")
             .probe("lua")
             .unwrap();
+    }
+
+    {
+        // version.luaの作成
+        let version = env::var("CARGO_PKG_VERSION").unwrap();
+        let root_dir_str = env::var("CARGO_MANIFEST_DIR").unwrap();
+        let root_dir = path::Path::new(&root_dir_str);
+        let version_lua_path = {
+            let mut p = root_dir.to_path_buf();
+            p.push("script");
+            p.push("emo");
+            p.push("version.lua");
+            p
+        };
+        let mut f =File::create(&version_lua_path).unwrap();
+        writeln!(f, "return \"{}\"", version).unwrap();
+        f.flush().unwrap();
     }
 }

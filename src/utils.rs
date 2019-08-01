@@ -50,7 +50,7 @@ pub fn setup_logger<P: AsRef<Path>>(load_dir: P) -> MyResult<()> {
             .write(true)
             .create(true)
             .append(true)
-//            .truncate(true)
+            //            .truncate(true)
             .open(p)?;
         f
     };
