@@ -8,14 +8,14 @@ pub trait ToAnsi {
     fn to_ansi(&self) -> MyResult<String>;
 }
 
-impl ToAnsi for AsRef<str> {
+impl ToAnsi for dyn AsRef<str> {
     /// rust文字列をANSI文字列に変換します。
     fn to_ansi(&self) -> MyResult<String> {
         str_to_ansi(self)
     }
 }
 
-impl ToAnsi for AsRef<OsStr> {
+impl ToAnsi for dyn AsRef<OsStr> {
     /// osstrをANSI文字列に変換します。
     fn to_ansi(&self) -> MyResult<String> {
         osstr_to_ansi(self)
@@ -50,7 +50,6 @@ pub fn setup_logger<P: AsRef<Path>>(load_dir: P) -> MyResult<()> {
             .write(true)
             .create(true)
             .append(true)
-            //            .truncate(true)
             .open(p)?;
         f
     };
