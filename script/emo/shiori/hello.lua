@@ -5,3 +5,5 @@ end
 function こんにちわ(a)
     return "こんにちわ、" .. a
 end
+
+print(hello("hello"))
