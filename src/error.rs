@@ -1,6 +1,7 @@
 use failure::Fail;
 
-pub type Result<T> = std::result::Result<T, failure::Error>;
+#[allow(dead_code)]
+pub type MyResult<T> = std::result::Result<T, failure::Error>;
 
 #[allow(dead_code)]
 #[derive(Debug, Fail)]

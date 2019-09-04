@@ -1,43 +1,63 @@
 #![cfg(test)]
+use crate::lua_funcs::*;
+use crate::prelude::*;
+use crate::utils::*;
 use log::*;
-use rlua::{Lua, Table};
 use std::env::current_dir;
-use std::path::Path;
 
+use std::fs;
+use std::path::Path;
 #[test]
 fn hello_test() {
     {
-        ::std::env::set_var("RUST_LOG", "trace");
+        std::env::set_var("RUST_LOG", "trace");
         let _ = env_logger::try_init();
     }
     let lua = Lua::new();
-    let globals = lua.globals();
-    let package = globals.get::<_, Table>("package").unwrap();
-    {
-        let src_path = current_dir().unwrap();
-        set_package_path(&lua, src_path);
-    }
-    {
-        let path = package.get::<_, String>("path");
-        assert_eq!(path.is_ok(), true);
-        trace!("path= {:?}", path);
-    }
-    {
-        let _: usize = lua.exec("require(\"hello\");return 0;", None).unwrap();
-    }
-    {
-        let rc: String = lua.exec("return hello(\"hello\")", None).unwrap();
-        assert_eq!(rc, "hello world");
-    }
-    {
-        let rc: String = lua
-            .exec("return こんにちわ(\"世界\")", None)
-            .unwrap();
-        assert_eq!(rc, "こんにちわ、世界");
-    }
+    lua.context(|lua| {
+        let globals = lua.globals();
+        let package = globals.get::<_, LuaTable<'_>>("package").unwrap();
+        {
+            let src_path = current_dir().unwrap();
+            set_package_path(&lua, src_path);
+        }
+        {
+            let path = package.get::<_, String>("path");
+            assert_eq!(path.is_ok(), true);
+            trace!("path= {:?}", path);
+        }
+        {
+            let _: usize = lua
+                .load("require(\"shiori.hello\");return 0;")
+                .eval()
+                .unwrap();
+        }
+        {
+            let rc: String = lua.load("return hello(\"hello\")").eval().unwrap();
+            assert_eq!(rc, "hello world");
+        }
+        {
+            let rc: String = lua
+                .load("return こんにちわ(\"世界\")")
+                .eval()
+                .unwrap();
+            assert_eq!(rc, "こんにちわ、世界");
+        }
+        {
+            let rc: String = lua.load("return _G._VERSION").eval().unwrap();
+            assert_eq!(rc, "Lua 5.3");
+        }
+    });
 }
 
-fn set_package_path<P: AsRef<Path>>(lua: &Lua, load_dir: P) {
+/// 試験環境のlua モジュール検索パスを作成する。
+/// * [save]\\?.lua
+/// * [save]\\?\\init.lua
+/// * [root]\\script\\dic\\?.lua
+/// * [root]\\script\\dic\\?\\init.lua
+/// * [root]\\script\\emo\\?.lua
+/// * [root]\\script\\emo\\?\\init.lua
+fn set_package_path<P: AsRef<Path>>(lua: &LuaContext<'_>, load_dir: P) {
     fn append<P: AsRef<Path>>(buf: &mut String, dir: P) {
         {
             let mut p = dir.as_ref().to_path_buf();
@@ -63,16 +83,24 @@ fn set_package_path<P: AsRef<Path>>(lua: &Lua, load_dir: P) {
     let mut buf = String::new();
     {
         let mut pre = load_dir.as_ref().to_path_buf();
-        pre.push("lua_script");
+        pre.push("target");
+        pre.push("ソ―Ы 場所");
         append(&mut buf, pre);
     }
     {
         let mut pre = load_dir.as_ref().to_path_buf();
-        pre.push("lua_lib");
+        pre.push("script");
+        pre.push("dic");
+        append(&mut buf, pre);
+    }
+    {
+        let mut pre = load_dir.as_ref().to_path_buf();
+        pre.push("script");
+        pre.push("emo");
         append(&mut buf, pre);
     }
     let globals = lua.globals();
-    let package = globals.get::<_, Table>("package").unwrap();
+    let package = globals.get::<_, LuaTable<'_>>("package").unwrap();
     package.set("path", buf).unwrap();
 }
 
@@ -120,4 +148,62 @@ fn os_str_test() {
             assert_eq!(c, Some("c:\\Windows"));
         }
     }
+}
+
+#[cfg(any(windows))]
+#[test]
+fn lua_funcs_test() {
+    {
+        std::env::set_var("RUST_LOG", "trace");
+        let _ = env_logger::try_init();
+    }
+    let lua = Lua::new();
+    lua.context(|lua| {
+        {
+            let src_path = current_dir().unwrap();
+            set_package_path(&lua, src_path);
+            load_functions(&lua).unwrap();
+        }
+        let globals = lua.globals();
+        let emo = globals.get::<_, LuaTable<'_>>("emo").unwrap();
+        {
+            let f = emo.get::<_, LuaFunction<'_>>("rust_hello").unwrap();
+            let rc: String = f.call("world").unwrap();
+            assert_eq!(rc, "Hello, world!");
+        }
+        {
+            let rc: String = lua.load("return emo.rust_hello(\"world\")").eval().unwrap();
+            assert_eq!(rc, "Hello, world!");
+        }
+        {
+            let save_dir = {
+                let mut pre = current_dir().unwrap();
+                pre.push("target");
+                pre.push("ソ―Ы 場所");
+                pre
+            };
+            let _ = fs::remove_dir_all(&save_dir);
+            let ansi_save_dir = save_dir.to_ansi().unwrap();
+            let mkdir_test = lua.create_table().unwrap();
+            mkdir_test.set("ansi_save_dir", ansi_save_dir).unwrap();
+            globals.set("mkdir_test", mkdir_test).unwrap();
+            {
+                let rc: bool = lua
+                    .load("return lfs.mkdir(mkdir_test.ansi_save_dir .. \"\\\\test\")")
+                    .eval()
+                    .unwrap();
+                assert_eq!(rc, true);
+                let mut p = save_dir.to_owned();
+                p.push("test");
+                let _entry = fs::read_dir(p).unwrap();
+            }
+            {
+                let rc: bool = lua
+                    .load("return lfs.mkdir(mkdir_test.ansi_save_dir .. \"\\\\test\")")
+                    .eval()
+                    .unwrap();
+                assert_eq!(rc, true);
+            }
+        }
+    });
 }

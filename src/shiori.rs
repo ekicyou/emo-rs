@@ -1,24 +1,26 @@
-use super::error::*;
-use crate::api::*;
-use crate::function::*;
-use rlua::{Lua, Table};
+use crate::lua_funcs::*;
+use crate::lua_path::*;
+use crate::lua_request::*;
+use crate::prelude::*;
+use crate::utils;
+use log::*;
+use shiori3::*;
 use std::borrow::Cow;
+use std::fs;
 use std::path::Path;
 use std::path::PathBuf;
 
 #[allow(dead_code)]
-pub struct EmoShiori {
+#[derive(Default)]
+pub struct Shiori {
     h_inst: usize,
     load_dir: PathBuf,
     lua_path: String,
     lua: Lua,
 }
-impl Drop for EmoShiori {
-    fn drop(&mut self) {}
-}
 
 #[allow(dead_code)]
-impl EmoShiori {
+impl Shiori {
     fn h_inst(&self) -> usize {
         (self.h_inst)
     }
@@ -30,114 +32,102 @@ impl EmoShiori {
     }
 }
 
-impl Shiori3 for EmoShiori {
-    fn load<P: AsRef<Path>>(h_inst: usize, load_dir: P) -> Result<Self> {
-        // 検索パスの作成
-        let (load_dir, lua_path) = lua_search_path(load_dir, "lua")?;
+impl Drop for Shiori {
+    fn drop(&mut self) {
+        info!("SHIORI:unload()");
+        let result: MyResult<_> = self.lua().context(|context| {
+            let globals = context.globals();
+            let shiori: LuaTable<'_> = globals.get("shiori")?;
+            let func: LuaFunction<'_> = shiori.get("unload")?;
+            let res = func.call::<_, bool>(0)?;
+            Ok(res)
+        });
+        match result {
+            Err(e) => {
+                error!("[drop] {}", e);
+            }
+            _ => (),
+        }
+    }
+}
+
+impl Shiori3 for Shiori {
+    /// load_dir pathのファイルでSHIORIインスタンスを作成します。
+    fn load<P: AsRef<Path>>(
+        h_inst: usize,
+        load_dir_path: P,
+        load_dir_bytes: &[u8],
+    ) -> MyResult<Self> {
+        // 検索パスの作成、saveフォルダの作成、ロガー設定
+        let (load_dir_path, _, lua_path, save_dir) = lua_search_path(load_dir_path, "lua")?;
+        fs::create_dir_all(&save_dir)?;
+        utils::setup_logger(&load_dir_path)?;
+        debug!(
+            "SHIORI:load(hinst={}, load_dir={:?})",
+            &h_inst, &load_dir_path
+        );
+        trace!("save_dir={:?}", &save_dir);
+        trace!("lua_path={}", &lua_path);
 
         // ##  Lua インスタンスの作成
         let lua = Lua::new();
 
-        // ## 関数の登録
-        init_functions(&lua)?;
+        let result: LuaResult<_> = lua.context(|context| {
+            // ## emo.* 関数の登録
+            load_functions(&context)?;
 
-        {
             // ##  グローバル変数の設定
             // ### lua内のパス名解決ではANSI文字列を与える必要があることに注意
             // 1. rust⇔lua間の文字列エンコーディングはutf-8とする。
             // 2. モジュール解決対象のファイル名はASCII名称とする。
-            let globals = lua.globals();
-
-            // ### モジュール
-            let package: Table = globals.get("package")?;
-            package.set("path", lua_path.clone())?;
+            let globals = context.globals();
+            {
+                // ### モジュールパスを設定してshiori/init.luaを読み込む
+                let package: LuaTable<'_> = globals.get("package")?;
+                package.set("path", lua_path.clone())?;
+                let _: usize = context.load("require(\"shiori\");return 0;").eval()?;
+            }
+            {
+                // ### shiori.load()の呼び出し
+                let shiori: LuaTable<'_> = globals.get("shiori")?;
+                let func: LuaFunction<'_> = shiori.get("load")?;
+                let ansi_load_dir = unsafe {
+                    let s = std::str::from_utf8_unchecked(load_dir_bytes);
+                    s.to_owned()
+                };
+                func.call::<_, bool>((h_inst, ansi_load_dir))?;
+            }
 
             // ##  luaモジュールのロード
-        }
+            Ok(())
+        });
+        result?;
 
         // リザルト
-        Ok(EmoShiori {
-            h_inst: h_inst,
-            load_dir: load_dir,
-            lua_path: lua_path,
-            lua: lua,
+        debug!("SHIORI:load() -> Ok(())");
+        Ok(Shiori {
+            h_inst,
+            load_dir: load_dir_path,
+            lua_path,
+            lua,
         })
     }
-    fn request<'a, S: Into<&'a str>>(&mut self, req: S) -> Result<Cow<'a, str>> {
-        let req_str = req.into();
-        let _req = ShioriRequest::parse(req_str)?;
-        let rc = format!("[{:?}]{} is OK", self.load_dir, req_str);
-        Ok(rc.into())
-    }
-}
 
-/// luaの検索パスを作成します。
-fn lua_search_path<P: AsRef<Path>>(load_dir: P, ext: &str) -> Result<(PathBuf, String)> {
-    // load dir(終端文字は除去)
-    let load_dir = {
-        let mut buf = load_dir.as_ref().to_path_buf();
-        buf.push("a");
-        buf.pop();
-        buf
-    };
-
-    // クロージャ呼び出し
-    let mut lua_path = String::default();
-    {
-        let load_dir = {
-            let a = load_dir.to_str();
-            let b = a.ok_or(ShioriError::from(ShioriError::Load))?;
-            String::from(b)
-        };
-        // luaモジュールのパス解決関数
-        let mut add_path = |root: &str| {
-            let mut add_path = |pre: &str| {
-                if !lua_path.is_empty() {
-                    lua_path.push(';');
-                }
-                lua_path.push_str(&load_dir);
-                lua_path.push_str(root);
-                lua_path.push_str(pre);
-                lua_path.push_str(ext);
-            };
-            add_path("\\?.");
-            add_path("\\?\\init.");
-        };
-        add_path("\\usr");
-        add_path("\\share");
-    }
-
-    Ok((load_dir, lua_path))
-
-    // # luaのモジュール解決
-    // modname は以下の順に検索され、最初に解決したものを返す。
-    // この動作はpackage.searchersに登録されている既定の動作である。
-    //  1. package.preload[modname]
-    //  2. package.path  を用いてパス解決
-    //  3. package.cpath を用いてパス解決
-    //  4. package.searchers より、オールインワンローダで解決
-
-    // ## パス解決ルール
-    // パス解決は package.searchpath (name, path [, sep [, rep]]) により行われる。
-    // パスに含まれる「?」が、nameに置き換わり、最初に見つかったファイル名を返す。
-    // 例）
-    //   * name ="foo.a"
-    //     * ? ="foo/a"
-    //   * path ="./?.lua;./?.lc;/usr/local/?/init.lua"
-    //     * "./foo/a.lua"
-    //     * "./foo/a.lc"
-    //     * "/usr/local/foo/a/init.lua"
-
-    // ## moe.dllのパス解決
-    //  1. load_dirを絶対パスに変換する。例）load_dir="c:\萌え 萌え\ghost\キュン";
-    //  2.
-}
-#[cfg(any(windows))]
-#[test]
-fn lua_search_pathh_test() {
-    {
-        let (dir, path) = lua_search_path("c:\\留袖 綺麗ね\\ごーすと\\", "lua").unwrap();
-        assert_eq!(dir.to_string_lossy(), "c:\\留袖 綺麗ね\\ごーすと");
-        assert_eq!(path, "c:\\留袖 綺麗ね\\ごーすと\\usr\\?.lua;c:\\留袖 綺麗ね\\ごーすと\\usr\\?\\init.lua;c:\\留袖 綺麗ね\\ごーすと\\share\\?.lua;c:\\留袖 綺麗ね\\ごーすと\\share\\?\\init.lua");
+    /// SHIORIリクエストを解釈し、応答を返します。
+    fn request<'a, S: Into<&'a str>>(&mut self, req: S) -> MyResult<Cow<'a, str>> {
+        let req = req.into();
+        debug!("SHIORI:request()****\n{}\n****", &req);
+        let result: MyResult<_> = self.lua().context(|context| {
+            let req = parse_request(&context, &req)?;
+            //let time = lua_date(&context)?;
+            //req.set("time", time)?;
+            let globals = context.globals();
+            let shiori: LuaTable<'_> = globals.get("shiori")?;
+            let func: LuaFunction<'_> = shiori.get("request")?;
+            let res = func.call::<_, std::string::String>(req)?;
+            Ok(res)
+        });
+        let res = result?;
+        Ok(res.into())
     }
 }

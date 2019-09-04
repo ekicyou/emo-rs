@@ -8,6 +8,10 @@
         "request": "launch",
         "name": "Launch",
         "program": "${file}",
-        "path": "${workspaceFolder}/lua_lib/?.lua;${workspaceFolder}/lua_lib/?/init.lua;${workspaceFolder}/lua_script/?.lua;${workspaceFolder}/lua_script/?/init.lua"
+        "env": {
+            "WORK_SPACE_DOLDER": "${workspaceFolder}"
+        },
+        "stopOnEntry": false,
+        "path": "${workspaceFolder}/script/profile/emo/save/?.lua;${workspaceFolder}/script/profile/emo/save/?/init.lua;${workspaceFolder}/script/test/?.lua;${workspaceFolder}/script/test/?/init.lua;${workspaceFolder}/script/dic/?.lua;${workspaceFolder}/script/dic/?/init.lua;${workspaceFolder}/script/emo/?.lua;${workspaceFolder}/script/emo/?/init.lua"
     }]
 }
