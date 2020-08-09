@@ -21,13 +21,14 @@ pub struct Shiori {
 
 #[allow(dead_code)]
 impl Shiori {
-    fn h_inst(&self) -> usize {
+    #[allow(unused_parens)]
+    pub fn h_inst(&self) -> usize {
         (self.h_inst)
     }
-    fn load_dir(&self) -> &Path {
+    pub fn load_dir(&self) -> &Path {
         &(self.load_dir)
     }
-    fn lua(&self) -> &Lua {
+    pub fn lua(&self) -> &Lua {
         &(self.lua)
     }
 }
