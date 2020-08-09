@@ -64,7 +64,7 @@ pub fn setup_logger<P: AsRef<Path>>(load_dir: P) -> MyResult<()> {
                 message
             ))
         })
-        .level(log::LevelFilter::Trace)
+        .level(log::LevelFilter::Warn)
         .chain(std::io::stdout())
         .chain(log_file)
         .apply()?;
