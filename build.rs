@@ -6,9 +6,6 @@ extern crate pkg_config;
 
 fn main() {
     use std::env;
-    use std::path;
-    use std::fs::File;
-    use std::io::Write;
     if cfg!(all(feature = "builtin-lua", feature = "system-lua")) {
         panic!("cannot enable both builtin-lua and system-lua features when building rlua");
     }
@@ -80,8 +77,12 @@ fn main() {
             .unwrap();
     }
 
+    /*
     {
         // version.luaの作成
+        use std::fs::File;
+        use std::io::Write;
+        use std::path;
         let version = env::var("CARGO_PKG_VERSION").unwrap();
         let root_dir_str = env::var("CARGO_MANIFEST_DIR").unwrap();
         let root_dir = path::Path::new(&root_dir_str);
@@ -96,4 +97,5 @@ fn main() {
         writeln!(f, "return \"{}\"", version).unwrap();
         f.flush().unwrap();
     }
+    */
 }
