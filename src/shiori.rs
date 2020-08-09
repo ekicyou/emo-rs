@@ -63,12 +63,12 @@ impl Shiori3 for Shiori {
         let (load_dir_path, _, lua_path, save_dir) = lua_search_path(load_dir_path, "lua")?;
         fs::create_dir_all(&save_dir)?;
         utils::setup_logger(&load_dir_path)?;
-        debug!(
+        info!(
             "SHIORI:load(hinst={}, load_dir={:?})",
             &h_inst, &load_dir_path
         );
-        trace!("save_dir={:?}", &save_dir);
-        trace!("lua_path={}", &lua_path);
+        info!("save_dir={:?}", &save_dir);
+        info!("lua_path={}", &lua_path);
 
         // ##  Lua インスタンスの作成
         let lua = Lua::new();
@@ -105,7 +105,7 @@ impl Shiori3 for Shiori {
         result?;
 
         // リザルト
-        debug!("SHIORI:load() -> Ok(())");
+        info!("SHIORI:load() -> Ok(())");
         Ok(Shiori {
             h_inst,
             load_dir: load_dir_path,

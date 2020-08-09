@@ -49,7 +49,8 @@ pub fn setup_logger<P: AsRef<Path>>(load_dir: P) -> MyResult<()> {
         let f = fs::OpenOptions::new()
             .write(true)
             .create(true)
-            .append(true)
+            .truncate(true)
+            //.append(true)
             .open(p)?;
         f
     };
@@ -64,7 +65,7 @@ pub fn setup_logger<P: AsRef<Path>>(load_dir: P) -> MyResult<()> {
                 message
             ))
         })
-        .level(log::LevelFilter::Warn)
+        .level(log::LevelFilter::Info)
         .chain(std::io::stdout())
         .chain(log_file)
         .apply()?;
