@@ -19,7 +19,7 @@ local function SEQ(talk)
             return
         -- 関数：コルーチンとみなしてループを回す
         elseif talk_type == "function" then
-            local co = talk()
+            local co = coroutine.wrap(talk)
             while true do
                 value = co(args)
                 if value == nil then
@@ -68,8 +68,17 @@ local function INFINITY(talk)
     return coroutine.wrap(task)
 end
 
+-- 関数を1回実行するタスク（warpはSEQで行うこと）
+local function ONE(func)
+    local function task(args)
+        coroutine.yield(func(args))
+    end
+    return task
+end
+
 return {
     INFINITY = INFINITY,
     SEQ      = SEQ,
     RAND     = RAND,
+    ONE      = ONE,
 }
