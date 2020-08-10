@@ -4,7 +4,7 @@ function test_talk_seq_1()
     local o = require "talks.o"
 
     local items = {"1","2","3"}
-    local co = o.SEQ(items)
+    local co = coroutine.wrap(o.SEQ(items))
     local args = {
         data= {},
         req = {},
@@ -20,7 +20,7 @@ function test_talk_inf()
     local o = require "talks.o"
 
     local items = {"1","2","3"}
-    local co = o.INFINITY(items)
+    local co = coroutine.wrap(o.INFINITY(items))
     local args = {
         data= {},
         req = {},
@@ -39,7 +39,7 @@ function test_talk_seq_fn()
         return "1"
     end
     local items = o.ONE(func)
-    local co = o.SEQ(items)
+    local co = coroutine.wrap(o.SEQ(items))
     local args = {
         data= {},
         req = {},
@@ -53,7 +53,7 @@ function test_talk_seq_str()
     local o = require "talks.o"
 
     local items = "1"
-    local co = o.SEQ(items)
+    local co = coroutine.wrap(o.SEQ(items))
     local args = {
         data= {},
         req = {},
@@ -62,6 +62,38 @@ function test_talk_seq_str()
     t.assertEquals(co(args), nil)
 end
 
+function test_talk_rand_1()
+    local t = require "test.luaunit"
+    local o = require "talks.o"
+
+    local items = {"1","1"}
+    local co = coroutine.wrap(o.RAND(items))
+    local args = {
+        data= {},
+        req = {},
+    }
+    t.assertEquals(co(args), "1")
+    t.assertEquals(co(args), "1")
+    t.assertEquals(co(args), nil)
+end
+
+function test_talk_rand_2()
+    local t = require "test.luaunit"
+    local o = require "talks.o"
+
+    local items = {"1","2"}
+    local co = coroutine.wrap(o.RAND(items))
+    local args = {
+        data= {},
+        req = {},
+    }
+    local a = co(args)
+    local b = co(args)
+    local c = co(args)
+
+    t.assertNotEquals(a, b)
+    t.assertEquals(c, nil)
+end
 
 function test_talk_seq_rev()
     local t = require "test.luaunit"
@@ -83,7 +115,7 @@ function test_talk_seq_rev()
         subs
     }
 
-    local co = o.SEQ(items)
+    local co = coroutine.wrap(o.SEQ(items))
     local args = {
         data= {},
         req = {},

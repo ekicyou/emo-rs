@@ -41,7 +41,7 @@ local function SEQ(talk)
             end        
         end
     end
-    return coroutine.wrap(task)
+    return task
 end
 
 -- シャッフル実行
@@ -65,7 +65,7 @@ local function INFINITY(talk)
             end
         end
     end
-    return coroutine.wrap(task)
+    return task
 end
 
 -- 関数を1回実行するタスク（warpはSEQで行うこと）
