@@ -9,23 +9,6 @@ local function table_copy(t)
 end
 
 
--- 無限SEQ実行
-local function INFINITY(talk)
-    local function task(args)
-        while true do
-            local co = SEQ(talk)
-            while true do
-                value = co(args)
-                if value == nil then
-                    break
-                end
-                args = coroutine.yield(value)
-            end
-        end
-    end
-    return coroutine.wrap(task)
-end
-
 -- SEQ実行
 local function SEQ(talk)
     local function task(args)
@@ -66,6 +49,23 @@ local function RAND(talk)
     local sh = table_copy(talk)
     shuffle.shuffle(sh)
     return SEQ(sh)
+end
+
+-- 無限SEQ実行
+local function INFINITY(talk)
+    local function task(args)
+        while true do
+            local co = SEQ(talk)
+            while true do
+                value = co(args)
+                if value == nil then
+                    break
+                end
+                args = coroutine.yield(value)
+            end
+        end
+    end
+    return coroutine.wrap(task)
 end
 
 return {

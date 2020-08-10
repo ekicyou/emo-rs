@@ -8,6 +8,40 @@ require "test.shiori.insert_wait"
 
 -- とりあえずすぐ試したいテストはここに書く。
 
+
+function test_talk_seq_1()
+    local t = require "test.luaunit"
+    local o = require "talks.o"
+
+    local items = {"1","2","3"}
+    local co = o.SEQ(items)
+    local args = {
+        data= {},
+        req = {},
+    }
+    t.assertEquals(co(args), "1")
+    t.assertEquals(co(args), "2")
+    t.assertEquals(co(args), "3")
+    t.assertEquals(co(args), nil)
+end
+
+function test_talk_inf()
+    local t = require "test.luaunit"
+    local o = require "talks.o"
+
+    local items = {"1","2","3"}
+    local co = o.INFINITY(items)
+    local args = {
+        data= {},
+        req = {},
+    }
+    t.assertEquals(co(args), "1")
+    t.assertEquals(co(args), "2")
+    t.assertEquals(co(args), "3")
+    t.assertEquals(co(args), "1")
+end
+
+
 function test_cts()
     local t = require "test.luaunit"
     local ser = require "libs.serpent"
