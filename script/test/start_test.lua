@@ -10,6 +10,18 @@ require "test.talks.o"
 -- とりあえずすぐ試したいテストはここに書く。
 
 
+local csv_data = [=[
+
+
+
+
+]=]
+
+function test_csv()
+
+
+
+end
 
 
 function test_cts()
