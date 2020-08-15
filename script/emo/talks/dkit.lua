@@ -54,7 +54,12 @@ local function load_row(cols, line)
         end
 
         -- 検索用インデックスの作成
-        col.row_dic[value] = row
+        local row_items = col.row_dic[value]
+        if row_items == nil then
+            row_items = {}
+            col.row_dic[value] = row_items
+        end
+        table.insert(row_items, row)
 
         -- continue
         ::LOOP_END::
@@ -83,5 +88,45 @@ function M.create_word_db(csv_data)
     end
     return db
 end
+
+
+local function filter1(db, key, value)
+    local row_items = db.cols.dic[key].row_dic[value]
+    return row_items
+end
+
+local function filterN(src, key, value, ...)
+    if src == nil then
+        return {}
+    elseif key == nil or value == nil then
+        return src
+    end
+    local dst = {}
+    for i,row in ipairs(src) do
+        if row[key][value] then
+            table.insert(dst,row)
+        end
+    end
+    if #dst == 0 then
+        return dst
+    else
+        return filterN(dst, ...)
+    end
+end
+
+function M.filter_recs(db, key, value, ...)
+    local one = filter1(db, key, value)
+    return filterN(one, ...)
+end
+
+function M.filter_names(...)
+    local names = {}
+    local recs =  M.filter_recs(...)
+    for i,row in ipairs(recs) do
+        table.insert(names, row.name)
+    end
+    return names
+end
+
 
 return M
