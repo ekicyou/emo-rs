@@ -9,17 +9,13 @@ require "test.talks.o"
 
 -- とりあえずすぐ試したいテストはここに書く。
 
-
-local csv_data = [=[
-
-
-
-
-]=]
-
 function test_csv()
-
-
+    local t = require "test.luaunit"
+    local ser = require "libs.serpent"
+    local dkit = require "talks.dkit"
+    local csv_data = require "talks.word"
+    local db = dkit.create_word_db(csv_data)
+    print(ser.dump(db, {nocode = true, indent = ' '}))
 
 end
 
