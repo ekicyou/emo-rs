@@ -22,11 +22,11 @@ function test_dkit()
 
     local names = dkit.filter_names(db, "カテゴリー", "キャラ")
     t.assertEquals(#names, 95)
-    print(ser.block(names))
+    --print(ser.block(names))
 
     local place = dkit.value_items(db, "生息地")
     t.assertEquals(#place, 25)
-    print(ser.block(place))
+    --print(ser.block(place))
 
 end
 
