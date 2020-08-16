@@ -24,6 +24,10 @@ function test_dkit()
     t.assertEquals(#names, 95)
     print(ser.block(names))
 
+    local place = dkit.value_items(db, "生息地")
+    t.assertEquals(#place, 25)
+    print(ser.block(place))
+
 end
 
 

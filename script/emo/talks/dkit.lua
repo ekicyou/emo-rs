@@ -12,7 +12,7 @@ local function load_header(line)
         items = items,
     }
     for i,name in ipairs(line) do
-        local col = {i = i-1, name = name, row_dic={}}
+        local col = {i = i-1, name = name, row_dic={}, value_dic={}}
         local s,e,m = string.find(name, RE_DIC)
         local is_dic = false
         if m then
@@ -20,7 +20,7 @@ local function load_header(line)
             name = m
             local dic_col = dic[name]
             if dic_col == nil then
-                dic_col = {name = name, row_dic={} }
+                dic_col = {name = name, row_dic={}, value_dic={} }
                 dic[name] = dic_col
             end
             col = dic_col
@@ -60,6 +60,7 @@ local function load_row(cols, line)
             col.row_dic[value] = row_items
         end
         table.insert(row_items, row)
+        col.value_dic[value] = 1
 
         -- continue
         ::LOOP_END::
@@ -128,5 +129,19 @@ function M.filter_names(...)
     return names
 end
 
+--- col要素に含まれるすべての要素の辞書を返す
+function M.value_dic(db, key)
+    return db.cols.dic[key].value_dic
+end
+
+--- col要素に含まれるすべての要素の配列を返す
+function M.value_items(db, key)
+    local value_dic = M.value_dic(db, key)
+    local items = {}
+    for k,v in pairs(value_dic) do
+        table.insert(items, k)
+    end
+    return items
+end
 
 return M
