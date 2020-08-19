@@ -72,9 +72,7 @@ local function adjust_hour(x,d)
     if x.hour then
         -- 時分指定　⇒そのまま返す
         -- 時のみ指定⇒０分にする。
-        if not x.min then
-            x.min = 0
-        end
+        if not x.min then x.min = 0 end
         return
     else
         -- 分のみ指定⇒次の時を設定して終了
@@ -82,9 +80,7 @@ local function adjust_hour(x,d)
             x.hour = d.hour
             local xt = GET_TIME(x)
             local dt = GET_TIME(d)
-            if xt < dt then
-                xt = xt + 60*60
-            end
+            if xt < dt then xt = xt + 60*60 end
             SET_TIME(x, xt)
             return
         end
@@ -111,8 +107,14 @@ local function get_last_monday_time(d)
     }
     local zero_time = os.time(d2)
     -- wdayを取得
-    local wday = d2.wday
-    
+    local zero_date = os.date("*t", zero_time)
+    local wday = zero_date.wday
+
+    -- 直近のwday=2になるように日付をマイナス
+    local day = wday -2
+    if day < 0 then day = day + 7 end
+    local mon_time =zero_time - day*60*60*24
+    return mon_time
 end
 
 function test_get_last_monday_time(d)
@@ -128,7 +130,13 @@ function test_get_last_monday_time(d)
     local ser = require "libs.serpent"
 
     local monday = get_last_monday_time(date0)
-    local d = os.date("*t", monday)
+    local x = os.date("*t", monday)
+    t.assertEquals(x.year   ,2020)
+    t.assertEquals(x.month  ,   8)
+    t.assertEquals(x.day    ,  17)
+    t.assertEquals(x.hour   ,   0)
+    t.assertEquals(x.min    ,   0)
+    t.assertEquals(x.sec    ,   0)
 end
 
 
@@ -185,38 +193,25 @@ function GEN.hour(x,d)
 end
 
 
-
-
-local function cal_time_gen(entry, now)
-    local d = os.date("*t", now)
-    local x = cal_entry_table(entry)
-    if x.year then
-        return GEN.year(x,d)
-    elseif x.month then
-        return GEN.month(x,d)
-    elseif x.day then
-        return GEN.month(x,d)
-    elseif x.week then
-        return GEN.week(x,d)
-    else
-        return GEN.hour(x,d)
-end
-
-
 -- 指定時刻以後の、エントリ発動時刻を返す
 local function cal_time(entry, now)
-    local x = cal_entry_table(entry)
-    if x.year then
-        return os.time(x)
+    local function TASK()
+        local d = os.date("*t", now)
+        local x = cal_entry_table(entry)
+        if      x.year  then return GEN.year(x,d)
+        elseif x.month  then return GEN.month(x,d)
+        elseif x.day    then return GEN.month(x,d)
+        elseif x.week   then return GEN.week(x,d)
+        else                 return GEN.hour(x,d)
+        end
     end
-    if x.month then
-
+    local gen = coroutine.warp(TASK)
+    while true do
+        local time = gen()
+        if not time         then return nil
+        elseif time > now   then return time
+        end
     end
-
-
-
-    local d = os.date("*t", now)
-
 end
 
 
