@@ -240,7 +240,7 @@ local function cal_time(entry, now)
     end
 end
 
--- 配列中のエントリー発動時間をすべて計算する。
+-- 最優先エントリーを検索する。
 local function peek_cal_entry(items, now)
     local sel_i, sel
     for i,v in ipairs(items) do
@@ -259,6 +259,7 @@ local function peek_cal_entry(items, now)
     return sel_i, sel
 end
 
+-- 最優先エントリーを取り出す。必要に応じてテーブルを削除する。
 local function pull_cal_entry(items, now)
     local i, v = peek_cal_entry(items, now)
     if v.has_delete then
