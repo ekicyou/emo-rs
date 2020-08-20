@@ -24,9 +24,9 @@ local function cal_entry_table(entry)
             x.year = x.year + 2000
         end
     end
-    local s, _, a, d, e = string.find(entry, RE_CAL_W)
+    local s, _, a = string.find(entry, RE_CAL_W)
     if s then
-        x.weeks = a
+        x.week = a
     end
     local s, _, hour, min = string.find(entry, RE_CAL_T)
     if s then
@@ -104,28 +104,6 @@ local function get_last_monday_time(d)
     return mon_time
 end
 
-function test_get_last_monday_time(d)
-    local date0 = {
-        year    =2020,
-        month   =   8,
-        day     =  19,
-        hour    =  12,
-        min     =  34,
-        sec     =  56,
-    }
-    local t = require "test.luaunit"
-    local ser = require "libs.serpent"
-
-    local monday = get_last_monday_time(date0)
-    local x = os.date("*t", monday)
-    t.assertEquals(x.year   ,2020)
-    t.assertEquals(x.month  ,   8)
-    t.assertEquals(x.day    ,  17)
-    t.assertEquals(x.hour   ,   0)
-    t.assertEquals(x.min    ,   0)
-    t.assertEquals(x.sec    ,   0)
-end
-
 
 -- 指定時刻でまるめをおこなった、エントリ発動時刻を列挙していく
 local GEN = {}
@@ -171,7 +149,7 @@ function GEN.month(x,d)
             x.sec  = 0
         end
         local time = os.time(x)
-        coroutine.yield(time)
+        coroutine.yield(time, not is_hour)
     end
 end
 
@@ -188,12 +166,30 @@ end
 
 -- 週指定⇒今週と来週で週指定の日付列挙
 function GEN.week(x,d)
+    local is_hour = x.hour
     adjust_hour(x,d)
-
+    local d_date = TO_DATE_TIME(d)
+    local monday_time = get_last_monday_time(d)
+    local n_date = os.date("*t", monday_time)
+    x.year  = n_date.year
+    x.month = n_date.month
     for i=0, 1 do
-        x.day = d.day + i
-        local time = os.time(x)
-        coroutine.yield(time)
+        for j=1,#x.week do
+            local c = string.sub(x.week, j, j) + 0
+            x.day = n_date.day + i*7 + c - 1
+            -- 時分指定なし、日付違うなら日時を０に
+            if not is_hour then
+                local x_date = TO_DATE_TIME(x)
+                if not is_hour and x_date ~= d_date then 
+                    x.hour = 0
+                    x.min  = 0
+                    x.sec  = 0
+                end
+            end
+
+            local time = os.time(x)
+        coroutine.yield(time, not is_hour)
+        end
     end
 end
 
@@ -222,8 +218,7 @@ function GEN.min(x,d)
     end
 end
 
-
--- 指定時刻以後の、エントリ発動時刻を返す
+-- エントリーの発動時刻を返す。
 local function cal_time(entry, now)
     local function TASK()
         local d = os.date("*t", now)
@@ -238,15 +233,45 @@ local function cal_time(entry, now)
     end
     local gen = coroutine.wrap(TASK)
     while true do
-        local time = gen()
+        local time, has_delete = gen()
         if not time         then return nil
-        elseif time > now   then return time
+        elseif time > now   then return time, has_delete
         end
     end
 end
 
+-- 配列中のエントリー発動時間をすべて計算する。
+local function peek_cal_entry(items, now)
+    local sel_i, sel
+    for i,v in ipairs(items) do
+        if not v.time or v.time < now then
+            v.time, v.has_delete = cal_time(v.cal, now)
+        end
+        -- 一番小さな発動時刻を選択する
+        if sel and sel.time <= v.time then
+            v = nil 
+        end
+        if v then
+            sel_i = i
+            sel   = v
+        end
+    end
+    return sel_i, sel
+end
+
+local function pull_cal_entry(items, now)
+    local i, v = peek_cal_entry(items, now)
+    if v.has_delete then
+        table.remove(items, i)
+    end
+    return v
+end
+
 return {
+    get_last_monday_time = get_last_monday_time,
     adjust_hour =adjust_hour,
     entry_table =cal_entry_table,
     time        =cal_time,
+    peek_entry  =peek_cal_entry,
+    pull_entry  =pull_cal_entry,
 }

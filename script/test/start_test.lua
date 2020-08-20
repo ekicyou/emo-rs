@@ -10,6 +10,29 @@ require "test.talks.dkit"
 
 -- とりあえずすぐ試したいテストはここに書く。
 
+function test_get_last_monday_time(d)
+    local date0 = {
+        year    =2020,
+        month   =   8,
+        day     =  19,
+        hour    =  12,
+        min     =  34,
+        sec     =  56,
+    }
+    local cal = require "talks.cal_time"
+    local t = require "test.luaunit"
+    local ser = require "libs.serpent"
+
+    local monday = cal.get_last_monday_time(date0)
+    local x = os.date("*t", monday)
+    t.assertEquals(x.year   ,2020)
+    t.assertEquals(x.month  ,   8)
+    t.assertEquals(x.day    ,  17)
+    t.assertEquals(x.hour   ,   0)
+    t.assertEquals(x.min    ,   0)
+    t.assertEquals(x.sec    ,   0)
+end
+
 function test_calendar()
     local t = require "test.luaunit"
     local ser = require "libs.serpent"
@@ -49,12 +72,15 @@ function test_calendar()
     t.assertEquals(x.hour   , nil)
     t.assertEquals(x.min    , nil)
     local x = cal.entry_table("W1234T1234")
-    t.assertEquals(x.weeks  , "1234")
+    t.assertEquals(x.week   , "1234")
     t.assertEquals(x.hour   , 12)
     t.assertEquals(x.min    , 34)
 
     -- 結果計算
-    print(DT(time1315))       --時刻指定           現在時刻：20200819T1315
+    --print(DT(time1315))     --時刻指定           現在時刻：20200819T1315
+    t.assertEquals(DT(cal.time(     "W2T1234", time1315)) , "20200825T1234")
+    t.assertEquals(DT(cal.time(     "W3T1234", time1315)) , "20200826T1234")
+    t.assertEquals(DT(cal.time(     "W4T1234", time1315)) , "20200820T1234")
     t.assertEquals(DT(cal.time("D------T0800", time1315)) , "20200820T0800")
     t.assertEquals(DT(cal.time("D------T1500", time1315)) , "20200819T1500")
     t.assertEquals(DT(cal.time("D------T--30", time1315)) , "20200819T1330")
@@ -68,6 +94,11 @@ function test_calendar()
 
 
     local cal_entry = {
+        {cal= "D210723T2000"},
+        {cal=  "W23456T1200"},
+        {cal=      "W1T1200"},
+        {cal= "D--0815T1200"},
+        {cal= "D--0815T1200"},
         {cal= "D------T0800"},
         {cal= "D------T1315"},
         {cal= "D------T2020"},
@@ -77,12 +108,18 @@ function test_calendar()
         {cal= "D--0214T----"},
         {cal= "D--0819T----"},
         {cal= "D--1010T----"},
-        {cal= "D--0815T1200"},
-        {cal= "D--0815T1200"},
-        {cal=      "W1T1200"},
-        {cal=  "W23456T1200"},
-        {cal= "D210723T2000"},
     }
+    local i,v = cal.peek_entry(cal_entry, time1315)
+    t.assertEquals(   v.cal   , "D--0819T----")
+    t.assertEquals(DT(v.time) , "20200819T1316")
+
+    local v = cal.pull_entry(cal_entry, time1315)
+    t.assertEquals(   v.cal   , "D--0819T----")
+    t.assertEquals(DT(v.time) , "20200819T1316")
+
+    local v = cal.pull_entry(cal_entry, time1315)
+    t.assertEquals(   v.cal   , "D------T--30")
+    t.assertEquals(DT(v.time) , "20200819T1330")
 
 end
 
