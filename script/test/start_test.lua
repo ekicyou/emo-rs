@@ -19,7 +19,7 @@ function test_get_last_monday_time(d)
         min     =  34,
         sec     =  56,
     }
-    local cal = require "talks.cal_time"
+    local cal = require "shiori.cal_time"
     local t = require "test.luaunit"
     local ser = require "libs.serpent"
 
@@ -36,7 +36,7 @@ end
 function test_calendar()
     local t = require "test.luaunit"
     local ser = require "libs.serpent"
-    local cal = require "talks.cal_time"
+    local cal = require "shiori.cal_time"
 
     local function DT(t) 
         return os.date("%Y%m%dT%H%M%S", t)
@@ -146,7 +146,7 @@ end
 
 function test_check_hour()
     local t = require "test.luaunit"
-    local cal = require "talks.cal_time"
+    local cal = require "shiori.cal_time"
     local d = {
         year    =2020,
         month   =   8,
