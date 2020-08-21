@@ -219,6 +219,9 @@ function GEN.min(x,d)
 end
 
 -- エントリーの発動時刻を返す。
+-- 戻り値：time, has_delete
+--       time 発動時刻
+-- has_delete 発動後に削除する必要があればtrue。
 local function cal_time(entry, now)
     local function TASK()
         local d = os.date("*t", now)
@@ -240,11 +243,18 @@ local function cal_time(entry, now)
     end
 end
 
--- 最優先エントリーを検索する。
+-- 全エントリの発動時刻を削除する
+local function reset_cal_entry(items)
+    for i,v in ipairs(items) do
+        v.time = nil
+    end
+end
+
+-- 全エントリの発動時刻を更新し、最優先エントリーを検索する。
 local function peek_cal_entry(items, now)
     local sel_i, sel
     for i,v in ipairs(items) do
-        if not v.time or v.time < now then
+        if not v.time then
             v.time, v.has_delete = cal_time(v.cal, now)
         end
         -- 一番小さな発動時刻を選択する
@@ -259,20 +269,38 @@ local function peek_cal_entry(items, now)
     return sel_i, sel
 end
 
--- 最優先エントリーを取り出す。必要に応じてテーブルを削除する。
-local function pull_cal_entry(items, now)
-    local i, v = peek_cal_entry(items, now)
-    if v.has_delete then
+-- カレンダトークを再生するかどうかを判定し、結果を返す。
+-- 再生する場合は必要に応じてエントリを削除する。
+-- 　引数：guard_sec, items, now
+--   guard_sec ガード秒数
+--   items エントリ一覧
+--     now 現在時刻(os.time())
+-- 戻り値：flag, entry
+--   flag　０⇒対象無し　１⇒ガードタイム　２⇒発動
+--   entry 発動する場合のエントリ
+local function fire_cal_entry(guard_sec, items, now) 
+    local i, entry = peek_cal_entry(items, now)
+    if not entry then return 0 end
+    if entry.time > now then
+        if entry.time > now+guard_sec then return 0, entry
+        else                               return 1, entry
+        end
+    end
+    -- 発動するので必要ならエントリを削除
+    if entry.has_delete then
         table.remove(items, i)
     end
-    return v
+    entry.time = nil
+    return 2, entry
 end
+
 
 return {
     get_last_monday_time = get_last_monday_time,
     adjust_hour =adjust_hour,
     entry_table =cal_entry_table,
     time        =cal_time,
+    reset_entry =reset_cal_entry,
     peek_entry  =peek_cal_entry,
-    pull_entry  =pull_cal_entry,
+    fire_entry  =fire_cal_entry,
 }

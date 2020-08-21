@@ -39,7 +39,7 @@ function test_calendar()
     local cal = require "talks.cal_time"
 
     local function DT(t) 
-        return os.date("%Y%m%dT%H%M", t)
+        return os.date("%Y%m%dT%H%M%S", t)
     end
 
     local date0 = {
@@ -53,6 +53,7 @@ function test_calendar()
     local time0 = os.time(date0)
     t.assertEquals(time0, 1597762800)
     local time1315 = time0 + 60*60*13 + 60*15
+    local time1300 = time0 + 60*60*13
     date0.hour  = 13
     date0.min   = 15
     local exp =  os.time(date0)
@@ -78,19 +79,19 @@ function test_calendar()
 
     -- 結果計算
     --print(DT(time1315))     --時刻指定           現在時刻：20200819T1315
-    t.assertEquals(DT(cal.time(     "W2T1234", time1315)) , "20200825T1234")
-    t.assertEquals(DT(cal.time(     "W3T1234", time1315)) , "20200826T1234")
-    t.assertEquals(DT(cal.time(     "W4T1234", time1315)) , "20200820T1234")
-    t.assertEquals(DT(cal.time("D------T0800", time1315)) , "20200820T0800")
-    t.assertEquals(DT(cal.time("D------T1500", time1315)) , "20200819T1500")
-    t.assertEquals(DT(cal.time("D------T--30", time1315)) , "20200819T1330")
-    t.assertEquals(DT(cal.time("D------T--15", time1315)) , "20200819T1415")
-    t.assertEquals(DT(cal.time("D200819T----", time1315)) , "20200819T1316")
-    t.assertEquals(DT(cal.time("D200820T----", time1315)) , "20200820T0000")
-    t.assertEquals(DT(cal.time("D--0818T----", time1315)) , "20210818T0000")
-    t.assertEquals(DT(cal.time("D--0819T----", time1315)) , "20200819T1316")
-    t.assertEquals(DT(cal.time("D--0820T----", time1315)) , "20200820T0000")
-    t.assertEquals(DT(cal.time("D200820T1234", time1315)) , "20200820T1234")
+    t.assertEquals(DT(cal.time(     "W2T1234", time1315)) , "20200825T123400")
+    t.assertEquals(DT(cal.time(     "W3T1234", time1315)) , "20200826T123400")
+    t.assertEquals(DT(cal.time(     "W4T1234", time1315)) , "20200820T123400")
+    t.assertEquals(DT(cal.time("D------T0800", time1315)) , "20200820T080000")
+    t.assertEquals(DT(cal.time("D------T1500", time1315)) , "20200819T150000")
+    t.assertEquals(DT(cal.time("D------T--30", time1315)) , "20200819T133000")
+    t.assertEquals(DT(cal.time("D------T--15", time1315)) , "20200819T141500")
+    t.assertEquals(DT(cal.time("D200819T----", time1315)) , "20200819T131600")
+    t.assertEquals(DT(cal.time("D200820T----", time1315)) , "20200820T000000")
+    t.assertEquals(DT(cal.time("D--0818T----", time1315)) , "20210818T000000")
+    t.assertEquals(DT(cal.time("D--0819T----", time1315)) , "20200819T131600")
+    t.assertEquals(DT(cal.time("D--0820T----", time1315)) , "20200820T000000")
+    t.assertEquals(DT(cal.time("D200820T1234", time1315)) , "20200820T123400")
 
 
     local cal_entry = {
@@ -111,16 +112,35 @@ function test_calendar()
     }
     local i,v = cal.peek_entry(cal_entry, time1315)
     t.assertEquals(   v.cal   , "D--0819T----")
-    t.assertEquals(DT(v.time) , "20200819T1316")
+    t.assertEquals(DT(v.time) , "20200819T131600")
 
-    local v = cal.pull_entry(cal_entry, time1315)
-    t.assertEquals(   v.cal   , "D--0819T----")
-    t.assertEquals(DT(v.time) , "20200819T1316")
+    cal.reset_entry(cal_entry)
+    local flag, entry = cal.fire_entry(40, cal_entry, time1300+ 60*14)
+    t.assertEquals(   entry.cal   , "D------T1315")
+    t.assertEquals(DT(entry.time) , "20200819T131500")
+    t.assertEquals(        flag   , 0)
 
-    local v = cal.pull_entry(cal_entry, time1315)
-    t.assertEquals(   v.cal   , "D------T--30")
-    t.assertEquals(DT(v.time) , "20200819T1330")
+    local flag, entry = cal.fire_entry(40, cal_entry, time1300+ 60*14 + 21)
+    t.assertEquals(   entry.cal   , "D------T1315")
+    t.assertEquals(DT(entry.time) , "20200819T131500")
+    t.assertEquals(        flag   , 1)
 
+    local flag, entry = cal.fire_entry(40, cal_entry, time1300+ 60*15)
+    t.assertEquals(   entry.cal   , "D------T1315")
+    t.assertEquals(        flag   , 2)
+
+    local flag, entry = cal.fire_entry(40, cal_entry, time1300+ 60*15)
+    t.assertEquals(   entry.cal   , "D------T--15")
+    t.assertEquals(        flag   , 2)
+
+    local flag, entry = cal.fire_entry(40, cal_entry, time1300+ 60*15)
+    t.assertEquals(   entry.cal   , "D--0819T----")
+    t.assertEquals(        flag   , 2)
+
+    local flag, entry = cal.fire_entry(40, cal_entry, time1300+ 60*15)
+    t.assertEquals(   entry.cal   , "D------T--30")
+    t.assertEquals(DT(entry.time) , "20200819T133000")
+    t.assertEquals(        flag   , 0)
 end
 
 
