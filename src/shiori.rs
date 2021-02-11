@@ -11,12 +11,22 @@ use std::path::Path;
 use std::path::PathBuf;
 
 #[allow(dead_code)]
-#[derive(Default)]
 pub struct Shiori {
     h_inst: usize,
     load_dir: PathBuf,
     lua_path: String,
     lua: Lua,
+}
+
+impl Default for Shiori {
+    fn default() -> Self {
+        Shiori {
+            h_inst: Default::default(),
+            load_dir: Default::default(),
+            lua_path: Default::default(),
+            lua: Lua::new(),
+        }
+    }
 }
 
 #[allow(dead_code)]
@@ -36,14 +46,15 @@ impl Shiori {
 impl Drop for Shiori {
     fn drop(&mut self) {
         info!("SHIORI:unload()");
-        let result: MyResult<_> = self.lua().context(|context| {
-            let globals = context.globals();
+        fn act(shiori: &Shiori) -> MyResult<bool> {
+            let lua = shiori.lua();
+            let globals = lua.globals();
             let shiori: LuaTable<'_> = globals.get("shiori")?;
             let func: LuaFunction<'_> = shiori.get("unload")?;
             let res = func.call::<_, bool>(0)?;
             Ok(res)
-        });
-        match result {
+        }
+        match act(self) {
             Err(e) => {
                 error!("[drop] {}", e);
             }
@@ -73,20 +84,20 @@ impl Shiori3 for Shiori {
         // ##  Lua インスタンスの作成
         let lua = Lua::new();
 
-        let result: LuaResult<_> = lua.context(|context| {
+        let result: LuaResult<_> = {
             // ## emo.* 関数の登録
-            load_functions(&context)?;
+            load_functions(&lua)?;
 
             // ##  グローバル変数の設定
             // ### lua内のパス名解決ではANSI文字列を与える必要があることに注意
             // 1. rust⇔lua間の文字列エンコーディングはutf-8とする。
             // 2. モジュール解決対象のファイル名はASCII名称とする。
-            let globals = context.globals();
+            let globals = lua.globals();
             {
                 // ### モジュールパスを設定してshiori/init.luaを読み込む
                 let package: LuaTable<'_> = globals.get("package")?;
                 package.set("path", lua_path.clone())?;
-                let _: usize = context.load("require(\"shiori\");return 0;").eval()?;
+                let _: usize = lua.load("require(\"shiori\");return 0;").eval()?;
             }
             {
                 // ### shiori.load()の呼び出し
@@ -101,7 +112,7 @@ impl Shiori3 for Shiori {
 
             // ##  luaモジュールのロード
             Ok(())
-        });
+        };
         result?;
 
         // リザルト
@@ -118,16 +129,17 @@ impl Shiori3 for Shiori {
     fn request<'a, S: Into<&'a str>>(&mut self, req: S) -> MyResult<Cow<'a, str>> {
         let req = req.into();
         debug!("SHIORI:request()****\n{}\n****", &req);
-        let result: MyResult<_> = self.lua().context(|context| {
-            let req = parse_request(&context, &req)?;
+        let result: MyResult<_> = {
+            let lua = self.lua();
+            let req = parse_request(lua, &req)?;
             //let time = lua_date(&context)?;
             //req.set("time", time)?;
-            let globals = context.globals();
+            let globals = lua.globals();
             let shiori: LuaTable<'_> = globals.get("shiori")?;
             let func: LuaFunction<'_> = shiori.get("request")?;
             let res = func.call::<_, std::string::String>(req)?;
             Ok(res)
-        });
+        };
         let res = result?;
         Ok(res.into())
     }

@@ -14,7 +14,7 @@ fn hello_test() {
         let _ = env_logger::try_init();
     }
     let lua = Lua::new();
-    lua.context(|lua| {
+    {
         let globals = lua.globals();
         let package = globals.get::<_, LuaTable<'_>>("package").unwrap();
         {
@@ -37,17 +37,14 @@ fn hello_test() {
             assert_eq!(rc, "hello world");
         }
         {
-            let rc: String = lua
-                .load("return こんにちわ(\"世界\")")
-                .eval()
-                .unwrap();
+            let rc: String = lua.load("return こんにちわ(\"世界\")").eval().unwrap();
             assert_eq!(rc, "こんにちわ、世界");
         }
         {
             let rc: String = lua.load("return _G._VERSION").eval().unwrap();
-            assert_eq!(rc, "Lua 5.3");
+            assert_eq!(rc, "Lua 5.1");
         }
-    });
+    }
 }
 
 /// 試験環境のlua モジュール検索パスを作成する。
@@ -57,7 +54,7 @@ fn hello_test() {
 /// * [root]\\script\\dic\\?\\init.lua
 /// * [root]\\script\\emo\\?.lua
 /// * [root]\\script\\emo\\?\\init.lua
-fn set_package_path<P: AsRef<Path>>(lua: &LuaContext<'_>, load_dir: P) {
+fn set_package_path<P: AsRef<Path>>(lua: &Lua, load_dir: P) {
     fn append<P: AsRef<Path>>(buf: &mut String, dir: P) {
         {
             let mut p = dir.as_ref().to_path_buf();
@@ -158,7 +155,7 @@ fn lua_funcs_test() {
         let _ = env_logger::try_init();
     }
     let lua = Lua::new();
-    lua.context(|lua| {
+     {
         {
             let src_path = current_dir().unwrap();
             set_package_path(&lua, src_path);
@@ -205,5 +202,5 @@ fn lua_funcs_test() {
                 assert_eq!(rc, true);
             }
         }
-    });
+    }
 }

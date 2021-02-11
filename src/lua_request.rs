@@ -10,7 +10,7 @@ use shiori3::req;
 
 /// 現在時刻でdateテーブルを作成します。
 #[allow(dead_code)]
-pub fn lua_date<'lua>(lua: &LuaContext<'lua>) -> MyResult<LuaTable<'lua>> {
+pub fn lua_date<'lua>(lua: &'lua Lua) -> MyResult<LuaTable<'lua>> {
     let now = chrono::Local::now();
     let t = lua.create_table()?;
     t.set("year", now.year())?;
@@ -42,7 +42,7 @@ pub fn lua_date<'lua>(lua: &LuaContext<'lua>) -> MyResult<LuaTable<'lua>> {
 /// * req.sender:
 /// * req.reference[num]: reference0～n
 /// * req.dic[key]: 全ての値を辞書テーブルで保管
-pub fn parse_request<'lua>(lua: &LuaContext<'lua>, text: &str) -> MyResult<LuaTable<'lua>> {
+pub fn parse_request<'lua>(lua: &'lua Lua, text: &str) -> MyResult<LuaTable<'lua>> {
     let mut t = lua.create_table()?;
     t.set("reference", lua.create_table()?)?;
     t.set("dic", lua.create_table()?)?;

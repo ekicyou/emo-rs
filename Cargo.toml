@@ -15,16 +15,16 @@ name = "emo"
 path = "src/lib.rs"
 
 [dependencies]
-chrono = "0.4.7"
+chrono = "0.4.19"
 failure = "0.1"
 failure_derive = "0.1"
 fern = "0.6"
 lazy_static = "1.1"
 log = "0.4"
+mlua = {version = "0.5.1", features = ["luajit", "async", "send", "serialize", "vendored"]}
 pest = "2.1"
 pest_derive = "2.1"
-rlua = {version = "0.17", default-features = false}
-rustyline = "6.2"
+rustyline = "7.1"
 shiori3 = "0.4.1"
 #shiori3 = { git = 'https://github.com/ekicyou/shiori3-rs', branch = 'master' }
 
@@ -32,27 +32,4 @@ shiori3 = "0.4.1"
 winapi = {version = "0.3", features = ["winbase", "stringapiset"]}
 
 [dev-dependencies]
-env_logger = "0.7"
-
-[build-dependencies]
-cc = {version = "1.0", optional = true}
-pkg-config = {version = "0.3.11", optional = true}
-
-[features]
-default = ["builtin-lua"]
-# Builds the correct version of Lua 5.3 inside the crate. If you want to link a
-# specialized version of lua into your binary, you can disable this feature to
-# do that, but care must be taken.  `rlua` makes at least the following
-# assumptions about the linked lua library:
-#   * LUA_INTEGER is long long
-#   * LUA_NUMBER as double
-#   * LUA_EXTRASPACE is at least pointer sized and has at least pointer alignment.
-#   * LUAI_MAXSTACK is 1_000_000
-builtin-lua = ["cc"]
-# Uses pkg-config to find an appropriate lua 5.3 library to link with.  All of
-# the caveats about disabling the default builtin-lua feature apply here as
-# well.  If neither the builtin-lua nor the system-lua feature is enabled, then
-# no lua library will be linked at all and one must be linked with or built into
-# the final binary manually.  The builtin-lua and system-lua features are
-# mutually exclusive and enabling both will cause an error at build time.
-system-lua = ["pkg-config"]
+env_logger = "0.8"

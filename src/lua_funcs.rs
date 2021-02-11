@@ -7,7 +7,7 @@ use std::sync::Arc;
 /// lua環境に関数を登録します。
 /// * emo.*
 /// * lfs.*
-pub fn load_functions(lua: &LuaContext<'_>) -> LuaResult<()> {
+pub fn load_functions(lua: &Lua) -> LuaResult<()> {
     let emo = lua.create_table()?;
     let lfs = lua.create_table()?;
     {
