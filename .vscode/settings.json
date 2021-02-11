@@ -1,4 +1,7 @@
 {
     "editor.formatOnPaste": true,
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "Lua.diagnostics.disable": [
+        "lowercase-global"
+    ]
 }
