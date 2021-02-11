@@ -111,13 +111,13 @@ local function top(fn)
 end
 
 local function word(...)
-    local words = {...}
+    local args = {...}
     if not last_word then
         last_word = create_entry()
         last_word.words = {}
         table.insert(words, last_word)
     end
-    table_concat(last_word.words, words)
+    table_concat(last_word.words, args)
 end
 
 --[[
