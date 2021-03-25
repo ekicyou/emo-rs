@@ -1,5 +1,6 @@
 local CT={}
 
+-- CTS解放時に呼び出される関数を登録します。
 function CT:reg(fn)
     local items=self.cts.items
     items[#items+1]=fn
@@ -18,6 +19,8 @@ end
 local function run_drop(fn)
     fn()
 end
+
+-- CTSを解放します。
 function CTS:drop()
     local items = self.items
     self.items = nil
@@ -43,10 +46,13 @@ function M.create()
     return cts
 end
 
+-- スコープから外れたときにキャンセルされる関数を実行します。
+-- 呼び出される関数の第一引数にはキャンセルトークンを渡します。
 function M.pcall(fn, ...)
     local cts = M.create()
     return cts:pcall(fn, ...)
 end
+
 M.using = M.pcall
 
 return M

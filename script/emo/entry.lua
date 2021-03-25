@@ -2,7 +2,7 @@
 エントリーポイント
 ]]
 
-local main_loop = require "main"
+local main_loop = require "main_loop"
 local response  = require "response"
 
 local co = nil
@@ -36,10 +36,8 @@ local function raw_load(hinst, ansi_load_dir)
         hinst           = hinst,
         ansi_load_dir   = ansi_load_dir,
     }
-    co = main.start();
+    co = main_loop.create();
     return co(args)
-
-    return false
 end
 local function shiori_load(hinst, ansi_load_dir)
     local ok, rc = pcall(raw_load, hinst, ansi_load_dir)

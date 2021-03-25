@@ -24,7 +24,7 @@ log = "0.4"
 mlua = {version = "0.5.1", features = ["luajit", "async", "send", "serialize", "vendored"]}
 pest = "2.1"
 pest_derive = "2.1"
-rustyline = "7.1"
+rustyline = "8"
 shiori3 = "0.4.1"
 #shiori3 = { git = 'https://github.com/ekicyou/shiori3-rs', branch = 'master' }
 
