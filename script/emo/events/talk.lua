@@ -35,7 +35,7 @@ local function check_impl(EV, data, req)
     end
     return 'normal'
 end
-local function check(EV, data, req)
+local function check_event(EV, data, req)
     local ok, rc = pcall(check_impl, EV, data, req)
     if ok and rc then
         return rc
@@ -94,7 +94,7 @@ return function(EV)
 
 -- 秒の更新
 function EV:OnSecondChange(data, req)
-    local key = check(EV, data, req)
+    local key = check_event(EV, data, req)
     if key then
         return self['T'..key](self, data, req)
     else
@@ -117,6 +117,25 @@ end
 function EV:reset_freq_timer(data)
     mark_reset(data)
 end
+
+local function _(...)
+end
+
+_("あいう",[=[
+えも    ＠通常
+        ＠挨拶　サンダルで明日の天気を当ててみましょう。
+        ＞１
+
+：１
+えも    ＠笑顔
+        サンダルは晴れと出ました！
+        お出かけ出来たら楽しいですよ。
+
+：１
+えも    ＠曇り顔
+        サンダルは雨と出ました。
+        雨はじっとりなのです。
+]=])
 
 --
 
