@@ -1,3 +1,6 @@
+require "test.shiori.event"
+
+
 -- とりあえずすぐ試したいテストはここに書く。
 
 function test_hello(d)
@@ -5,14 +8,6 @@ function test_hello(d)
     local x = "hello"
     t.assertEquals(x,"hello")
 
-end
-
-function test_event_reg(d)
-    local t = require "test.luaunit"
-    require "reg_system"
-    local ev = require "event"
-    t.assertNotIsNil(ev.fire_request)
-    t.assertNotIsNil(ev.OnBoot)
 end
 
 -- ここまで
