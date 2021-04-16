@@ -59,8 +59,9 @@ local function init(unload, args)
     end)
 
     -- イベントテーブルの読み込み
-    local events = require "events"
-    local ev = events.get_event_table(unload, data)
+    require "reg_system"
+    require "reg"
+    local ev = require "event" 
 
     -- response.reg.talk(value, dic)call backの結合
     response.reg.talk = function(now, value, dic)
