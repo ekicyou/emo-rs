@@ -3,5 +3,8 @@
     "editor.formatOnSave": true,
     "Lua.diagnostics.disable": [
         "lowercase-global"
-    ]
+    ],
+    "Lua.runtime.unicodeName": true,
+    "Lua.runtime.version": "LuaJIT",
+    "lua.debug.settings.luaVersion": "5.1"
 }
