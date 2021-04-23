@@ -13,16 +13,21 @@ end
 
 function test_utf8(d)
     local t = require "test.luaunit"
-    local utf8 = require("libs.utf8"):init()
+    local utf8 = require "utf8"
     local str = "пыщпыщ ололоо я водитель нло"
-    print(str:find("(.л.+)н"))
-    -- 8	26	ололоо я водитель
 
-    local rep, cnt = str:gsub("ло+", "보라")
-    t.assertEquals(rep, "пыщпыщ о보라보라о я водитель н보라")
-    t.assertEquals(rep, 3)
+    local rep, cnt = str:gsub("ло+", "《》")
+    t.assertEquals(rep, "пыщпыщ о《》《》о я водитель н《》")
+    t.assertEquals(cnt, 3)
+
+    local rep, cnt = utf8.gsub(str, "ло+", "《》")
+    t.assertEquals(rep, "пыщпыщ о《》《》 я водитель н《》")
+    t.assertEquals(cnt, 3)
 
     t.assertEquals(str:match("^п[лопыщ ]*я"), "пыщпыщ ололоо я")
+
+
+
 
 end
 
