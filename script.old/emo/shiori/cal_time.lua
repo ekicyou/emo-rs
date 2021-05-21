@@ -44,9 +44,9 @@ local function GET_TIME(x)
 end
 local function SET_TIME(x, time)
     local s = time %  60
-    time    = time // 60
+    time    = math.floor(time / 60)
     local m = time %  60
-    time    = time // 60
+    time    = math.floor(time / 60)
     local h = time %  24
     x.hour  = h
     x.min   = m

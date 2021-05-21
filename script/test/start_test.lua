@@ -31,10 +31,14 @@ function test_wait_text(d)
     local t = require "test.luaunit"
     local wait = require "talks.wait"
 
-    local str = "今日はいい天気ですね。"
-    local rep = "今日はいい天気ですね。"
-    t.assertEquals(wait.wait1(str, 444,555), "今日はいい天気ですね。")
+    local str = "「今日は、いい天気……ですね。」"
+    t.assertEquals(wait.wait1(str, 555,444), "「今日は、\\_w[444]いい天気……ですね。」\\_w[555]")
+    t.assertEquals(wait.wait2(str, 222), "「今日は、いい天気…\\_w[222]…\\_w[222]ですね。」")
+    t.assertEquals(wait.wait(str, 555,444,222), "「今日は、\\_w[444]いい天気…\\_w[222]…\\_w[222]ですね。」\\_w[555]")
+
+
 end
+
 
 -- ここまで
 
