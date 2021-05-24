@@ -15,13 +15,24 @@ function ACTOR:set_wait(w1,w2,w3,w4)
     self.wait4 = w4
 end
 
+-- 会話talk
+function ACTOR:t(script)
+
+end
+
 
 
 -- actor作成
 local function create()
+    -- actor オブジェクト
     local actor = {}
     setmetatable(actor, meta_ACTOR)
     return actor
 end
 
-return create
+-- actor モジュール
+local MOD = {
+    create=create,
+}
+
+return MOD
