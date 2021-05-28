@@ -5,11 +5,17 @@ local meta_SCENE = {__index=SCENE}
 function SCENE:talk(actor, script)
 end
 
--- シーン区切り。
+-- テキストをそのまま出力
+function SCENE:raw(script)
+end
+
+-- シーン区切り。coroutine.yiled(SCENE)を実行
 function SCENE:cut(n)
 end
 
-
+-- グローバルジャンプ。targetに指定したルールで次の関数に制御を移す
+function SCENE:jump(target)
+end
 
 -- シーンを開始します。
 local function open(...)
