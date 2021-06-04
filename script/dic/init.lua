@@ -3,19 +3,19 @@ local えも = require "actor_emo"
 local 紫   = require "actor_murasaki"
 
 
-function えも＠笑顔(ev)
+function えも；笑顔(ev)
     ev.scene.raw("")
 end
 
-function えも＠通常(ev)
+function えも：通常(ev)
     ev.scene.raw("")
 end
 
-function 紫＠笑顔(ev)
+function 紫：笑顔(ev)
     ev.scene.raw("")
 end
 
-function 紫＠通常(ev)
+function 紫：通常(ev)
     ev.scene.raw("")
 end
 
@@ -32,10 +32,10 @@ function ＠梅雨のお天気(ev)
 
     s.call(A,B)
 
-    return s.jump("梅雨のお天気＠")
+    return s.jump("梅雨のお天気：")
 end
 
 
-function 梅雨のお天気＠返答１(env)
+function 梅雨のお天気：返答１(env)
 
 end
