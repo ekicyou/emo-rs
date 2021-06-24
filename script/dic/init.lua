@@ -1,41 +1,26 @@
-local scene = require "scene"
-local えも = require "actor_emo"
-local 紫   = require "actor_murasaki"
+local ecs = require "libs.ecs"
+local world = require "world"
 
-
-function えも；笑顔(ev)
-    ev.scene.raw("")
+local function x(e)
+    return world.addEntity(e)
 end
 
-function えも：通常(ev)
-    ev.scene.raw("")
-end
+local えも = x({ actor = 1, name= "えも"})
+local 紫   = x({ actor = 2, name= "紫"  })
 
-function 紫：笑顔(ev)
-    ev.scene.raw("")
-end
+x({
+    ＠ = {
+        x({talk={actor=えも, script="＠通常　明日の天気は？"}}),
+        x({next="明日の天気は？"}),
+}})
 
-function 紫：通常(ev)
-    ev.scene.raw("")
-end
+x({
+    明日の天気は？ = {
+        x({talk={actor=紫  , script="＠笑顔　晴れたらいいね。"}}),
+}})
 
-function ＠梅雨のお天気(ev)
-    local s = scene.open(えも, 紫)
-    s.talk(えも, [=[＠笑顔　今日はいい天気ですね。]=])
-    s.talk(紫  , [=[＠通常　明日も天気は良さそうです。]=])
-    s.cut()
-
-    local function A()
-    end
-    local function B()
-    end
-
-    s.call(A,B)
-
-    return s.jump("梅雨のお天気：")
-end
-
-
-function 梅雨のお天気：返答１(env)
-
-end
+x({
+    明日の天気は？ = {
+        x({talk={actor=紫  , script="＠にやり　大雨かも知れません。"}}),
+        x({talk={actor=えも, script="＠ぐんにょり　嫌だなあ‥‥"}}),
+}})
