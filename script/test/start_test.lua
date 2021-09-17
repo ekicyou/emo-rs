@@ -40,6 +40,19 @@ function test_wait_text(d)
 end
 
 
+
+function test_session(d)
+    local t = require "test.luaunit"
+    local session = require "session"
+
+    local s = session.new()
+    s.actor("えも")
+    s.talk("「今日は、いい天気……！？ですね。」")
+    local script = s.yield()
+
+end
+
+
 -- ここまで
 
 local t = require "test.luaunit"
