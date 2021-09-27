@@ -35,10 +35,10 @@ function CTS:pcall(fn, ...)
     return ok, rc
 end
 
-local M={}
+local MOD={}
 
 local meta_CTS = {__index=CTS}
-function M.create()
+function MOD.create()
     local cts={
         items={},
     }
@@ -48,11 +48,11 @@ end
 
 -- スコープから外れたときにキャンセルされる関数を実行します。
 -- 呼び出される関数の第一引数にはキャンセルトークンを渡します。
-function M.pcall(fn, ...)
-    local cts = M.create()
+function MOD.pcall(fn, ...)
+    local cts = MOD.create()
     return cts:pcall(fn, ...)
 end
 
-M.using = M.pcall
+MOD.using = MOD.pcall
 
-return M
+return MOD
