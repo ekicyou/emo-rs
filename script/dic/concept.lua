@@ -9,8 +9,6 @@ local ＠ = require "emo.dic"
     t.紫    [[ほんとうに？]]
     t.＝＝＝＝＝＝＝＝()
 
-    local 
-
     t.分岐① = function(t)
         t.エモ  [[分岐①]]
     end

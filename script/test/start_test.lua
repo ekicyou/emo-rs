@@ -39,8 +39,6 @@ function test_wait_text(d)
 
 end
 
-
-
 function test_session(d)
     local t = require "test.luaunit"
     local session = require "session"
@@ -51,6 +49,41 @@ function test_session(d)
     local script = s.yield()
 
 end
+
+
+local ＠ = require "emo.dic"
+
+＠.お天気１ = function(t)
+    t.エモ  {"通常"}
+    t.エモ  [[今日はいい天気ですね。]]
+    t.紫    {"疑問"}
+    t.紫    [[ほんとうに？]]
+    t.＝＝＝＝＝＝＝＝()
+
+    t.分岐① = function(t)
+        t.エモ  [[分岐①]]
+    end
+    t.分岐② = function(t)
+        t.エモ  [[分岐①]]
+    end
+
+    t.＞ [[分岐]]
+end
+
+
+function test_consept(d)
+    local t = require "test.luaunit"
+    local ＠ = require "emo.dic"
+
+    
+
+    local s = session.new()
+    s.actor("えも")
+    s.talk("「今日は、いい天気……！？ですね。」")
+    local script = s.yield()
+
+end
+
 
 
 -- ここまで
