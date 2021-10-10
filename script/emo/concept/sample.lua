@@ -1,8 +1,5 @@
 -- 辞書文法のコンセプト
-
-local ＠ = require "emo.dic"
-
-＠.お天気１ = function(t)
+＠お天気１ = function(t)
     t.エモ  {"通常"}
     t.エモ  [[今日はいい天気ですね。]]
     t.紫    {"疑問"}
@@ -19,3 +16,4 @@ local ＠ = require "emo.dic"
     t.＞ [[分岐]]
 
 end
+
