@@ -43,15 +43,15 @@ pub fn lua_date<'lua>(lua: &'lua Lua) -> MyResult<LuaTable<'lua>> {
 /// * req.reference[num]: reference0～n
 /// * req.dic[key]: 全ての値を辞書テーブルで保管
 pub fn parse_request<'lua>(lua: &'lua Lua, text: &str) -> MyResult<LuaTable<'lua>> {
-    let mut t = lua.create_table()?;
+    let t = lua.create_table()?;
     t.set("reference", lua.create_table()?)?;
     t.set("dic", lua.create_table()?)?;
     let it = req::Parser::parse(req::Rule::req, text)?.flatten();
-    parse1(&mut t, it)?;
+    parse1(&t, it)?;
     Ok(t)
 }
 
-fn parse1<'lua, 'a>(table: &mut LuaTable<'lua>, mut it: FlatPairs<'a, req::Rule>) -> MyResult<()> {
+fn parse1<'lua, 'a>(table: &LuaTable<'lua>, mut it: FlatPairs<'a, req::Rule>) -> MyResult<()> {
     let pair = match it.next() {
         Some(a) => a,
         None => return Ok(()),
@@ -82,7 +82,7 @@ fn parse1<'lua, 'a>(table: &mut LuaTable<'lua>, mut it: FlatPairs<'a, req::Rule>
 }
 
 fn parse_key_value<'lua, 'a>(
-    table: &mut LuaTable<'lua>,
+    table: &LuaTable<'lua>,
     it: &mut FlatPairs<'a, req::Rule>,
 ) -> MyResult<()> {
     let pair = it.next().unwrap();

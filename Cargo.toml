@@ -1,13 +1,13 @@
 [package]
 authors = ["ekicyou <dot.station@gmail.com>"]
 description = "lua shiori implement"
-edition = "2018"
+edition = "2021"
 keywords = ["ghost", "shiori", "ukagaka", "lua"]
 license = "MIT"
 name = "emo"
 readme = "README.md"
 repository = "https://github.com/ekicyou/pasta-rs"
-version = "0.6.0"
+version = "0.6.1"
 
 [lib]
 crate-type = ["lib", "staticlib", "cdylib"]
@@ -15,21 +15,27 @@ name = "emo"
 path = "src/lib.rs"
 
 [dependencies]
-chrono = "0.4.19"
+chrono = "0.4"
 failure = "0.1"
 failure_derive = "0.1"
 fern = "0.6"
 lazy_static = "1.1"
 log = "0.4"
-mlua = {version = "0.5.1", features = ["luajit", "async", "send", "serialize", "vendored"]}
+mlua = { version = "0.8", features = [
+    "luajit52",
+    "async",
+    "send",
+    "serialize",
+    "vendored",
+] }
 pest = "2.1"
 pest_derive = "2.1"
-rustyline = "8"
-shiori3 = "0.4.1"
+rustyline = "10"
+shiori3 = "0.4"
 #shiori3 = { git = 'https://github.com/ekicyou/shiori3-rs', branch = 'master' }
 
 [target."cfg(windows)".dependencies]
-winapi = {version = "0.3", features = ["winbase", "stringapiset"]}
+winapi = { version = "0.3", features = ["winbase", "stringapiset"] }
 
 [dev-dependencies]
-env_logger = "0.8"
+env_logger = "0.9"

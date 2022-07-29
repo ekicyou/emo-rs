@@ -100,7 +100,7 @@ impl Shiori3 for Shiori {
                 let _: usize = lua.load("require(\"shiori\");return 0;").eval()?;
             }
             {
-                // ### shiori.load()の呼び出し
+                // ### shiori.load(h_inst, ansi_load_dir)の呼び出し
                 let shiori: LuaTable<'_> = globals.get("shiori")?;
                 let func: LuaFunction<'_> = shiori.get("load")?;
                 let ansi_load_dir = unsafe {
