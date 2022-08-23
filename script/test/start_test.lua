@@ -1,89 +1,218 @@
+require "test.utils.save_load"
+require "test.shiori.response"
 require "test.shiori.event"
+require "test.shiori.utils"
+require "test.shiori.load"
+require "test.shiori.insert_wait"
+require "test.talks.o"
+require "test.talks.dkit"
 
 
 -- とりあえずすぐ試したいテストはここに書く。
 
-function test_hello(d)
+function test_get_last_monday_time(d)
+    local date0 = {
+        year    =2020,
+        month   =   8,
+        day     =  19,
+        hour    =  12,
+        min     =  34,
+        sec     =  56,
+    }
+    local cal = require "shiori.cal_time"
     local t = require "test.luaunit"
-    local x = "hello"
-    t.assertEquals(x,"hello")
-    t.assertEquals(_VERSION,"Lua 5.1")
+    local ser = require "libs.serpent"
+
+    local monday = cal.get_last_monday_time(date0)
+    local x = os.date("*t", monday)
+    t.assertEquals(x.year   ,2020)
+    t.assertEquals(x.month  ,   8)
+    t.assertEquals(x.day    ,  17)
+    t.assertEquals(x.hour   ,   0)
+    t.assertEquals(x.min    ,   0)
+    t.assertEquals(x.sec    ,   0)
 end
 
-
-function test_utf8(d)
+function test_calendar()
     local t = require "test.luaunit"
-    local utf8 = require "utf8"
-    local str = "пыщпыщ ололоо я водитель нло"
+    local ser = require "libs.serpent"
+    local cal = require "shiori.cal_time"
 
-    local rep, cnt = str:gsub("ло+", "《》")
-    t.assertEquals(rep, "пыщпыщ о《》《》о я водитель н《》")
-    t.assertEquals(cnt, 3)
-
-    local rep, cnt = utf8.gsub(str, "ло+", "《》")
-    t.assertEquals(rep, "пыщпыщ о《》《》 я водитель н《》")
-    t.assertEquals(cnt, 3)
-
-    t.assertEquals(str:match("^п[лопыщ ]*я"), "пыщпыщ ололоо я")
-end
-
-function test_wait_text(d)
-    local t = require "test.luaunit"
-    local wait = require "wait"
-
-    local str = "「今日は、いい天気……！？ですね。」"
-    t.assertEquals(wait.wait1(str, 555,444,333), "「今日は、\\_w[333]いい天気……！？\\_w[444]ですね。」\\_w[555]")
-    t.assertEquals(wait.wait2(str, 222), "「今日は、いい天気…\\_w[222]…\\_w[222]！？ですね。」")
-    t.assertEquals(wait.wait(str, 555,444,333,222), "「今日は、\\_w[333]いい天気…\\_w[222]…\\_w[222]！？\\_w[444]ですね。」\\_w[555]")
-
-
-end
-
-function test_session(d)
-    local t = require "test.luaunit"
-    local session = require "session"
-
-    local s = session.new()
-    s.actor("えも")
-    s.talk("「今日は、いい天気……！？ですね。」")
-    local script = s.yield()
-
-end
-
-
-local ＠ = require "emo.dic"
-
-＠.お天気１ = function(t)
-    t.エモ  {"通常"}
-    t.エモ  [[今日はいい天気ですね。]]
-    t.紫    {"疑問"}
-    t.紫    [[ほんとうに？]]
-    t.＝＝＝＝＝＝＝＝()
-
-    t.分岐① = function(t)
-        t.エモ  [[分岐①]]
-    end
-    t.分岐② = function(t)
-        t.エモ  [[分岐①]]
+    local function DT(t) 
+        return os.date("%Y%m%dT%H%M%S", t)
     end
 
-    t.＞ [[分岐]]
+    local date0 = {
+        year    =2020,
+        month   =   8,
+        day     =  19,
+        hour    =   0,
+        min     =   0,
+        sec     =   0,
+    }
+    local time0 = os.time(date0)
+    t.assertEquals(time0, 1597762800)
+    local time1315 = time0 + 60*60*13 + 60*15
+    local time1300 = time0 + 60*60*13
+    date0.hour  = 13
+    date0.min   = 15
+    local exp =  os.time(date0)
+    t.assertEquals(time1315, exp)
+
+    -- エントリのパース
+    local x = cal.entry_table("D210723T2345")
+    t.assertEquals(x.year   , 2021)
+    t.assertEquals(x.month  , 07)
+    t.assertEquals(x.day    , 23)
+    t.assertEquals(x.hour   , 23)
+    t.assertEquals(x.min    , 45)
+    local x = cal.entry_table("D----23T----")
+    t.assertEquals(x.year   , nil)
+    t.assertEquals(x.month  , nil)
+    t.assertEquals(x.day    , 23)
+    t.assertEquals(x.hour   , nil)
+    t.assertEquals(x.min    , nil)
+    local x = cal.entry_table("W1234T1234")
+    t.assertEquals(x.week   , "1234")
+    t.assertEquals(x.hour   , 12)
+    t.assertEquals(x.min    , 34)
+
+    -- 結果計算
+    --print(DT(time1315))     --時刻指定           現在時刻：20200819T1315
+    t.assertEquals(DT(cal.time(     "W2T1234", time1315)) , "20200825T123400")
+    t.assertEquals(DT(cal.time(     "W3T1234", time1315)) , "20200826T123400")
+    t.assertEquals(DT(cal.time(     "W4T1234", time1315)) , "20200820T123400")
+    t.assertEquals(DT(cal.time("D------T0800", time1315)) , "20200820T080000")
+    t.assertEquals(DT(cal.time("D------T1500", time1315)) , "20200819T150000")
+    t.assertEquals(DT(cal.time("D------T--30", time1315)) , "20200819T133000")
+    t.assertEquals(DT(cal.time("D------T--15", time1315)) , "20200819T141500")
+    t.assertEquals(DT(cal.time("D200819T----", time1315)) , "20200819T131600")
+    t.assertEquals(DT(cal.time("D200820T----", time1315)) , "20200820T000000")
+    t.assertEquals(DT(cal.time("D--0818T----", time1315)) , "20210818T000000")
+    t.assertEquals(DT(cal.time("D--0819T----", time1315)) , "20200819T131600")
+    t.assertEquals(DT(cal.time("D--0820T----", time1315)) , "20200820T000000")
+    t.assertEquals(DT(cal.time("D200820T1234", time1315)) , "20200820T123400")
+
+
+    local cal_entry = {
+        {cal= "D210723T2000"},
+        {cal=  "W23456T1200"},
+        {cal=      "W1T1200"},
+        {cal= "D--0815T1200"},
+        {cal= "D--0815T1200"},
+        {cal= "D------T0800"},
+        {cal= "D------T1315"},
+        {cal= "D------T2020"},
+        {cal= "D------T--30"},
+        {cal= "D------T--15"},
+        {cal= "D------T--45"},
+        {cal= "D--0214T----"},
+        {cal= "D--0819T----"},
+        {cal= "D--1010T----"},
+    }
+    local i,v = cal.peek_entry(cal_entry, time1315)
+    t.assertEquals(   v.cal   , "D--0819T----")
+    t.assertEquals(DT(v.time) , "20200819T131600")
+
+    cal.reset_entry(cal_entry)
+    local flag, entry = cal.fire_entry(40, cal_entry, time1300+ 60*14)
+    t.assertEquals(   entry.cal   , "D------T1315")
+    t.assertEquals(DT(entry.time) , "20200819T131500")
+    t.assertEquals(        flag   , 0)
+
+    local flag, entry = cal.fire_entry(40, cal_entry, time1300+ 60*14 + 21)
+    t.assertEquals(   entry.cal   , "D------T1315")
+    t.assertEquals(DT(entry.time) , "20200819T131500")
+    t.assertEquals(        flag   , 1)
+
+    local flag, entry = cal.fire_entry(40, cal_entry, time1300+ 60*15)
+    t.assertEquals(   entry.cal   , "D------T1315")
+    t.assertEquals(        flag   , 2)
+
+    local flag, entry = cal.fire_entry(40, cal_entry, time1300+ 60*15)
+    t.assertEquals(   entry.cal   , "D------T--15")
+    t.assertEquals(        flag   , 2)
+
+    local flag, entry = cal.fire_entry(40, cal_entry, time1300+ 60*15)
+    t.assertEquals(   entry.cal   , "D--0819T----")
+    t.assertEquals(        flag   , 2)
+
+    local flag, entry = cal.fire_entry(40, cal_entry, time1300+ 60*15)
+    t.assertEquals(   entry.cal   , "D------T--30")
+    t.assertEquals(DT(entry.time) , "20200819T133000")
+    t.assertEquals(        flag   , 0)
 end
 
 
-function test_consept(d)
+function test_check_hour()
     local t = require "test.luaunit"
-    local ＠ = require "emo.dic"
-
-    
-
-    local s = session.new()
-    s.actor("えも")
-    s.talk("「今日は、いい天気……！？ですね。」")
-    local script = s.yield()
-
+    local cal = require "shiori.cal_time"
+    local d = {
+        year    =2020,
+        month   =   8,
+        day     =  19,
+        hour    =  12,
+        min     =  34,
+        sec     =  56,
+    }
+    -- 指定なし
+    local x = {}
+    cal.adjust_hour(x, d)
+    t.assertEquals(x.hour, 12)
+    t.assertEquals(x.min , 36)
+    -- 時分あり
+    x.hour = 23
+    cal.adjust_hour(x, d)
+    t.assertEquals(x.hour, 23)
+    t.assertEquals(x.min , 36)
+    -- 時のみ
+    x.hour = 12
+    x.min  = nil
+    cal.adjust_hour(x, d)
+    t.assertEquals(x.hour, 12)
+    t.assertEquals(x.min ,  0)
+    -- 分のみ
+    x.hour = nil
+    x.min  = 50
+    cal.adjust_hour(x, d)
+    t.assertEquals(x.hour, 12)
+    t.assertEquals(x.min , 50)
+    x.hour = nil
+    x.min  = 12
+    cal.adjust_hour(x, d)
+    t.assertEquals(x.hour, 13)
+    t.assertEquals(x.min , 12)
 end
 
+function test_cts()
+    local t = require "test.luaunit"
+    local ser = require "libs.serpent"
+    local cts = require "shiori.cts"
+
+    local function drop_action()
+        print("drop: func_a")
+    end
+    local function func_a(ct)
+        ct:reg(drop_action)
+        ct:reg(function()
+            print("drop: anonymous")
+        end)
+    end
+
+    local ok, rc = cts.using(func_a)
+
+    local ok, rc = cts.using(function(ct)
+        print("exec: using1")
+        ct:reg(function()
+            print("drop: using1")
+        end)
+        print("exec: using2")
+        ct:reg(function()
+            print("drop: using2")
+        end)
+    end)
+
+end
 
 
 -- ここまで
