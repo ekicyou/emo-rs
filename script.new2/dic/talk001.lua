@@ -19,7 +19,6 @@ talk.entry {"会話", function(env)
     emo "今日はいい天気ですね。"
     mur "明日の天気はどうかしら。"
     jump "天気予報"
-    talk "明後日の天気"
 end}
 
 return MOD
