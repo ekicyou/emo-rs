@@ -14,7 +14,7 @@ use std::path::PathBuf;
 pub fn lua_search_path<P: AsRef<Path>>(
     load_dir_path: P,
     ext: &str,
-) -> MyResult<(PathBuf, String, String, PathBuf)> {
+) -> Result<(PathBuf, String, String, PathBuf)> {
     // load dir(終端文字は除去)
     let load_dir_path = {
         let mut buf = load_dir_path.as_ref().to_path_buf();
@@ -24,7 +24,7 @@ pub fn lua_search_path<P: AsRef<Path>>(
     };
     let load_dir = {
         let a = load_dir_path.to_str();
-        let b = a.ok_or_else(|| ShioriError::from(ShioriErrorKind::Load))?;
+        let b = a.ok_or_else(|| ShioriError::from(ShioriError::Load))?;
         String::from(b)
     };
 
@@ -88,8 +88,7 @@ pub fn lua_search_path<P: AsRef<Path>>(
 #[test]
 fn lua_search_path_test() {
     {
-        let (dir, _, path, _) =
-            lua_search_path("c:\\留袖 綺麗ね\\ごーすと\\", "lua").unwrap();
+        let (dir, _, path, _) = lua_search_path("c:\\留袖 綺麗ね\\ごーすと\\", "lua").unwrap();
         assert_eq!(dir.to_string_lossy(), "c:\\留袖 綺麗ね\\ごーすと");
         assert_eq!(path, "c:\\留袖 綺麗ね\\ごーすと\\profile\\emo\\save\\?.lua;c:\\留袖 綺麗ね\\ごーすと\\profile\\emo\\save\\?\\init.lua;c:\\留袖 綺麗ね\\ごーすと\\dic\\?.lua;c:\\留袖 綺麗ね\\ごーすと\\dic\\?\\init.lua;c:\\留袖 綺麗ね\\ごーすと\\emo\\?.lua;c:\\留袖 綺麗ね\\ごーすと\\emo\\?\\init.lua");
     }

@@ -46,7 +46,7 @@ impl Shiori {
 impl Drop for Shiori {
     fn drop(&mut self) {
         info!("SHIORI:unload()");
-        fn act(shiori: &Shiori) -> MyResult<bool> {
+        fn act(shiori: &Shiori) -> Result<bool> {
             let lua = shiori.lua();
             let globals = lua.globals();
             let shiori: LuaTable<'_> = globals.get("shiori")?;
@@ -69,7 +69,7 @@ impl Shiori3 for Shiori {
         h_inst: usize,
         load_dir_path: P,
         load_dir_bytes: &[u8],
-    ) -> MyResult<Self> {
+    ) -> Result<Self> {
         // 検索パスの作成、saveフォルダの作成、ロガー設定
         let (load_dir_path, _, lua_path, save_dir) = lua_search_path(load_dir_path, "lua")?;
         fs::create_dir_all(&save_dir)?;
@@ -126,10 +126,10 @@ impl Shiori3 for Shiori {
     }
 
     /// SHIORIリクエストを解釈し、応答を返します。
-    fn request<'a, S: Into<&'a str>>(&mut self, req: S) -> MyResult<Cow<'a, str>> {
+    fn request<'a, S: Into<&'a str>>(&mut self, req: S) -> Result<Cow<'a, str>> {
         let req = req.into();
         debug!("SHIORI:request()****\n{}\n****", &req);
-        let result: MyResult<_> = {
+        let result: Result<_> = {
             let lua = self.lua();
             let req = parse_request(lua, &req)?;
             //let time = lua_date(&context)?;

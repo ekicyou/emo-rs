@@ -5,42 +5,42 @@ use std::path::{Path, PathBuf};
 
 pub trait ToAnsi {
     /// rust文字列をANSI文字列に変換します。
-    fn to_ansi(&self) -> MyResult<String>;
+    fn to_ansi(&self) -> Result<String>;
 }
 
 impl ToAnsi for dyn AsRef<str> {
     /// rust文字列をANSI文字列に変換します。
-    fn to_ansi(&self) -> MyResult<String> {
+    fn to_ansi(&self) -> Result<String> {
         str_to_ansi(self)
     }
 }
 
 impl ToAnsi for dyn AsRef<OsStr> {
     /// osstrをANSI文字列に変換します。
-    fn to_ansi(&self) -> MyResult<String> {
+    fn to_ansi(&self) -> Result<String> {
         osstr_to_ansi(self)
     }
 }
 impl ToAnsi for PathBuf {
     /// osstrをANSI文字列に変換します。
-    fn to_ansi(&self) -> MyResult<String> {
+    fn to_ansi(&self) -> Result<String> {
         osstr_to_ansi(self)
     }
 }
-fn str_to_ansi<S: AsRef<str>>(s: S) -> MyResult<String> {
+fn str_to_ansi<S: AsRef<str>>(s: S) -> Result<String> {
     let utf8 = s.as_ref();
     let ansi_bytes = Encoding::ANSI.to_bytes(utf8)?;
     let rc = unsafe { String::from_utf8_unchecked(ansi_bytes) };
     Ok(rc)
 }
 
-fn osstr_to_ansi<S: AsRef<OsStr>>(src: S) -> MyResult<String> {
+fn osstr_to_ansi<S: AsRef<OsStr>>(src: S) -> Result<String> {
     let osstr = src.as_ref();
     let s = osstr.to_string_lossy();
     str_to_ansi(s)
 }
 
-pub fn setup_logger<P: AsRef<Path>>(load_dir: P) -> MyResult<()> {
+pub fn setup_logger<P: AsRef<Path>>(load_dir: P) -> Result<()> {
     let log_file = {
         let mut p = load_dir.as_ref().to_owned();
         p.push("profile");
