@@ -1,11 +1,8 @@
-use failure::Fail;
+use thiserror::Error;
 
 #[allow(dead_code)]
-pub type MyResult<T> = std::result::Result<T, failure::Error>;
-
-#[allow(dead_code)]
-#[derive(Debug, Fail)]
+#[derive(Debug, Error)]
 pub enum EmoError {
-    #[fail(display = "Other Emo Error")]
+    #[error("Other Emo Error")]
     Other,
 }

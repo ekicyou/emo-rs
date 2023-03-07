@@ -7,7 +7,7 @@ license = "MIT"
 name = "emo"
 readme = "README.md"
 repository = "https://github.com/ekicyou/pasta-rs"
-version = "0.6.1"
+version = "0.7.0"
 
 [lib]
 crate-type = ["lib", "staticlib", "cdylib"]
@@ -16,26 +16,30 @@ path = "src/lib.rs"
 
 [dependencies]
 chrono = "0.4"
-failure = "0.1"
-failure_derive = "0.1"
+anyhow = "1"
+thiserror = "1"
 fern = "0.6"
-lazy_static = "1.1"
+lazy_static = "1"
 log = "0.4"
 mlua = { version = "0.8", features = [
     "luajit52",
-    "async",
-    "send",
-    "serialize",
     "vendored",
+    "send",
+    "async",
+    "serialize",
 ] }
-pest = "2.1"
-pest_derive = "2.1"
-rustyline = "10"
-shiori3 = "0.4"
+
+pest = "2"
+pest_derive = "2"
+shiori3 = "0.5"
 #shiori3 = { git = 'https://github.com/ekicyou/shiori3-rs', branch = 'master' }
 
 [target."cfg(windows)".dependencies]
 winapi = { version = "0.3", features = ["winbase", "stringapiset"] }
 
 [dev-dependencies]
-env_logger = "0.9"
+env_logger = "0.10"
+
+[profile.release]
+opt-level = "s"
+lto = true

@@ -10,7 +10,7 @@ use shiori3::req;
 
 /// 現在時刻でdateテーブルを作成します。
 #[allow(dead_code)]
-pub fn lua_date<'lua>(lua: &'lua Lua) -> MyResult<LuaTable<'lua>> {
+pub fn lua_date<'lua>(lua: &'lua Lua) -> Result<LuaTable<'lua>> {
     let now = chrono::Local::now();
     let t = lua.create_table()?;
     t.set("year", now.year())?;
@@ -42,7 +42,7 @@ pub fn lua_date<'lua>(lua: &'lua Lua) -> MyResult<LuaTable<'lua>> {
 /// * req.sender:
 /// * req.reference[num]: reference0～n
 /// * req.dic[key]: 全ての値を辞書テーブルで保管
-pub fn parse_request<'lua>(lua: &'lua Lua, text: &str) -> MyResult<LuaTable<'lua>> {
+pub fn parse_request<'lua>(lua: &'lua Lua, text: &str) -> Result<LuaTable<'lua>> {
     let t = lua.create_table()?;
     t.set("reference", lua.create_table()?)?;
     t.set("dic", lua.create_table()?)?;
@@ -51,7 +51,7 @@ pub fn parse_request<'lua>(lua: &'lua Lua, text: &str) -> MyResult<LuaTable<'lua
     Ok(t)
 }
 
-fn parse1<'lua, 'a>(table: &LuaTable<'lua>, mut it: FlatPairs<'a, req::Rule>) -> MyResult<()> {
+fn parse1<'lua, 'a>(table: &LuaTable<'lua>, mut it: FlatPairs<'a, req::Rule>) -> Result<()> {
     let pair = match it.next() {
         Some(a) => a,
         None => return Ok(()),
@@ -84,7 +84,7 @@ fn parse1<'lua, 'a>(table: &LuaTable<'lua>, mut it: FlatPairs<'a, req::Rule>) ->
 fn parse_key_value<'lua, 'a>(
     table: &LuaTable<'lua>,
     it: &mut FlatPairs<'a, req::Rule>,
-) -> MyResult<()> {
+) -> Result<()> {
     let pair = it.next().unwrap();
     let rule = pair.as_rule();
     let key = pair.as_str();
