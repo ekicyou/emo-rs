@@ -23,14 +23,14 @@ lazy_static = "1"
 log = "0.4"
 mlua = { version = "0.8", features = [
     "luajit52",
-    "async",
-    "send",
-    "serialize",
     "vendored",
+    "send",
+    "async",
+    "serialize",
 ] }
+
 pest = "2"
 pest_derive = "2"
-rustyline = "11"
 shiori3 = "0.5"
 #shiori3 = { git = 'https://github.com/ekicyou/shiori3-rs', branch = 'master' }
 
@@ -42,5 +42,4 @@ env_logger = "0.10"
 
 [profile.release]
 opt-level = "s"
-debuginfo = 0
 lto = true
