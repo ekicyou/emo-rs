@@ -5,12 +5,12 @@ use std::path::PathBuf;
 
 /// luaの検索パスを作成します。
 /// 以下の検索順となります。
-///   1. [GHOST]/profile/emo/save/?.lua
-///   2. [GHOST]/profile/emo/save/?/init.lua
-///   3. [GHOST]/dic/?.lua
-///   4. [GHOST]/dic/?/init.lua
-///   5. [GHOST]/emo/?.lua
-///   6. [GHOST]/emo/?/init.lua
+///   1. [load_dir]/profile/emo/save/?.lua
+///   2. [load_dir]/profile/emo/save/?/init.lua
+///   3. [load_dir]/dic/?.lua
+///   4. [load_dir]/dic/?/init.lua
+///   5. [load_dir]/emo/?.lua
+///   6. [load_dir]/emo/?/init.lua
 pub fn lua_search_path<P: AsRef<Path>>(
     load_dir_path: P,
     ext: &str,
