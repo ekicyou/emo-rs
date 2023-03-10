@@ -47,7 +47,7 @@ pub fn parse_request<'lua>(lua: &'lua Lua, text: &str) -> Result<LuaTable<'lua>>
     t.set("reference", lua.create_table()?)?;
     t.set("dic", lua.create_table()?)?;
     let it = req::Parser::parse(req::Rule::req, text)?.flatten();
-    parse1(&t, it)?;
+    parse1(&t, it)?
     Ok(t)
 }
 
@@ -84,7 +84,7 @@ fn parse1<'lua, 'a>(table: &LuaTable<'lua>, mut it: FlatPairs<'a, req::Rule>) ->
 fn parse_key_value<'lua, 'a>(
     table: &LuaTable<'lua>,
     it: &mut FlatPairs<'a, req::Rule>,
-) -> Result<()> {
+) -> Result<()
     let pair = it.next().unwrap();
     let rule = pair.as_rule();
     let key = pair.as_str();
