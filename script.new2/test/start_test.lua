@@ -4,8 +4,8 @@ function test_hello()
     print "hello"
 end
 
-
 -- ここまで
+
 local t = require "test.luaunit"
 t.set_verbosity(t.VERBOSITY_VERBOSE)
 local rc = t.run()
