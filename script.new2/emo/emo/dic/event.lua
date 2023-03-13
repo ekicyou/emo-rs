@@ -2,14 +2,12 @@
 local MOD = {}
 local META = {}
 
-
 -- ############################################################
 -- クラス：イベントエントリ
 -- ############################################################
 
 -- イベントエントリのメタテーブル
 local ENTRY_META = {}
-
 
 -- 新しいイベントエントリ格納庫を返す。
 function ENTRY_META:new_store()
@@ -31,7 +29,6 @@ local function create_entry(name)
     return a
 end
 
-
 -- ############################################################
 -- イベントエントリの管理
 -- ############################################################
@@ -43,10 +40,14 @@ function META.__index(event_name)
     local ev = entry[event_name]
     if not ev then
         ev = create_entry()
+        entry[event_name] = ev
     end
     return ev:new_store()
 end
 
+function META.get_entry(event_name)
+
+end
 
 setmetatable(MOD, META)
 return MOD

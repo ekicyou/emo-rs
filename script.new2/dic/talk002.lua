@@ -4,7 +4,7 @@ local _ = dic.word
 
 ev.t001 = function(scene)
     local a, b = scene.actor("えも", "紫")
-    local tenki = scene.local_jump()
+    local tenki = scene.local_entry()
     scene.start = function()
         a "今日の天気は？"
         tenki()
@@ -17,5 +17,4 @@ ev.t001 = function(scene)
         b "雨だよ。"
         a "がっかり。"
     end
-    scene.action()
 end
