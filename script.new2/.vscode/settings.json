@@ -1,0 +1,5 @@
+{
+    "lua.debug.settings.luaArch": "x86",
+    "lua.debug.settings.luaVersion": "jit",
+    "lua.debug.settings.path": "${workspaceFolder}/emo/?.lua;${workspaceFolder}/emo/?/init.lua;${workspaceFolder}/dic/?.lua;${workspaceFolder}/dic/?/init.lua"
+}
