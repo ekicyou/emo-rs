@@ -40,6 +40,36 @@ function METHOD:talk2script(text)
 end
 
 
+function　　　 M.insert_wait(text)
+    local rc = ""
+    local remain = 0
+    for p, c in utf8.codes(text) do
+        local pre = 0
+        local suf = 0
+        local wait = match_wait_table[c]
+        if wait == nil then
+            pre = remain
+            remain = 0
+        elseif wait == -1 then
+            goto CTRL_SKIP
+        elseif wait > 0 then
+            if remain < wait then
+                remain = wait
+            end
+        elseif wait < 0 then
+            pre = remain
+            remain = 0
+            suf = 0 - wait
+        end
+        local u = utf8.char(c)
+        rc = rc .. WAIT(pre)
+        rc = rc .. u
+        rc = rc .. WAIT(suf)
+        ::CTRL_SKIP::
+    end
+    rc = rc .. WAIT(remain)
+    return rc
+end
 
 
 --- トークビルダーの取得
