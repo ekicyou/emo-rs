@@ -1,9 +1,10 @@
 -- actor管理
 local MOD = {}
 
+--- @class Actor
+local METHOD = {}
 local META = {}
-local METHID = {}
-META.__index = METHID
+META.__index = METHOD
 
 -- トークの追加
 function META:__call(...)
@@ -16,7 +17,7 @@ function META:__call(...)
 end
 
 -- トークの追加
-function METHID:talk(emote, script)
+function METHOD:talk(emote, script)
     error('NOT_IMPL')
 end
 
@@ -24,15 +25,13 @@ end
 local actor_dic = {}
 
 -- actor登録
-function MOD.register(name, emote_dic, default_emote, wait1, wait2, wait3, env)
+function MOD.register(name, emote_dic, default_emote, wait, env)
     local a = {
         name = name,
         emote_dic = emote_dic,
         default_emote = default_emote,
         emote = default_emote,
-        wait1 = wait1,
-        wait2 = wait2,
-        wait3 = wait3,
+        wait = wait,
         env = env,
     }
     actor_dic[name] = a
@@ -48,7 +47,8 @@ local function create_actor(scene, name)
     return a
 end
 
--- actorの取得
+--- actorの取得
+---@return Actor
 function MOD.create(scene, ...)
     local actors = {}
     for name in ... do
