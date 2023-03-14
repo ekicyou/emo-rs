@@ -1,11 +1,30 @@
 ---@diagnostic disable: lowercase-global
-local t = require "test.luaunit"
-local pp = require "libs.pprint"
 
 function test_hello()
+    local t = require "test.luaunit"
     local a = {
         hello = 'world',
         pretty = 'print',
     }
-    print ("   _VERSION: ".._VERSION)
+    t.assertEquals(a.hello , 'world')
+end
+
+function test_next()
+    local t = require "test.luaunit"
+
+    local meta = {aaa='a', bbb='b'}
+    local a = {hello='world', fire='fox',}
+    setmetatable(a,meta)
+    local k ,v = nil, nil
+    k, v = next(a, k)
+    t.assertNotIsNil(k)
+    t.assertNotIsNil(v)
+
+    k, v = next(a, k)
+    t.assertNotIsNil(k)
+    t.assertNotIsNil(v)
+
+    k, v = next(a, k)
+    t.assertIsNil(k)
+    t.assertIsNil(v)
 end

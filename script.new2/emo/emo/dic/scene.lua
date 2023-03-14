@@ -1,24 +1,27 @@
 -- scene管理
 local MOD = {}
-local local_entry = require "emo.dic.local_entry"
+local entry = require "emo.dic.entry"
 
-local SCENE_META = {}
+local META = {}
+local METHID = {}
+META.__index = METHID
 
 -- actorの取得
-function SCENE_META:actor(...)
-    error('NOT_IMPL')
+function METHID:actor(...)
+    return ...
 end
 
 -- ローカルエントリーの作成
-function SCENE_META:local_entry()
+function METHID:local_entry()
     error('NOT_IMPL')
 end
+
 
 
 -- scene作成
 function MOD.create(env)
     local scene = {}
-    setmetatable(scene, SCENE_META)
+    setmetatable(scene, META)
     return scene
 end
 

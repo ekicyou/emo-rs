@@ -2,7 +2,7 @@
 local MOD = {}
 local META = {}
 
-local entry = require "dic.entry"
+local entry = require "emo.dic.entry"
 
 -- ############################################################
 -- クラス：イベント
