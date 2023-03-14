@@ -22,7 +22,7 @@ fern = "0.6"
 lazy_static = "1"
 log = "0.4"
 mlua = { version = "0.8", features = [
-    "luajit52",
+    "lua54",
     "vendored",
     "send",
     "async",
