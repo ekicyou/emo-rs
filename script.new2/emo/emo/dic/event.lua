@@ -2,45 +2,45 @@
 local MOD = {}
 local META = {}
 
+local entry = require "dic.entry"
+
 -- ############################################################
--- クラス：イベントエントリ
+-- クラス：イベント
 -- ############################################################
 
--- イベントエントリのメタテーブル
-local ENTRY_META = {}
+-- イベントのメタテーブル
+local EVENT_META = {}
 
--- 新しいイベントエントリ格納庫を返す。
-function ENTRY_META:new_store()
-    local store = self.store
-    if not store then
-        store = {}
-        self.store = store
+-- 新しいイベントエントリを返す。
+function EVENT_META:new_entry()
+    if not self.store then
+        self.store = {}
     end
-    local item = {}
-    table.insert(self.store, item)
-    return item
+    local a = entry.create()
+    table.insert(self.store, a)
+    return a
 end
 
 -- イベントエントリ：コンストラクタ
-local function create_entry(name)
+local function create_event(id)
     local a = {}
-    a.name = name
-    setmetatable(a, ENTRY_META)
+    a.id = id
+    setmetatable(a, EVENT_META)
     return a
 end
 
 -- ############################################################
--- イベントエントリの管理
+-- イベントの管理
 -- ############################################################
--- イベントエントリ辞書
-local entry = {}
+-- イベント辞書
+local event_dic = {}
 
 -- イベント登録用オブジェクトを返す。
-function META.__index(event_name)
-    local ev = entry[event_name]
+function META.__index(id)
+    local ev = event_dic[id]
     if not ev then
-        ev = create_entry()
-        entry[event_name] = ev
+        ev = create_event(id)
+        event_dic[id] = ev
     end
     return ev:new_store()
 end

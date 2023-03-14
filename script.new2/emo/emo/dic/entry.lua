@@ -6,7 +6,10 @@ local ENTRY_META = {}
 
 
 function MOD.create()
-    error('NOT_IMPL')
+    local a = {}
+    a.rate = 1
+    setmetatable(a, ENTRY_META)
+    return a
 end
 
 return MOD

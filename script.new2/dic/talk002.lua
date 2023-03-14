@@ -2,6 +2,10 @@ local dic = require "emo.dic"
 local ev = dic.event.OnTalk
 local _ = dic.word
 
+ev.rate = function(env)
+    return 1
+end
+
 ev.t001 = function(env)
     local scene = dic.create_scene(env)
     local a, b = scene:actor("えも", "紫")
@@ -19,3 +23,4 @@ ev.t001 = function(env)
         a "がっかり。"
     end
 end
+
