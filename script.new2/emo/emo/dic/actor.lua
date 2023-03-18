@@ -21,18 +21,16 @@ function METHOD:talk(emote, script)
     error('NOT_IMPL')
 end
 
-
 local actor_dic = {}
 
 -- actor登録
-function MOD.register(name, emote_dic, default_emote, wait, env)
+function MOD.register(name, wait, emote_dic, default_emote)
     local a = {
         name = name,
         emote_dic = emote_dic,
         default_emote = default_emote,
         emote = default_emote,
         wait = wait,
-        env = env,
     }
     actor_dic[name] = a
 end
@@ -41,7 +39,7 @@ end
 local function create_actor(scene, name)
     local a = {
         scene = scene,
-        data = actor_dic[name],
+        actor = actor_dic[name],
     }
     setmetatable(a, META)
     return a
@@ -51,12 +49,11 @@ end
 ---@return Actor
 function MOD.create(scene, ...)
     local actors = {}
-    for name in ... do
+    for _, name in ipairs({ ... }) do
         local a = create_actor(scene, name)
         table.insert(actors, a)
     end
     return table.unpack(actors)
 end
-
 
 return MOD
