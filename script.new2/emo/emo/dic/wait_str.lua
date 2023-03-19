@@ -12,23 +12,29 @@ local WAIT2 = 02 -- 半濁点
 local WAIT3 = 03 -- エクステンション
 local WAIT4 = 04 -- 濁点
 local WAIT5 = -5 -- 点々、直前の残waitを確定
-local SKIP = 06  -- 無視
+local SKIP = -6  -- 無視
 local match_wait_table = {}
 
-utable(match_wait_table, WAIT2, [=[。．｡.]=])
+utable(match_wait_table, WAIT2, [=[、，）］｝」』､,)]}｣]=])
 utable(match_wait_table, WAIT3, [=[？！?!]=])
-utable(match_wait_table, WAIT4, [=[、，）］｝」』､,)]}｣]=])
-utable(match_wait_table, WAIT5, [=[・‥…･]=])
+utable(match_wait_table, WAIT4, [=[。．｡.]=])
+utable(match_wait_table, WAIT5, [=[・‥…･/]=])
 utable(match_wait_table, SKIP, "\r\n\t")
 
 --- 文字列を(c, wait_ms)で列挙する。
 function MOD.en_char_wait(wait, text)
     -- 今日はいい天気、！？です、ね～。あと‥‥、明日はどうかな。
     --  1 1 1 1 1 1 1 1 1 3 1 1 2 1 1 4 1 1 5 5 2 1 1 1 1 1 1 1 4
+    local function CHAR(cp)
+        if cp == nil then return "nil" end
+        return utf8.char(cp)
+    end
+
     local function CO1()
         for _, c in utf8.codes(text) do
             local i = match_wait_table[c]
             if not i then i = WAIT1 end
+            --print(string.format("  (%s) %03d", CHAR(c), i))
             coroutine.yield(c, i)
         end
     end
@@ -43,7 +49,7 @@ function MOD.en_char_wait(wait, text)
                 suf = -i
             elseif i ~= SKIP then
                 if remain < i then remain = i end
-                suf = WAIT1
+                suf = -WAIT1
             end
             coroutine.yield(pre, c, suf)
         end
@@ -61,6 +67,7 @@ function MOD.en_char_wait(wait, text)
         for pre, c, suf in coroutine.wrap(CO2) do
             local pre_ms = MS(pre)
             local suf_ms = MS(suf)
+            --print(string.format("  %03d (%s) %03d", pre_ms, CHAR(c), suf_ms))
             coroutine.yield(pre_ms, c, suf_ms)
         end
     end
