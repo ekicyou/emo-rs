@@ -22,6 +22,8 @@ utable(match_wait_table, WAIT5, [=[・‥…･/]=])
 utable(match_wait_table, SKIP, "\r\n\t")
 
 --- 文字列を(c, wait_ms)で列挙する。
+--- @param wait number[] ウェイト設定配列
+--- @param text string トーク
 function MOD.en_char_wait(wait, text)
     -- 今日はいい天気、！？です、ね～。あと‥‥、明日はどうかな。
     --  1 1 1 1 1 1 1 1 1 3 1 1 2 1 1 4 1 1 5 5 2 1 1 1 1 1 1 1 4
