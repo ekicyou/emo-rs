@@ -3,7 +3,7 @@
 function test_wait_str()
     local t = require "test.luaunit"
     local ws = require "emo.dic.wait_str"
-
+    local utf8 = require "emo.libs.luajit-utf8"
     -- ABC,!?xy,z-.az.bc･･･,def.
     -- 1111131121141141155531114
     local text = "ABC,!?xy,z-.az.bc///,def."

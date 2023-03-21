@@ -1,9 +1,11 @@
 -- 文字ウエイト計算
 local MOD = {}
 
+local utf8 = require "emo.libs.luajit-utf8"
+
 local function utable(table, no, s)
-    for _, c in utf8.codes(s) do
-        table[c] = no
+    for _, cp in utf8.codes(s) do
+        table[cp] = no
     end
 end
 
@@ -33,11 +35,11 @@ function MOD.en_char_wait(wait, text)
     end
 
     local function CO1()
-        for _, c in utf8.codes(text) do
-            local i = match_wait_table[c]
+        for _, cp in utf8.codes(text) do
+            local i = match_wait_table[cp]
             if not i then i = WAIT1 end
             --print(string.format("  (%s) %03d", CHAR(c), i))
-            coroutine.yield(c, i)
+            coroutine.yield(cp, i)
         end
     end
 

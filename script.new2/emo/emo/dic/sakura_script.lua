@@ -1,6 +1,7 @@
 -- さくらスクリプト変換ユーティリティ
 local MOD = {}
 
+local utf8 = require "emo.libs.luajit-utf8"
 local wait_str = require "emo.dic.wait_str"
 
 --- msウェイトをスクリプトに変換する。但しms-50で換算する。
@@ -8,7 +9,7 @@ local wait_str = require "emo.dic.wait_str"
 function MOD.wait(ms)
     local target = ms - 50
     if target <= 0 then return "" end
-    local w50 = target // 50
+    local w50 = math.floor(target / 50)
     local remain = target - (w50 * 50)
     if remain == 0 and w50 > 0 and w50 < 10 then
         return "\\w" .. w50
@@ -32,7 +33,7 @@ end
 --- @return string 改行スクリプト
 function MOD.new_line(em)
     if em <= 0 then return "" end
-    local a = em // 1
+    local a = math.floor(em)
     local remain = em - a
     if remain == 0 and a > 0 and a < 10 then
         return "\\n" .. a

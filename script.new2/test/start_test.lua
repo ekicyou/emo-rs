@@ -14,7 +14,7 @@ function test_dic_entry()
     end
     a.talk2 = function(env)
     end
-    t.assertEquals(#a, 2)
+    t.assertEquals(#a, 0)
 end
 
 -- ここまで

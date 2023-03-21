@@ -26,7 +26,7 @@ end
 local function WAIT(ms)
     local wait_ms = ms - 50
     if wait_ms <= 50 then return "" end
-    local w50 = wait_ms // 50
+    local w50 = math.floor(wait_ms / 50)
     local remain = wait_ms - (w50 * 50)
 end
 
@@ -137,7 +137,7 @@ function MOD.create(scene, ...)
         local a = create_actor(scene, i, name)
         table.insert(actors, a)
     end
-    return table.unpack(actors)
+    return unpack(actors)
 end
 
 return MOD
