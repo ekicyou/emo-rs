@@ -3,6 +3,17 @@
     "editor.formatOnSave": true,
     "lua.debug.settings.luaArch": "x86",
     "lua.debug.settings.luaVersion": "jit",
-    "lua.debug.settings.path": "${workspaceFolder}/emo/?.lua;${workspaceFolder}/emo/?/init.lua;${workspaceFolder}/dic/?.lua;${workspaceFolder}/dic/?/init.lua;${workspaceFolder}/test/?.lua;${workspaceFolder}/test/?/init.lua",
-    "Lua.runtime.version": "LuaJIT"
+    "lua.debug.settings.path": "${workspaceFolder}/dic/?.lua;${workspaceFolder}/dic/?/init.lua;${workspaceFolder}/emo/?.lua;${workspaceFolder}/emo/?/init.lua;${workspaceFolder}/test/?.lua;${workspaceFolder}/test/?/init.lua",
+    "Lua.runtime.version": "LuaJIT",
+    "Lua.completion.callSnippet": "Disable",
+    "Lua.runtime.path": [
+        "${workspace}/dic/?.lua",
+        "${workspace}/dic/?/init.lua",
+        "${workspace}/emo/?.lua",
+        "${workspace}/emo/?/init.lua",
+        "${workspace}/test/?.lua",
+        "${workspace}/test/?/init.lua"
+    ],
+    "Lua.runtime.unicodeName": true,
+    "lua.debug.settings.console": "internalConsole"
 }

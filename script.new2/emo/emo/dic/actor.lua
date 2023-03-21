@@ -47,20 +47,20 @@ PARAMS_META.__index = PARAMS_METHOD
 
 --- wait情報を設定する。
 --- @param wait1 number 一般文字wait、直前の残waitを確定
----@param wait2 number 半濁点
----@param wait3 number エクステンション（！、？）
----@param wait4 number 濁点
----@param wait5 number 点々、直前の残waitを確定
----@return ActorParams
+--- @param wait2 number 半濁点
+--- @param wait3 number エクステンション（！、？）
+--- @param wait4 number 濁点
+--- @param wait5 number 点々、直前の残waitを確定
+--- @return ActorParams
 function PARAMS_METHOD:wait(wait1, wait2, wait3, wait4, wait5)
     self.wait = { wait1, wait2, wait3, wait4, wait5 }
     return self
 end
 
 --- emote情報を設定する。
----@param name string emote名
----@param script string 展開するスクリプト
----@return ActorParams
+--- @param name string emote名
+--- @param script string 展開するスクリプト
+--- @return ActorParams
 function PARAMS_METHOD:emote(name, script)
     if not self.emote_dic then self.emote_dic = {} end
     if not self.default_emote then self.default_emote = name end
