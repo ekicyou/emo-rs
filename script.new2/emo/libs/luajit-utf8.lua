@@ -126,8 +126,9 @@ function utf8.codes(s)
     end
 
     i = end_pos + 1
-    local ch = s:sub(start_pos, end_pos)
-    local cp = utf8.codepoint(ch)
+    --local ch = s:sub(start_pos, end_pos)
+    --local cp = utf8.codepoint(ch)
+    local cp = utf8.codepoint(s, start_pos, end_pos)
     return start_pos, cp
   end
 end
