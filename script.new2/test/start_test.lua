@@ -8,7 +8,7 @@ function test_entry_time_fire_entry()
     local t = require "test.luaunit"
     local et = require "shiori.entry_time"
 
-    local now = et.entry_table("D211231T0123")
+    local now = et.time_table("D211231T0123")
     local now_time = os.time(now)
     t.assertEquals(now_time, 1640881380)
 

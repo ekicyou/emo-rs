@@ -7,7 +7,7 @@ local RE_NUM = "^(%d+)$"
 --- エントリをテーブル分解。
 --- @param entry string 日時エントリー定義文字列。`Dyymmdd` 年月日、`Dmmdd`月日、`Wn`週（日曜日=1始まり）、`Thhmm`日時
 --- @return table dt 日時テーブル`os.date("*t", time)`フォーマット
-local function cal_entry_table(entry)
+local function cal_time_table(entry)
     local function NUM(t)
         local _, _, m = string.find(t, RE_NUM)
         if m then
@@ -44,6 +44,8 @@ local function cal_entry_table(entry)
     end
     return x
 end
+
+
 
 local function GET_TIME(x)
     local t = x.sec
@@ -240,7 +242,7 @@ end
 local function cal_time(entry, now)
     local function TASK()
         local d = os.date("*t", now)
-        local x = cal_entry_table(entry)
+        local x = cal_time_table(entry)
         if x.year then
             return GEN.year(x, d)
         elseif x.month then
@@ -318,7 +320,7 @@ end
 local MOD = {
     get_last_monday_time = get_last_monday_time,
     adjust_hour          = adjust_hour,
-    entry_table          = cal_entry_table,
+    time_table           = cal_time_table,
     time                 = cal_time,
     reset_entry          = reset_cal_entry,
     peek_entry           = peek_cal_entry,
