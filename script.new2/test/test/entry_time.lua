@@ -4,26 +4,11 @@ function test_entry_time_entry_table()
     local t = require "test.luaunit"
     local et = require "shiori.entry_time"
 
-    t.assertEquals(et.time_table("D201231"), { year = 2020, month = 12, day = 31, sec = 0, })
-    t.assertEquals(et.time_table("D1231"), { month = 12, day = 31, sec = 0, })
-    t.assertEquals(et.time_table("D1231T1234"), { month = 12, day = 31, hour = 12, min = 34, sec = 0, })
-    t.assertEquals(et.time_table("T1234"), { hour = 12, min = 34, sec = 0, })
-    t.assertEquals(et.time_table("W2T1234"), { week = 2, hour = 12, min = 34, sec = 0, })
-end
-
-function test_entry_time_adjust_hour()
-    local t = require "test.luaunit"
-    local et = require "shiori.entry_time"
-
-    local now = et.time_table("D211231T0123")
-    local function X(target)
-        et.adjust_hour(target, now)
-        return target
-    end
-
-    t.assertEquals(X({ hour = 10 }), { hour = 10, min = 0, sec = 0, })
-    t.assertEquals(X({ hour = 12, min = 34 }), { hour = 12, min = 34, sec = 0, })
-    t.assertEquals(X({}), { hour = 1, min = 24, sec = 0, })
+    t.assertEquals(et.time_table("D201231"), { year = 2020, month = 12, day = 31, })
+    t.assertEquals(et.time_table("D1231"), { month = 12, day = 31, })
+    t.assertEquals(et.time_table("D1231T1234"), { month = 12, day = 31, hour = 12, min = 34, })
+    t.assertEquals(et.time_table("T1234"), { hour = 12, min = 34, })
+    t.assertEquals(et.time_table("W2T1234"), { wday = 2, hour = 12, min = 34, })
 end
 
 function test_entry_time_get_last_monday_time()

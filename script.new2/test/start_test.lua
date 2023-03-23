@@ -4,31 +4,33 @@ require "test"
 
 -- とりあえずすぐ試したいテストはここに書く。
 
-function test_entry_time_fire_entry()
+function test_entry_time_entry_match()
     local t = require "test.luaunit"
     local et = require "shiori.entry_time"
 
-    local now = et.time_table("D211231T0123")
-    local now_time = os.time(now)
-    t.assertEquals(now_time, 1640881380)
+    local now = os.date("*t", os.time(et.time_table("D211231T0123")))
 
-    local items = {}
-    local function ENTRY(id, cal)
-        local entry = { cal = cal, id = id, }
-        table.insert(items, entry)
+    local pp = require "libs.pprint"
+    local function X(entry)
+        local t = et.entry_table(entry)
+        local rc = et.entry_match(t, now)
+        if rc then return t.priority end
+        return nil
     end
+    t.assertEquals(X("D211231"), 7.5)
+    t.assertEquals(X("D1231"), 5.5)
+    t.assertEquals(X("T0123"), 5)
+    t.assertEquals(X("W6"), 5.3)
 
-    ENTRY(1, "D1124")
-    local flag, entry = et.fire_entry(50, items, now_time)
-    t.assertEquals(flag, 0)
-    t.assertEquals(entry.id, 1)
-    t.assertEquals(entry.time, 1669215600)
+    t.assertIsNil(X("D221231"))
+    t.assertIsNil(X("D1131"))
+    t.assertIsNil(X("T0124"))
+    t.assertIsNil(X("W1"))
+end
 
-    ENTRY(2, "D211123")
-    flag, entry = et.fire_entry(50, items, now_time)
-    t.assertEquals(flag, 0)
-    t.assertEquals(entry.id, 1)
-    t.assertEquals(entry.time, 1669215600)
+function test_entry_time_fire_entry()
+    local t = require "test.luaunit"
+    local et = require "shiori.entry_time"
 end
 
 function test_dic_entry()

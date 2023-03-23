@@ -1,5 +1,5 @@
-local RE_CAL_D1 = "D([%d%-][%d%-])([%d%-][%d%-])([%d%-][%d%-])"
-local RE_CAL_D2 = "D([%d%-][%d%-])([%d%-][%d%-])"
+local RE_CAL_DY = "D([%d%-][%d%-])([%d%-][%d%-])([%d%-][%d%-])"
+local RE_CAL_DM = "D([%d%-][%d%-])([%d%-][%d%-])"
 local RE_CAL_W = "W(%d+)"
 local RE_CAL_T = "T([%d%-][%d%-])([%d%-][%d%-])"
 local RE_NUM = "^(%d+)$"
@@ -7,7 +7,7 @@ local RE_NUM = "^(%d+)$"
 --- エントリをテーブル分解。
 --- @param entry string 日時エントリー定義文字列。`Dyymmdd` 年月日、`Dmmdd`月日、`Wn`週（日曜日=1始まり）、`Thhmm`日時
 --- @return table dt 日時テーブル`os.date("*t", time)`フォーマット
-local function cal_time_table(entry)
+local function time_table(entry)
     local function NUM(t)
         local _, _, m = string.find(t, RE_NUM)
         if m then
@@ -17,8 +17,8 @@ local function cal_time_table(entry)
         end
     end
 
-    local x = { sec = 0, }
-    local s, _, year, month, day = string.find(entry, RE_CAL_D1)
+    local x = {}
+    local s, _, year, month, day = string.find(entry, RE_CAL_DY)
     if s then
         x.year  = NUM(year)
         x.month = NUM(month)
@@ -27,7 +27,7 @@ local function cal_time_table(entry)
             x.year = x.year + 2000
         end
     else
-        local s, _, month, day = string.find(entry, RE_CAL_D2)
+        local s, _, month, day = string.find(entry, RE_CAL_DM)
         if s then
             x.month = NUM(month)
             x.day   = NUM(day)
@@ -35,7 +35,7 @@ local function cal_time_table(entry)
     end
     local s, _, a = string.find(entry, RE_CAL_W)
     if s then
-        x.week = NUM(a)
+        x.wday = NUM(a)
     end
     local s, _, hour, min = string.find(entry, RE_CAL_T)
     if s then
@@ -45,7 +45,37 @@ local function cal_time_table(entry)
     return x
 end
 
+--- エントリテーブルを作成する。
+--- @param entry string 日時エントリー定義文字列。`Dyymmdd` 年月日、`Dmmdd`月日、`Wn`週（日曜日=1始まり）、`Thhmm`日時
+--- @return table dt エントリテーブル
+local function entry_table(entry)
+    local date_p = 0
+    local c1 = string.sub(entry, 1, 1)
+    if c1 == 'D' then
+        date_p = 0.5
+    elseif c1 == 'W' then
+        date_p = 3.3
+    end
+    local t = {
+        time = time_table(entry),
+        priority = #entry + date_p,
+        rand = math.random() * 0.1,
+    }
+    return t
+end
 
+--- 与えられた時刻に対するエントリマッチ度を返す。
+--- @param entry table エントリテーブル
+--- @param now table 比較する時刻テーブル
+--- @return number|nil priority マッチした場合、priority値。マッチしなければnil
+local function entry_match(entry, now)
+    for k, v in pairs(entry.time) do
+        if now[k] ~= v then
+            return nil
+        end
+    end
+    return entry.priority + entry.rand
+end
 
 local function GET_TIME(x)
     local t = x.sec
@@ -63,7 +93,6 @@ local function SET_TIME(x, time)
     x.min   = m
     x.sec   = s
 end
-
 
 --- 時・分の設定がない場合、現在時刻から数分進めた分に設定する。
 --- @param target table 調整対象の時分
@@ -95,6 +124,8 @@ local function adjust_hour(target, now)
     target.min  = d2.min
     target.sec  = d2.sec
 end
+
+
 
 --- 指定日時をベースに直近の月曜日午前０時を返す。
 --- @param target table 基準日時
@@ -242,7 +273,7 @@ end
 local function cal_time(entry, now)
     local function TASK()
         local d = os.date("*t", now)
-        local x = cal_time_table(entry)
+        local x = time_table(entry)
         if x.year then
             return GEN.year(x, d)
         elseif x.month then
@@ -318,9 +349,11 @@ end
 
 -- カレンダートークのエントリー処理
 local MOD = {
+    time_table           = time_table,
+    entry_table          = entry_table,
+    entry_match          = entry_match,
     get_last_monday_time = get_last_monday_time,
     adjust_hour          = adjust_hour,
-    time_table           = cal_time_table,
     time                 = cal_time,
     reset_entry          = reset_cal_entry,
     peek_entry           = peek_cal_entry,
