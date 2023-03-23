@@ -29,16 +29,16 @@ function MOD.talk(wait, text)
 end
 
 --- 改行コード
---- @param em number 改行幅
+--- @param percent number 改行%、１行分で100
 --- @return string 改行スクリプト
-function MOD.new_line(em)
-    if em <= 0 then return "" end
-    local a = math.floor(em)
-    local remain = em - a
+function MOD.new_line(percent)
+    if percent <= 0 then return "" end
+    local a = math.floor(percent / 100)
+    local remain = percent - (a * 100)
     if remain == 0 and a > 0 and a < 10 then
         return "\\n" .. a
     else
-        return "\\n[" .. em .. "]"
+        return "\\n[" .. percent .. "]"
     end
 end
 
@@ -51,6 +51,13 @@ end
 --- スコープ切り替え
 --- @param num number スコープ番号
 function MOD.scope(num)
+    if num < 2 then return "\\" .. num end
+    return "\\p[" .. num .. "]"
+end
+
+--- スクリプト終了、えんいー
+function MOD.e()
+    return "\\e"
 end
 
 return MOD

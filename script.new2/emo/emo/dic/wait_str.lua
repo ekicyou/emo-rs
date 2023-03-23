@@ -9,19 +9,111 @@ local function utable(table, no, s)
     end
 end
 
+local SS_ESC   = 1 --- [ESC]
+local SS_UB    = 2 --- _
+local SS_09    = 3 --- 0-9
+local SS_AZ    = 4 --- a-z_
+local SS_BS    = 5 --- [
+local SS_BE    = 6 --- ]
+
+local match_ss = {}
+utable(match_ss, SS_ESC, "\\")
+utable(match_ss, SS_UB, "_")
+utable(match_ss, SS_09, "0123456789")
+utable(match_ss, SS_AZ, "abcdefghijklmnopqrstuvwxyz!")
+utable(match_ss, SS_BS, "[")
+utable(match_ss, SS_BE, "]")
+
+local NORMAL_CHAR = 1
+local SS_FUNC = 2
+
+function MOD.en_char_ss(text)
+    local function MATCH(cp)
+        return match_ss[cp]
+    end
+
+    local function CO1()
+        local gen = utf8.codes(text)
+
+        -- ############################
+        ::LOOP_NORMAL::
+        local i, cp = gen()
+        if not i then return end
+        local a = MATCH(cp)
+        if a ~= SS_ESC then
+            coroutine.yield(cp, NORMAL_CHAR)
+            goto LOOP_NORMAL
+        end
+        coroutine.yield(cp, SS_FUNC)
+
+        -- ############################
+        ::LOOP_SS2::
+        i, cp = gen()
+        if not i then return end
+        a = MATCH(cp)
+        if a == SS_ESC then
+            coroutine.yield(cp, NORMAL_CHAR)
+            goto LOOP_NORMAL
+        elseif a == SS_UB then
+            coroutine.yield(cp, SS_FUNC)
+            goto LOOP_SS2
+        elseif a == SS_09 then
+            coroutine.yield(cp, SS_FUNC)
+            goto LOOP_NORMAL
+        elseif a ~= SS_AZ then
+            coroutine.yield(cp, NORMAL_CHAR)
+            goto LOOP_NORMAL
+        end
+        coroutine.yield(cp, SS_FUNC)
+
+        -- ############################
+        ::LOOP_SS3::
+        i, cp = gen()
+        if not i then return end
+        a = MATCH(cp)
+        if a == SS_09 then
+            coroutine.yield(cp, SS_FUNC)
+            goto LOOP_NORMAL
+        elseif a == SS_ESC then
+            coroutine.yield(cp, SS_FUNC)
+            goto LOOP_SS2
+        elseif a ~= SS_BS then
+            coroutine.yield(cp, NORMAL_CHAR)
+            goto LOOP_NORMAL
+        end
+        coroutine.yield(cp, SS_FUNC)
+
+        -- ############################
+        ::LOOP_SS4::
+        i, cp = gen()
+        if not i then return end
+        a = MATCH(cp)
+        if a ~= SS_BE then
+            coroutine.yield(cp, SS_FUNC)
+            goto LOOP_SS4
+        end
+        coroutine.yield(cp, SS_FUNC)
+        goto LOOP_NORMAL
+    end
+
+    return coroutine.wrap(CO1)
+end
+
 local WAIT1 = -1 -- 通常wait、直前の残waitを確定
 local WAIT2 = 02 -- 半濁点
 local WAIT3 = 03 -- エクステンション
 local WAIT4 = 04 -- 濁点
 local WAIT5 = -5 -- 点々、直前の残waitを確定
 local SKIP = -6  -- 無視
-local match_wait_table = {}
+local ESCAPE = 7 -- エスケープ
 
+local match_wait_table = {}
 utable(match_wait_table, WAIT2, [=[、，）］｝」』､,)]}｣]=])
 utable(match_wait_table, WAIT3, [=[？！?!]=])
 utable(match_wait_table, WAIT4, [=[。．｡.]=])
 utable(match_wait_table, WAIT5, [=[・‥…･/]=])
 utable(match_wait_table, SKIP, "\r\n\t")
+utable(match_wait_table, ESCAPE, "\\")
 
 --- 文字列を(c, wait_ms)で列挙する。
 --- @param wait number[] ウェイト設定配列
@@ -35,11 +127,14 @@ function MOD.en_char_wait(wait, text)
     end
 
     local function CO1()
-        for _, cp in utf8.codes(text) do
-            local i = match_wait_table[cp]
-            if not i then i = WAIT1 end
-            --print(string.format("  (%s) %03d", CHAR(c), i))
-            coroutine.yield(cp, i)
+        for cp, tp in MOD.en_char_ss(text) do
+            if tp == NORMAL_CHAR then
+                local a = match_wait_table[cp]
+                if not a then a = WAIT1 end
+                coroutine.yield(cp, a)
+            else
+                coroutine.yield(cp, SKIP)
+            end
         end
     end
 
