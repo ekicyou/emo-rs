@@ -1,4 +1,5 @@
+require "test.dic"
 require "test.hello"
 require "test.response"
+require "test.sakura_script"
 require "test.wait_str"
-require "test.dic"
