@@ -1,11 +1,12 @@
-local RE_CAL_D = "D([%d%-][%d%-])([%d%-][%d%-])([%d%-][%d%-])"
+local RE_CAL_D1 = "D([%d%-][%d%-])([%d%-][%d%-])([%d%-][%d%-])"
+local RE_CAL_D2 = "D([%d%-][%d%-])([%d%-][%d%-])"
 local RE_CAL_W = "W(%d+)"
 local RE_CAL_T = "T([%d%-][%d%-])([%d%-][%d%-])"
 local RE_NUM = "^(%d+)$"
 
 -- エントリをテーブル分解
 local function cal_entry_table(entry)
-    local function num(t)
+    local function NUM(t)
         local _, _, m = string.find(t, RE_NUM)
         if m then
             return m + 0
@@ -13,24 +14,31 @@ local function cal_entry_table(entry)
             return nil
         end
     end
+
     local x = { sec = 0, }
-    local s, _, year, month, day = string.find(entry, RE_CAL_D)
+    local s, _, year, month, day = string.find(entry, RE_CAL_D1)
     if s then
-        x.year  = num(year)
-        x.month = num(month)
-        x.day   = num(day)
+        x.year  = NUM(year)
+        x.month = NUM(month)
+        x.day   = NUM(day)
         if x.year then
             x.year = x.year + 2000
+        end
+    else
+        local s, _, month, day = string.find(entry, RE_CAL_D2)
+        if s then
+            x.month = NUM(month)
+            x.day   = NUM(day)
         end
     end
     local s, _, a = string.find(entry, RE_CAL_W)
     if s then
-        x.week = a
+        x.week = NUM(a)
     end
     local s, _, hour, min = string.find(entry, RE_CAL_T)
     if s then
-        x.hour = num(hour)
-        x.min  = num(min)
+        x.hour = NUM(hour)
+        x.min  = NUM(min)
     end
     return x
 end
@@ -53,40 +61,43 @@ local function SET_TIME(x, time)
 end
 
 
--- 時・分の設定がない場合、現在時刻から数分進めた分に設定する。
-local function adjust_hour(x, d)
-    if x.hour then
+--- 時・分の設定がない場合、現在時刻から数分進めた分に設定する。
+--- @param target table 調整対象の時分
+--- @param now table 現在の時分
+local function adjust_hour(target, now)
+    if target.hour then
         -- 時分指定　⇒そのまま返す
         -- 時のみ指定⇒０分にする。
-        if not x.min then x.min = 0 end
+        if not target.min then target.min = 0 end
+        if not target.sec then target.sec = 0 end
         return
     else
         -- 分のみ指定⇒次の時を設定して終了
-        if x.min then
-            x.hour = d.hour
-            local xt = GET_TIME(x)
-            local dt = GET_TIME(d)
+        if target.min then
+            target.hour = now.hour
+            local xt = GET_TIME(target)
+            local dt = GET_TIME(now)
             if xt < dt then xt = xt + 60 * 60 end
-            SET_TIME(x, xt)
+            SET_TIME(target, xt)
             return
         end
     end
 
     -- 指定なし⇒現在時刻から数分後
-    local time = os.time(d) + 91
-    time       = math.floor(time / 60) * 60
-    local d2   = os.date("*t", time)
-    x.hour     = d2.hour
-    x.min      = d2.min
-    x.sec      = d2.sec
+    local time  = os.time(now) + 91
+    time        = math.floor(time / 60) * 60
+    local d2    = os.date("*t", time)
+    target.hour = d2.hour
+    target.min  = d2.min
+    target.sec  = d2.sec
 end
 
 -- 指定日時をベースに直近の月曜日午前０時を返す。
-local function get_last_monday_time(d)
+local function get_last_monday_time(target)
     local d2 = {
-        year  = d.year,
-        month = d.month,
-        day   = d.day,
+        year  = target.year,
+        month = target.month,
+        day   = target.day,
         hour  = 0,
         min   = 0,
         sec   = 0,
@@ -217,10 +228,11 @@ function GEN.min(x, d)
     end
 end
 
--- エントリーの発動時刻を返す。
--- 戻り値：time, has_delete
---       time 発動時刻
--- has_delete 発動後に削除する必要があればtrue。
+--- エントリーの発動時刻を返す。
+--- @param entry string エントリー定義
+--- @param now number 現在時刻`os.time()`
+--- @return number time 発動時刻
+--- @return boolean has_delete 発動後に削除する必要があればtrue。
 local function cal_time(entry, now)
     local function TASK()
         local d = os.date("*t", now)
