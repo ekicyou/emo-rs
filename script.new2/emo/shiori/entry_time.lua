@@ -145,7 +145,7 @@ function GEN.year(x, d)
         x.min  = 0
         x.sec  = 0
     end
-    coroutine.yield(os.time(x))
+    coroutine.yield(os.time(x), true)
 end
 
 -- 年無し、月日あり
@@ -260,7 +260,7 @@ local function cal_time(entry, now)
             return time, has_delete
         end
     end
-    return nil
+    return 9999999999, false
 end
 
 -- 全エントリの発動時刻を削除する
@@ -294,8 +294,8 @@ end
 --- @param guard_sec number ガード秒数
 --- @param items any[]      エントリ一覧
 --- @param now number       現在時刻(os.time())
---- @return number flag  ０⇒対象無し　１⇒ガードタイム　２⇒発動
---- @return any    entry 発動する場合のエントリ
+--- @return 0|1|2 flag  ０⇒対象無し　１⇒ガードタイム　２⇒発動
+--- @return table|nil entry 発動する場合のエントリ
 local function fire_cal_entry(guard_sec, items, now)
     local i, entry = peek_cal_entry(items, now)
     if not entry then return 0 end
