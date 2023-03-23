@@ -16,3 +16,20 @@ function test_ss_talk()
     local act = ss.talk(wait, text)
     t.assertEquals(act, ext)
 end
+
+function test_ss_funcs()
+    local t = require "test.luaunit"
+    local yen = require "emo.dic.sakura_script"
+    t.assertEquals(yen.new_line(100), [=[\n1]=])
+    t.assertEquals(yen.new_line(101), [=[\n[101]]=])
+
+    t.assertEquals(yen.surface(000), [=[\s[0]]=])
+    t.assertEquals(yen.surface(010), [=[\s[10]]=])
+    t.assertEquals(yen.surface(100), [=[\s[100]]=])
+
+    t.assertEquals(yen.scope(0), [=[\0]=])
+    t.assertEquals(yen.scope(1), [=[\1]=])
+    t.assertEquals(yen.scope(2), [=[\p[2]]=])
+
+    t.assertEquals(yen.e(), [=[\e]=])
+end
