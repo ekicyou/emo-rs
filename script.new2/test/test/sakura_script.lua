@@ -20,6 +20,12 @@ end
 function test_ss_funcs()
     local t = require "test.luaunit"
     local yen = require "emo.dic.sakura_script"
+
+    t.assertEquals(yen.wait(100), [=[\w1]=])
+    t.assertEquals(yen.wait(101), [=[\_w[51]]=])
+    t.assertEquals(yen.wait(500), [=[\w9]=])
+    t.assertEquals(yen.wait(550), [=[\_w[500]]=])
+
     t.assertEquals(yen.new_line(100), [=[\n1]=])
     t.assertEquals(yen.new_line(101), [=[\n[101]]=])
 
