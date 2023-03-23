@@ -4,7 +4,9 @@ local RE_CAL_W = "W(%d+)"
 local RE_CAL_T = "T([%d%-][%d%-])([%d%-][%d%-])"
 local RE_NUM = "^(%d+)$"
 
--- エントリをテーブル分解
+--- エントリをテーブル分解。
+--- @param entry string 日時エントリー定義文字列。`Dyymmdd` 年月日、`Dmmdd`月日、`Wn`週（日曜日=1始まり）、`Thhmm`日時
+--- @return table dt 日時テーブル`os.date("*t", time)`フォーマット
 local function cal_entry_table(entry)
     local function NUM(t)
         local _, _, m = string.find(t, RE_NUM)
