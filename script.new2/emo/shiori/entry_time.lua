@@ -92,7 +92,9 @@ local function adjust_hour(target, now)
     target.sec  = d2.sec
 end
 
--- 指定日時をベースに直近の月曜日午前０時を返す。
+--- 指定日時をベースに直近の月曜日午前０時を返す。
+--- @param target table 基準日時
+--- @return number monday_time 直前の月曜日午前０時
 local function get_last_monday_time(target)
     local d2 = {
         year  = target.year,
@@ -110,8 +112,8 @@ local function get_last_monday_time(target)
     -- 直近のwday=2になるように日付をマイナス
     local day = wday - 2
     if day < 0 then day = day + 7 end
-    local mon_time = zero_time - day * 60 * 60 * 24
-    return mon_time
+    local monday_time = zero_time - day * 60 * 60 * 24
+    return monday_time
 end
 
 
@@ -231,8 +233,8 @@ end
 --- エントリーの発動時刻を返す。
 --- @param entry string エントリー定義
 --- @param now number 現在時刻`os.time()`
---- @return number time 発動時刻
---- @return boolean has_delete 発動後に削除する必要があればtrue。
+--- @return number|nil time 発動時刻
+--- @return boolean|nil has_delete 発動後に削除する必要があればtrue。
 local function cal_time(entry, now)
     local function TASK()
         local d = os.date("*t", now)
