@@ -1,45 +1,87 @@
--- scene（スクリプト合成、発行）管理
+-- シーン（一連の会話）管理
 local MOD = {}
-local entry = require "emo.dic.entry"
 local actor = require "emo.dic.actor"
 
---- @class Scene
-local METHOD = {}
-local META = {}
-META.__index = METHOD
+--############################################################
 
---- actorの取得、アクター名の一覧を渡す。
-function METHOD:actor(...)
-    return actor.create(self, ...)
+--- ボード、シーンにおける立ち位置。アクター一人が１ボードに立つ。
+--- @class Board
+--- @field scene Scene シーン
+--- @field id integer 立ち位置番号（１スタート）
+--- @field actor Actor アクター定義
+local BOARD_METHOD = {}
+local BOARD_META = {}
+BOARD_META.__index = BOARD_METHOD
+
+--- ボードを作成する。
+--- @param scene Scene シーン
+--- @param id integer ステージ番号（１スタート）
+--- @param actor Actor アクター情報
+--- @return Board board ボード（立ち位置）
+local function create_board(scene, id, actor)
+    local a = {
+        scene = scene,
+        id    = id,
+        actor = actor,
+    }
+    setmetatable(a, BOARD_META)
+    return a
 end
+
+--############################################################
+
+--- シーン
+--- @class Scene
+local SCENE_METHOD = {}
+local SCENE_META = {}
+SCENE_META.__index = SCENE_METHOD
+
 
 --- text をそのままスクリプトに登録する。
-function METHOD:append_raw_script(text)
-    if self.raw_script == nil then
-        self.raw_script = ''
-    end
+--- @param text string スクリプト
+--- @return Scene
+function SCENE_METHOD:append(text)
     self.raw_script = self.raw_script .. text
+    return self
 end
 
---- text をwait設定で変換してスクリプトに登録する。
-function METHOD:append_talk(text, wait1, wait2, wait3)
-    self:append_raw_script(text)
+--- actorの取得、アクター入場
+--- @vararg string アクター名を列挙
+--- @return Board board1 立ち位置1
+--- @return Board board2 立ち位置2
+function SCENE_METHOD:enter(...)
+    local boards = {}
+    for i, name in ipairs({ ... }) do
+        local a = actor.get(name)
+        local b = create_board(self, i, a)
+        table.insert(boards, b)
+    end
+    self.boards = boards
+    return unpack(boards)
 end
 
-
--- ローカルエントリーの作成
-function METHOD:local_entry()
-    return entry.create()
+--- シーンをカットして次のシーンを始める。チェイントーク。
+--- @return Scene
+function SCENE_METHOD:cut()
+    local s = self.raw_script
+    if #s > 0 then
+        coroutine.yield(s)
+    end
+    self.raw_script = ''
+    return self
 end
 
-
--- scene作成
+--- scene作成
+--- @param env any 環境情報
+--- @return Scene
 function MOD.create(env)
     --- @class Scene
     local scene = {
-        raw_script = ''
+        env           = env,
+        sakura_script = '',
+        boards        = {},
     }
-    setmetatable(scene, META)
+    setmetatable(scene, SCENE_META)
     return scene
 end
 

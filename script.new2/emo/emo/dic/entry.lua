@@ -1,4 +1,4 @@
--- エントリ管理
+-- 会話エントリ管理
 local MOD = {}
 
 --- @class Entry
@@ -9,16 +9,16 @@ META.__index = METHOD
 --- pairs、不要なrate キーを除いて返す
 --- @param self Entry
 local function pairs(self)
-    local k,v = nil, nil
+    local k, v = nil, nil
     return function()
         ::start::
-        k,v = next(self, k)
+        k, v = next(self, k)
         if k == nil then
-            return k,v
+            return k, v
         elseif k == 'rate' then
             goto start
         end
-        return k,v
+        return k, v
     end
 end
 METHOD.pairs = pairs
@@ -27,7 +27,7 @@ META.__pairs = pairs
 -- #、不要なrateを除いたカウントを返す。
 function META:__len()
     local count = 0
-    for k,v in pairs(self) do
+    for k, v in pairs(self) do
         count = count + 1
     end
     return count
