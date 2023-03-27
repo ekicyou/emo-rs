@@ -1,3 +1,7 @@
+-- カレンダートークのエントリー処理
+local MOD = {}
+
+
 local RE_CAL_DY = "D([%d%-][%d%-])([%d%-][%d%-])([%d%-][%d%-])"
 local RE_CAL_DM = "D([%d%-][%d%-])([%d%-][%d%-])"
 local RE_CAL_W = "W(%d+)"
@@ -8,15 +12,14 @@ local RE_NUM = "^(%d+)$"
 --- osdate `os.date('*t',time) を返す。
 --- @param time integer os.time()値
 --- @return osdate date `os.date('*t',time)値
-local function osdate(time)
+function MOD.osdate(time)
     return os.date("*t", time)
 end
-
 
 --- エントリをテーブル分解。
 --- @param entry string 日時エントリー定義文字列。`Dyymmdd` 年月日、`Dmmdd`月日、`Wn`週（日曜日=1始まり）、`Thhmm`日時
 --- @return osdate dt 日時テーブル`os.date("*t", time)`フォーマット
-local function date_table(entry)
+function MOD.date_table(entry)
     local function NUM(t)
         local _, _, m = string.find(t, RE_NUM)
         if m then
@@ -54,11 +57,10 @@ local function date_table(entry)
     return x
 end
 
-
 --- エントリテーブルを作成する。
 --- @param entry string 日時エントリー定義文字列。`Dyymmdd` 年月日、`Dmmdd`月日、`Wn`週（日曜日=1始まり）、`Thhmm`日時
 --- @return table dt エントリテーブル
-local function entry_table(entry)
+function MOD.create_entry(entry)
     local priority_wait = 0
     local c1 = string.sub(entry, 1, 1)
     if c1 == 'D' then
@@ -67,19 +69,18 @@ local function entry_table(entry)
         priority_wait = 3.3
     end
     local t = {
-        date = date_table(entry),
+        date = MOD.date_table(entry),
         priority = #entry + priority_wait,
         rand = math.random() * 0.1,
     }
     return t
 end
 
-
 --- 与えられた時刻に対するエントリマッチ度を返す。
 --- @param entry table エントリテーブル
 --- @param now osdate 比較する時刻テーブル
 --- @return number|nil priority マッチした場合、priority値。マッチしなければnil
-local function entry_match(entry, now)
+function MOD.entry_match(entry, now)
     for k, v in pairs(entry.date) do
         if now[k] ~= v then
             return nil
@@ -88,11 +89,10 @@ local function entry_match(entry, now)
     return entry.priority + entry.rand
 end
 
-
 --- 指定日時をベースに直近の月曜日午前０時を返す。
 --- @param target table 基準日時
 --- @return number monday_time 直前の月曜日午前０時
-local function get_last_monday_time(target)
+function MOD.get_last_monday_time(target)
     local d2 = {
         year  = target.year,
         month = target.month,
@@ -103,7 +103,7 @@ local function get_last_monday_time(target)
     }
     local zero_time = os.time(d2)
     -- wdayを取得
-    local zero_date = osdate(zero_time)
+    local zero_date = MOD.osdate(zero_time)
     local wday = zero_date.wday
 
     -- 直近のwday=2になるように日付をマイナス
@@ -113,17 +113,15 @@ local function get_last_monday_time(target)
     return monday_time
 end
 
-
-
 -- 全エントリの発動時刻を削除する
-local function reset_cal_entry(items)
+function MOD.reset_entry(items)
     for i, v in ipairs(items) do
-        v.time = nil
+        v.time_entry = nil
     end
 end
 
 -- 全エントリの発動時刻を更新し、最優先エントリーを検索する。
-local function peek_cal_entry(items, now)
+function MOD.peek_entry(items, now)
     local sel_i, sel
     for i, v in ipairs(items) do
         if not v.time then
@@ -148,8 +146,8 @@ end
 --- @param now number       現在時刻(os.time())
 --- @return 0|1|2 flag  ０⇒対象無し　１⇒ガードタイム　２⇒発動
 --- @return table|nil entry 発動する場合のエントリ
-local function fire_cal_entry(guard_sec, items, now)
-    local i, entry = peek_cal_entry(items, now)
+function MOD.fire_entry(guard_sec, items, now)
+    local i, entry = MOD.peek_entry(items, now)
     if not entry then return 0 end
     if entry.time > now then
         if entry.time > now + guard_sec then
@@ -165,17 +163,5 @@ local function fire_cal_entry(guard_sec, items, now)
     entry.time = nil
     return 2, entry
 end
-
--- カレンダートークのエントリー処理
-local MOD = {
-    osdate               = osdate,
-    date_table           = date_table,
-    entry_table          = entry_table,
-    entry_match          = entry_match,
-    get_last_monday_time = get_last_monday_time,
-    reset_entry          = reset_cal_entry,
-    peek_entry           = peek_cal_entry,
-    fire_entry           = fire_cal_entry,
-}
 
 return MOD

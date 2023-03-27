@@ -35,7 +35,7 @@ function test_entry_time_entry_match()
 
     local pp = require "libs.pprint"
     local function X(entry)
-        local a = et.entry_table(entry)
+        local a = et.create_entry(entry)
         local rc = et.entry_match(a, now)
         if rc then return a.priority end
         return nil
