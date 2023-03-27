@@ -88,3 +88,72 @@ function test_entry_time_calc_fire_time()
     X("M23         ", "20211231_012300", "20211231_012400")
     X("M22         ", "20211231_022200", "20211231_022300")
 end
+
+function test_entry_time_update_entries()
+    local t = require "test.luaunit"
+    local et = require "shiori.entry_time"
+
+    local entries = {}
+    local function ENT(keyword)
+        local a = { time_keyword = keyword }
+        table.insert(entries, a)
+    end
+
+    ENT("D211231T0123")
+    ENT("D211231T0159")
+    ENT("D211231     ")
+    ENT("D211231T0122")
+    ENT("D211230     ")
+    ENT("D1231       ")
+    ENT("D1230       ")
+    ENT("W1          ")
+    ENT("W2          ")
+    ENT("W3          ")
+    ENT("W4          ")
+    ENT("W5          ")
+    ENT("W6          ")
+    ENT("W7          ")
+    ENT("T0123       ")
+    ENT("T0122       ")
+    ENT("M23         ")
+    ENT("M22         ")
+
+    local now_time = os.time(et.date_table("D211231T0123"))
+
+    et.update_entries(entries, now_time)
+
+    local function X(keyword, ext_s, ext_e)
+        for _, v in ipairs(entries) do
+            if v.time_keyword == keyword then
+                if v.time_fire == nil and ext_s == nil then return end
+                local s = v.time_fire.s_time
+                local e = v.time_fire.e_time
+                local act_s = os.date("%Y%m%d_%H%M%S", s)
+                local act_e = os.date("%Y%m%d_%H%M%S", e)
+                t.assertEquals(act_s, ext_s, "s")
+                t.assertEquals(act_e, ext_e, "e")
+                return
+            end
+        end
+        t.fail("not found")
+    end
+
+    X("D211231T0123", "20211231_012300", "20211231_012400")
+    X("D211231T0159", "20211231_015900", "20211231_020000")
+    X("D211231     ", "20211231_000000", "20220101_000000")
+    X("D211231T0122", nil)
+    X("D211230     ", nil)
+    X("D1231       ", "20211231_000000", "20220101_000000")
+    X("D1230       ", "20221230_000000", "20221231_000000")
+    X("W1          ", "20220102_000000", "20220103_000000")
+    X("W2          ", "20220103_000000", "20220104_000000")
+    X("W3          ", "20220104_000000", "20220105_000000")
+    X("W4          ", "20220105_000000", "20220106_000000")
+    X("W5          ", "20220106_000000", "20220107_000000")
+    X("W6          ", "20211231_000000", "20220101_000000")
+    X("W7          ", "20220101_000000", "20220102_000000")
+    X("T0123       ", "20211231_012300", "20211231_012400")
+    X("T0122       ", "20220101_012200", "20220101_012300")
+    X("M23         ", "20211231_012300", "20211231_012400")
+    X("M22         ", "20211231_022200", "20211231_022300")
+end

@@ -296,55 +296,36 @@ function MOD.entry_match(entry, now)
     return entry.priority + entry.rand
 end
 
--- 全エントリの発動時刻を削除する
-function MOD.reset_entry(items)
-    for i, v in ipairs(items) do
-        v.time_entry = nil
-    end
-end
+-- 全エントリの発動時刻を更新する
+function MOD.update_entries(entries, now_time)
+    local now = MOD.osdate(now_time)
+    local function UPDATE(entry)
+        -- エントリ作成
+        if not entry.time_entry and entry.time_keyword then
+            entry.time_entry = MOD.create_entry(entry.time_keyword)
+        end
+        local a = entry.time_entry.date
+        if not a then return end
 
--- 全エントリの発動時刻を更新し、最優先エントリーを検索する。
-function MOD.peek_entry(items, now)
-    local sel_i, sel
-    for i, v in ipairs(items) do
-        if not v.time then
-            v.time, v.has_delete = cal_time(v.cal, now)
+        -- 発動期間が過ぎていたらクリア
+        if entry.time_fire and entry.time_fire.e_time <= now_time then
+            entry.time_fire = nil
         end
-        -- 一番小さな発動時刻を選択する
-        if sel and sel.time <= v.time then
-            v = nil
-        end
-        if v then
-            sel_i = i
-            sel   = v
+        -- 発動期間の計算
+        if not entry.time_fire then
+            local s_time, e_time = MOD.calc_fire_time(a, now_time, now)
+            if s_time then
+                entry.time_fire = {
+                    s_time = s_time,
+                    e_time = e_time,
+                }
+            end
         end
     end
-    return sel_i, sel
-end
 
---- カレンダトークを再生するかどうかを判定し、結果を返す。
---- 再生する場合は必要に応じてエントリを削除する。
---- @param guard_sec number ガード秒数
---- @param items any[]      エントリ一覧
---- @param now number       現在時刻(os.time())
---- @return 0|1|2 flag  ０⇒対象無し　１⇒ガードタイム　２⇒発動
---- @return table|nil entry 発動する場合のエントリ
-function MOD.fire_entry(guard_sec, items, now)
-    local i, entry = MOD.peek_entry(items, now)
-    if not entry then return 0 end
-    if entry.time > now then
-        if entry.time > now + guard_sec then
-            return 0, entry
-        else
-            return 1, entry
-        end
+    for _, entry in ipairs(entries) do
+        UPDATE(entry)
     end
-    -- 発動するので必要ならエントリを削除
-    if entry.has_delete then
-        table.remove(items, i)
-    end
-    entry.time = nil
-    return 2, entry
 end
 
 return MOD
