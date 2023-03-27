@@ -128,7 +128,7 @@ local function adjust_hour(target, now)
     -- 指定なし⇒現在時刻から数分後
     local time  = os.time(now) + 91
     time        = math.floor(time / 60) * 60
-    local d2    = os.date("*t", time)
+    local d2    = osdate(time)
     target.hour = d2.hour
     target.min  = d2.min
     target.sec  = d2.sec
@@ -150,7 +150,7 @@ local function get_last_monday_time(target)
     }
     local zero_time = os.time(d2)
     -- wdayを取得
-    local zero_date = os.date("*t", zero_time)
+    local zero_date = osdate(zero_time)
     local wday = zero_date.wday
 
     -- 直近のwday=2になるように日付をマイナス
@@ -226,7 +226,7 @@ function GEN.week(x, d)
     adjust_hour(x, d)
     local d_date      = TO_DATE_TIME(d)
     local monday_time = get_last_monday_time(d)
-    local n_date      = os.date("*t", monday_time)
+    local n_date      = osdate(monday_time)
     x.year            = n_date.year
     x.month           = n_date.month
     for i = 0, 1 do
@@ -281,7 +281,7 @@ end
 --- @return boolean|nil has_delete 発動後に削除する必要があればtrue。
 local function cal_time(entry, now)
     local function TASK()
-        local d = os.date("*t", now)
+        local d = osdate(now)
         local x = time_table(entry)
         if x.year then
             return GEN.year(x, d)
