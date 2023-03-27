@@ -4,6 +4,15 @@ local RE_CAL_W = "W(%d+)"
 local RE_CAL_T = "T([%d%-][%d%-])([%d%-][%d%-])"
 local RE_NUM = "^(%d+)$"
 
+
+--- osdate `os.date('*t',time) を返す。
+--- @param time integer os.time()値
+--- @return osdate date `os.date('*t',time)値
+local function osdate(time)
+    return os.date("*t", time)
+end
+
+
 --- エントリをテーブル分解。
 --- @param entry string 日時エントリー定義文字列。`Dyymmdd` 年月日、`Dmmdd`月日、`Wn`週（日曜日=1始まり）、`Thhmm`日時
 --- @return table dt 日時テーブル`os.date("*t", time)`フォーマット
@@ -66,7 +75,7 @@ end
 
 --- 与えられた時刻に対するエントリマッチ度を返す。
 --- @param entry table エントリテーブル
---- @param now table 比較する時刻テーブル
+--- @param now osdate 比較する時刻テーブル
 --- @return number|nil priority マッチした場合、priority値。マッチしなければnil
 local function entry_match(entry, now)
     for k, v in pairs(entry.time) do
@@ -349,6 +358,7 @@ end
 
 -- カレンダートークのエントリー処理
 local MOD = {
+    osdate               = osdate,
     time_table           = time_table,
     entry_table          = entry_table,
     entry_match          = entry_match,

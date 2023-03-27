@@ -8,13 +8,13 @@ function test_entry_time_entry_match()
     local t = require "test.luaunit"
     local et = require "shiori.entry_time"
 
-    local now = os.date("*t", os.time(et.time_table("D211231T0123")))
+    local now = et.osdate(os.time(et.time_table("D211231T0123")))
 
     local pp = require "libs.pprint"
     local function X(entry)
-        local t = et.entry_table(entry)
-        local rc = et.entry_match(t, now)
-        if rc then return t.priority end
+        local a = et.entry_table(entry)
+        local rc = et.entry_match(a, now)
+        if rc then return a.priority end
         return nil
     end
     t.assertEquals(X("D211231"), 7.5)
