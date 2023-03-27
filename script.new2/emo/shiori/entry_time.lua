@@ -140,11 +140,13 @@ function MOD.calc_fire_time(entry, now_time, now)
     end
     local due = TIME_DUE()
 
-    if hour == nil then
-        hour = 0
-        min = 0
-    elseif min == nil then
-        min = 0
+    local function NIL2ZERO()
+        if hour == nil then
+            hour = 0
+            min = 0
+        elseif min == nil then
+            min = 0
+        end
     end
 
     local function S_YEAR()
@@ -160,6 +162,7 @@ function MOD.calc_fire_time(entry, now_time, now)
 
     -- 年指定
     if year then
+        NIL2ZERO()
         local s_time = S_YEAR()
         local e_time = s_time + due
         local s = MOD.osdate(s_time)
@@ -173,6 +176,7 @@ function MOD.calc_fire_time(entry, now_time, now)
 
     -- 月指定
     if month then
+        NIL2ZERO()
         local s = {
             year  = now.year,
             month = month,
@@ -209,6 +213,7 @@ function MOD.calc_fire_time(entry, now_time, now)
 
     -- 最初に一致する現在または未来の週日時
     if wday then
+        NIL2ZERO()
         local function FOREACH()
             local monday_time = MOD.get_last_monday_time(now) + HOUR_TIME()
             local skip_time = TIME_1DAY * WEEK_SKIP()
