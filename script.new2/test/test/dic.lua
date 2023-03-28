@@ -1,17 +1,5 @@
 ---@diagnostic disable: lowercase-global
 
--- actorの読込
-do
-    package.loaded["emo.dic.actor"] = nil
-    local actor = require "emo.dic.actor"
-    actor.register("えも")
-        :set_wait(50, 300, 400, 500, 200)
-        :set_emote("通常", "\\s[1]")
-    actor.register("紫")
-        :set_wait(50, 300, 400, 500, 200)
-        :set_emote("通常", "default")
-end
-
 function test_dic_actor_register()
     local t             = require "test.luaunit"
     local actor         = require "test.test_actor"
