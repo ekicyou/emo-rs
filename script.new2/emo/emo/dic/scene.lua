@@ -129,6 +129,9 @@ function SCENE_METHOD:enter(...)
     local boards = {}
     for i, name in ipairs({ ... }) do
         local a = actor.get(name)
+        if not a then
+            error("actor[" .. name .. "] not found")
+        end
         local b = create_board(self, i, a)
         table.insert(boards, b)
     end
