@@ -2,13 +2,18 @@
 local MOD = {}
 
 local wait_str = require "emo.dic.wait_str"
+local ss = require "emo.dic.sakura_script"
 
 -- ============================================================
 -- actor定義
 -- ============================================================
 
---- アクター定義
+--- アクター情報
 --- @class Actor
+--- @field wait number[] 会話ウェイト
+--- @field emote_dic table エモート→スクリプト変換辞書
+--- @field BOARD_METHOD table ボードに指定する表情メソッドテーブル
+--- @field default_emote_script string デフォルトエモートに切り替えるスクリプト
 local ACTOR_METHOD = {}
 local ACTOR_META = {}
 ACTOR_META.__index = ACTOR_METHOD
@@ -20,19 +25,31 @@ ACTOR_META.__index = ACTOR_METHOD
 --- @param wait4 number 濁点
 --- @param wait5 number 点々、直前の残waitを確定
 --- @return Actor
-function ACTOR_METHOD:wait(wait1, wait2, wait3, wait4, wait5)
+function ACTOR_METHOD:set_wait(wait1, wait2, wait3, wait4, wait5)
     self.wait = { wait1, wait2, wait3, wait4, wait5 }
     return self
 end
 
 --- emote情報を設定する。
---- @param name string emote名
---- @param script string 展開するスクリプト
+--- @param emote string emote名
+--- @param script string|number 展開するスクリプト
 --- @return Actor
-function ACTOR_METHOD:emote(name, script)
-    if not self.emote_dic then self.emote_dic = {} end
-    if not self.default_emote then self.default_emote = name end
-    self.emote_dic[name] = script
+function ACTOR_METHOD:set_emote(emote, script)
+    if type(script) == "number" then
+        script = ss.surface(script)
+    end
+    if not self.default_emote_script then self.default_emote_script = script end
+    self.emote_dic[emote] = script
+
+    --- エモート後にトークを行う。
+    --- @param board any ボード
+    --- @param talk string トーク
+    local function EMOTE_TALK(board, talk)
+        board:emote_script(script)
+        board:talk(talk)
+    end
+    self.BOARD_METHOD[emote] = EMOTE_TALK
+
     return self
 end
 
@@ -40,7 +57,7 @@ end
 ---@param name string emote名
 ---@return Actor
 function ACTOR_METHOD:set_default_emote(name)
-    self.default_emote = name
+    self.default_emote_script = self.emote_dic[name]
     return self
 end
 
@@ -60,6 +77,10 @@ function ACTOR_METHOD:set_talk_line(em)
     return self
 end
 
+-- ============================================================
+-- コンストラクタ
+-- ============================================================
+
 --- アクター情報を作成する
 ---@return Actor
 local function create_actor(name)
@@ -67,6 +88,8 @@ local function create_actor(name)
         name = name,
         talk_line = 1.0,
         scope_change_line = 1.5,
+        emote_dic = {},
+        BOARD_METHOD = {},
     }
     setmetatable(a, ACTOR_META)
     return a
