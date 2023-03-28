@@ -140,13 +140,16 @@ function SCENE_METHOD:enter(...)
     return unpack(boards)
 end
 
---- シーンをカットして次のシーンを始める。チェイントーク。
+--- シーンをカットして次のシーンを始める。チェイントーク。coroutine.yield()を実行する。
 --- @return Scene
 function SCENE_METHOD:cut()
     local s = self.sakura_script
     if #s > 0 then
         s = s .. yen.e()
         coroutine.yield(s)
+        for _, board in ipairs(self.boards) do
+            board:cut()
+        end
     end
     self.sakura_script = ''
     return self
