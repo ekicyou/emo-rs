@@ -1,9 +1,9 @@
 ---@diagnostic disable: lowercase-global
 
 function test_dic_actor_register()
-    local t             = require "test.luaunit"
-    local actor         = require "test.test_actor"
+    require "test.test_actor"
     local scene_builder = require "emo.dic.scene"
+    local t = require "test.luaunit"
 
     local function EN()
         local env         = {}
