@@ -6,12 +6,18 @@ function MOD.random(...)
 end
 
 --- ランダムトーク関数を作成する。
---- @vararg function トーク関数
+--- @vararg any トーク関数
 --- @return function randam_talk ランダムトーク関数
 function MOD.select_talk_builder(...)
     local array = { ... }
     if #array == 0 then
         error("#{...} is 0")
+    end
+    if #array == 1 then
+        local item = array[1]
+        if type(item) == "table" then
+            array = item
+        end
     end
     return function(...)
         local random_index = MOD.random(#array)
