@@ -11,7 +11,6 @@ local ss = require "emo.dic.sakura_script"
 --- アクター情報
 --- @class Actor
 --- @field wait number[] 会話ウェイト
---- @field emote_dic table エモート→スクリプト変換辞書
 --- @field BOARD_METHOD table ボードに指定する表情メソッドテーブル
 --- @field default_emote_script string デフォルトエモートに切り替えるスクリプト
 local ACTOR_METHOD = {}
@@ -32,32 +31,34 @@ end
 
 --- emote情報を設定する。
 --- @param emote string emote名
---- @param script string|number 展開するスクリプト
+--- @vararg string|number 展開するスクリプト（複数指定可能）
 --- @return Actor
-function ACTOR_METHOD:set_emote(emote, script)
-    if type(script) == "number" then
-        script = ss.surface(script)
+function ACTOR_METHOD:set_emote(emote, ...)
+    local items = {}
+    for _, v in ipairs({ ... }) do
+        if type(v) == "number" then
+            v = ss.surface(v)
+        end
+        table.insert(items, v)
     end
-    if not self.default_emote_script then self.default_emote_script = script end
-    self.emote_dic[emote] = script
+    if not self.default_emote_script then self.default_emote_script = items[1] end
+
+    local function SEL()
+        local length = #items
+        local index = math.random(1, length)
+        local element = items[index]
+        return element
+    end
 
     --- エモート後にトークを行う。
     --- @param board any ボード
     --- @param talk string トーク
-    local function EMOTE_TALK(board, talk)
-        board:emote_script(script)
-        board:talk(talk)
+    local function EMOTE_TALK(board, talk, ...)
+        board:emote_script(SEL())
+        board:talk(talk, ...)
     end
     self.BOARD_METHOD[emote] = EMOTE_TALK
 
-    return self
-end
-
---- wait情報を設定する。
----@param name string emote名
----@return Actor
-function ACTOR_METHOD:set_default_emote(name)
-    self.default_emote_script = self.emote_dic[name]
     return self
 end
 
@@ -88,7 +89,6 @@ local function create_actor(name)
         name = name,
         talk_line = 1.0,
         scope_change_line = 1.5,
-        emote_dic = {},
         BOARD_METHOD = {},
     }
     setmetatable(a, ACTOR_META)

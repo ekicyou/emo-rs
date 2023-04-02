@@ -32,9 +32,10 @@ end
 --- トークを行う。
 --- @param self Board ボード
 --- @param talk string トーク
-function BOARD_METHOD:talk(talk)
+--- @vararg any format対象
+function BOARD_METHOD:talk(talk, ...)
     self.scene:scope(self)
-    self.scene:talk(self, talk)
+    self.scene:talk(self, talk, ...)
 end
 
 --- ボードを作成する。
@@ -106,8 +107,13 @@ end
 --- talk を追加する。
 --- @param board Board 登場人物
 --- @param talk string トーク
+--- @vararg any format対象
 --- @return Scene
-function SCENE_METHOD:talk(board, talk)
+function SCENE_METHOD:talk(board, talk, ...)
+    local items = { ... }
+    if #items > 0 then
+        talk = talk:format(...)
+    end
     local script = yen.talk(board.actor.wait, talk)
     self.sakura_script = self.sakura_script .. script
     return self
